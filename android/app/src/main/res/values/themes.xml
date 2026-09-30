@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- No action bar: the page draws its own top bar. Light status bar
+         with dark icons, over the page's own background color. -->
+    <style name="AppTheme" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/base_bg</item>
+        <item name="android:statusBarColor">@color/base_bg</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

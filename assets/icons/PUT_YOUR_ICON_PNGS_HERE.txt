@@ -1,0 +1,5 @@
+Optional: drop your custom icon PNGs here (this assets/icons/ folder;
+the Android build copies it into the APK automatically) once they're
+ready — e.g. loan.png, savings.png, speaker.png, etc. Until then, the
+app automatically falls back to the built-in emoji for any icon that's
+missing, so this folder can safely stay empty for now.

@@ -1,0 +1,16 @@
+# Android build output and IDE files (Android Studio recreates these)
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/.idea/
+android/.kotlin/
+android/captures/
+*.iml
+
+# Render build output (made by render.yaml's buildCommand)
+public/
+
+# Local tooling
+.claude/
+__pycache__/

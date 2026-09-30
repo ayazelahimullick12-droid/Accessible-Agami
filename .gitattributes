@@ -1,0 +1,6 @@
+# Keep the Gradle scripts runnable on every OS, and never touch binaries.
+gradlew     text eol=lf
+*.bat       text eol=crlf
+*.jar       binary
+*.mp3       binary
+*.png       binary

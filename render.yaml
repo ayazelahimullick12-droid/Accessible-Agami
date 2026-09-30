@@ -1,0 +1,21 @@
+# Render Blueprint: the web version of Agami as a free static site.
+# The build step publishes only the app itself (agami.html as the home
+# page, plus assets/), not the Android project or tools in this repo.
+services:
+  - name: accessible-agami
+    type: web
+    runtime: static
+    buildCommand: rm -rf public && mkdir -p public && cp -r assets public/ && cp agami.html public/index.html && cp agami.html public/agami.html
+    staticPublishPath: ./public
+    headers:
+      # Always fetch the latest page after a deploy
+      - path: /
+        name: Cache-Control
+        value: no-cache
+      - path: /*.html
+        name: Cache-Control
+        value: no-cache
+      # Clips rarely change; an hour of caching keeps repeat visits fast on slow networks
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=3600
