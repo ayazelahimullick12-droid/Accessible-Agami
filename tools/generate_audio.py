@@ -47,7 +47,8 @@ GROUPS = [
     ("Tier-change dialog (promotion / demotion)",
      "Spoken when it opens in ১২৩ or নতুন (if auto-play is on); the offer to move to ১২৩ always speaks.",
      [("nudge_voice_promote", "১২৩ → next tier up"), ("nudge_voice_demote", "any tier → ১২৩"),
-      ("nudge_promote", "নতুন → মাঝারি, মাঝারি → দক্ষ"), ("nudge_demote", "দক্ষ → মাঝারি, মাঝারি → নতুন")]),
+      ("nudge_promote", "নতুন → মাঝারি, মাঝারি → দক্ষ"), ("nudge_demote", "দক্ষ → মাঝারি, মাঝারি → নতুন"),
+      ("nudge_trial_back", "soon after a move up that is going badly: go back?")]),
     ("First-run onboarding (choose your level)",
      "Plays automatically. The number said for মাঝারি / দক্ষ depends on whether নতুন is shown, so record both "
      "versions; the app picks the right one.",
@@ -56,8 +57,13 @@ GROUPS = [
       ("onboard_opt_intermediate_2", "নতুন hidden (মাঝারি = ২)"), ("onboard_opt_intermediate_3", "নতুন shown (মাঝারি = ৩)"),
       ("onboard_opt_expert_3", "নতুন hidden (দক্ষ = ৩)"), ("onboard_opt_expert_4", "নতুন shown (দক্ষ = ৪)"),
       ("onboard_repeat", "always last")]),
+    ("Tap to hear, tap again to do (১২৩ and নতুন)",
+     "In these two tiers there are no small 🔊 icons: the first tap on a button plays its clip from the "
+     "\"Button speakers\" list below, and a second tap does it.",
+     [("tap_again", "added after the button's clip, for a member's first few taps only")]),
     ("Button speakers",
-     "The small 🔊 on each button. Tapping it plays the clip without pressing the button. Hidden in দক্ষ.",
+     "In মাঝারি the small 🔊 on each button plays these; in ১২৩ and নতুন the first tap on the button does. "
+     "Not used in দক্ষ. The four big cards on the নতুন dashboard reuse your original tile_* clips.",
      [("btn_loan_history", "Loan page: পরিশোধের ইতিহাস"),
       ("btn_outstanding_calc", "Loan page: বকেয়া হিসাব · Calculators: বকেয়া ক্যালকুলেটর"),
       ("btn_loan_apply_new", "Loan page: নতুন ঋণের আবেদন করুন"),
@@ -85,6 +91,14 @@ GROUPS = [
       ("btn_call_center", "Contact list: কল সেন্টার"),
       ("btn_lang_bn", "Profile: বাংলা"), ("btn_lang_en", "Profile: English"),
       ("btn_logout", "Profile: লগআউট"), ("btn_see_more", "History lists: আরও দেখুন")]),
+    ("Calculators: second step (১২৩ and নতুন)",
+     "The 🔊 on the loan and DPS calculators once the amount is entered and the keypad gives way to the choices.",
+     [("prompt_loan_tenure", "loan calculator, step 2"), ("prompt_dps_tenure", "DPS calculator, step 2")]),
+    ("Outstanding balance: month buttons",
+     "Replaces typing a date (দক্ষ keeps the date keypad and your original prompt_outstanding_date / "
+     "help_outstanding_date clips).",
+     [("prompt_outstanding_month", "the 🔊 on the month page"), ("help_outstanding_month", "the ? on the month page")]
+     + [("month_%d" % m, "the button for month %d" % m) for m in range(1, 13)]),
     ("Bottom navigation bar",
      "The 🔊 on each item of the bar at the bottom of the dashboard.",
      [("nav_home", "হোম"), ("nav_contact", "যোগাযোগ"), ("nav_profile", "প্রোফাইল")]),

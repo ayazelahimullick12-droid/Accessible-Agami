@@ -1,6 +1,6 @@
 # Audio clips added to Agami: file names and scripts
 
-There are 72 clips. Each file below is already in `assets/audio/` as a **stand-in** made with
+There are 90 clips. Each file below is already in `assets/audio/` as a **stand-in** made with
 a Bangladeshi TTS voice (`bn-BD-NabanitaNeural`), so the app works now. Your original clips
 (`help_*`, `prompt_*`, `tile_*`, `loan_apply_success`) are not listed here and were not changed.
 
@@ -74,6 +74,7 @@ Spoken when it opens in ১২৩ or নতুন (if auto-play is on); the offe
 | `nudge_voice_demote.mp3` | any tier → ১২৩ | মনে হচ্ছে একটু অসুবিধা হচ্ছে। শুনে শুনে, নম্বর চেপে চালানোর সহজ মোডটি চালু করব? চাইলে টিক চিহ্নের বোতামে চাপুন। না চাইলে ক্রস চিহ্নের বোতামে চাপুন। |
 | `nudge_promote.mp3` | নতুন → মাঝারি, মাঝারি → দক্ষ | আপনি খুব ভালো করছেন! আপনার জন্য একটু দ্রুত মোড চালু করে দেখাব? চাইলে টিক চিহ্নের বোতামে চাপুন। না চাইলে ক্রস চিহ্নের বোতামে চাপুন। |
 | `nudge_demote.mp3` | দক্ষ → মাঝারি, মাঝারি → নতুন | একটু সাহায্য লাগবে? আপনার জন্য একটু সহজ মোড চালু করে দেখাব? চাইলে টিক চিহ্নের বোতামে চাপুন। না চাইলে ক্রস চিহ্নের বোতামে চাপুন। |
+| `nudge_trial_back.mp3` | soon after a move up that is going badly: go back? | নতুন পাতাটি কি একটু কঠিন লাগছে? চাইলে আগের মোডে ফিরে যেতে পারেন। ফিরতে চাইলে টিক চিহ্নের বোতামে চাপুন। না চাইলে ক্রস চিহ্নের বোতামে চাপুন। |
 
 ---
 
@@ -94,9 +95,19 @@ Plays automatically. The number said for মাঝারি / দক্ষ depen
 
 ---
 
+## Tap to hear, tap again to do (১২৩ and নতুন)
+
+In these two tiers there are no small 🔊 icons: the first tap on a button plays its clip from the "Button speakers" list below, and a second tap does it.
+
+| File name | Where | Script |
+|---|---|---|
+| `tap_again.mp3` | added after the button's clip, for a member's first few taps only | ঠিক থাকলে আবার চাপুন। |
+
+---
+
 ## Button speakers
 
-The small 🔊 on each button. Tapping it plays the clip without pressing the button. Hidden in দক্ষ.
+In মাঝারি the small 🔊 on each button plays these; in ১২৩ and নতুন the first tap on the button does. Not used in দক্ষ. The four big cards on the নতুন dashboard reuse your original tile_* clips.
 
 | File name | Where | Script |
 |---|---|---|
@@ -130,6 +141,40 @@ The small 🔊 on each button. Tapping it plays the clip without pressing the bu
 | `btn_lang_en.mp3` | Profile: English | অ্যাপটি ইংরেজিতে দেখতে এখানে চাপুন। |
 | `btn_logout.mp3` | Profile: লগআউট | অ্যাপ থেকে বের হতে এখানে চাপুন। |
 | `btn_see_more.mp3` | History lists: আরও দেখুন | আরও পুরনো তালিকা দেখতে এখানে চাপুন। |
+
+---
+
+## Calculators: second step (১২৩ and নতুন)
+
+The 🔊 on the loan and DPS calculators once the amount is entered and the keypad gives way to the choices.
+
+| File name | Where | Script |
+|---|---|---|
+| `prompt_loan_tenure.mp3` | loan calculator, step 2 | কত মাসে ঋণ শোধ করতে চান, তা বেছে নিন। |
+| `prompt_dps_tenure.mp3` | DPS calculator, step 2 | কত বছর ধরে জমা রাখতে চান, তা বেছে নিন। |
+
+---
+
+## Outstanding balance: month buttons
+
+Replaces typing a date (দক্ষ keeps the date keypad and your original prompt_outstanding_date / help_outstanding_date clips).
+
+| File name | Where | Script |
+|---|---|---|
+| `prompt_outstanding_month.mp3` | the 🔊 on the month page | যে মাস পর্যন্ত বকেয়া জানতে চান, সেই মাসটি বেছে নিন। |
+| `help_outstanding_month.mp3` | the ? on the month page | এখানে একটি মাস বেছে নিলে, সেই মাস পর্যন্ত আপনার ঋণের কত টাকা বাকি থাকবে, তা দেখানো হবে। |
+| `month_1.mp3` | the button for month 1 | জানুয়ারি মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
+| `month_2.mp3` | the button for month 2 | ফেব্রুয়ারি মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
+| `month_3.mp3` | the button for month 3 | মার্চ মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
+| `month_4.mp3` | the button for month 4 | এপ্রিল মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
+| `month_5.mp3` | the button for month 5 | মে মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
+| `month_6.mp3` | the button for month 6 | জুন মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
+| `month_7.mp3` | the button for month 7 | জুলাই মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
+| `month_8.mp3` | the button for month 8 | আগস্ট মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
+| `month_9.mp3` | the button for month 9 | সেপ্টেম্বর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
+| `month_10.mp3` | the button for month 10 | অক্টোবর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
+| `month_11.mp3` | the button for month 11 | নভেম্বর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
+| `month_12.mp3` | the button for month 12 | ডিসেম্বর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে। |
 
 ---
 

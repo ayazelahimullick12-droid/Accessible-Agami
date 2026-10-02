@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>আগামী</title>
+<meta name="theme-color" content="#EEF1F6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23E2E5F8'/%3E%3Cpath d='M16 97 Q16 66 50 64 Q84 66 84 97 Z' fill='%233B47B5'/%3E%3Ccircle cx='50' cy='41' r='23' fill='%23D29A70'/%3E%3Cpath d='M27 42 Q24 15 50 15 Q76 15 73 42 Q71 28 60 25 Q52 31 40 26 Q30 29 27 42Z' fill='%232A2733'/%3E%3C/svg%3E">
 <style>
   :root{
     /* Core palette — drawn from rural Bengali craft rather than generic
@@ -1141,6 +1143,237 @@
     position:static;display:inline-flex;vertical-align:middle;margin-left:8px;}
   .chip > .btn-speak{width:24px;height:24px;margin-left:6px;font-size:11px;}
   body.tier-expert .btn-speak{display:none;}
+
+  /* ============================================================
+     ONE-SCREEN LAYOUT (nothing scrolls)
+     ------------------------------------------------------------
+     Every screen has to fit the phone it is opened on: scrolling is
+     one more thing a first-time or non-reading member has to
+     discover. Three layers, in this order:
+     1. Screens that were inherently long are split into steps or
+        pages (two-step calculators, paged product page, ...).
+     2. Vertical rhythm tightens on short viewports (the media
+        queries at the end); nothing changes on tall phones.
+     3. fitScreen() measures what is left and, only if a screen is
+        still taller than the viewport, shrinks that one screen
+        through --z. Distances that must clear the fixed top bar are
+        written as calc(Npx / var(--z)) so they stay put.
+     Scrolling stays available underneath as a last resort, so
+     nothing can ever become unreachable.
+     On a wide screen (laptop, projector) the app stays a phone-
+     width column instead of stretching.
+     ============================================================ */
+  :root{--app-w:100vw;}
+  @supports (width:min(1px, 2px)){ :root{--app-w:min(100vw, 480px);} }
+  body{overflow:hidden;}
+  .screen{
+    zoom:var(--z,1);
+    width:calc(var(--app-w) / var(--z,1));
+    height:calc(100vh / var(--z,1));
+    height:calc(100dvh / var(--z,1));
+    margin:0 auto;
+    padding:calc(58px / var(--z,1)) 16px 14px;
+  }
+  .help-icon, .home-icon, .back-icon, .help-icon.stacked{top:calc(54px / var(--z,1));}
+  /* Screens shown without the top bar (HIDE_TOPBAR_SCREENS) start higher */
+  .screen.no-topbar{padding-top:calc(16px / var(--z,1));}
+  .screen.no-topbar > .help-icon, .screen.no-topbar > .home-icon, .screen.no-topbar > .back-icon{top:calc(12px / var(--z,1));}
+  .top-bar{left:50%;right:auto;transform:translateX(-50%);width:calc(var(--app-w) - 28px);}
+  /* Two quick taps must stay two taps (tap-to-hear), never a zoom; and a
+     held finger on the confirm bar must not be taken over by the browser. */
+  html, body{touch-action:manipulation;-webkit-touch-callout:none;}
+  .hold-confirm{touch-action:none;}
+  .overlay-card{max-width:400px;max-height:calc(100vh - 28px);overflow-y:auto;}
+
+  /* --- Tap to hear, tap again to do (১২৩, নতুন): no 🔊 icons; the tapped
+         button is ringed and pulses until it is tapped again --- */
+  body.tier-voice .btn-speak, body.tier-novice .btn-speak{display:none;}
+  .armed{position:relative;z-index:3;outline:3px solid var(--marigold);outline-offset:3px;animation:armedPulse 1.1s ease-in-out infinite;}
+  .armed::after{content:'👆';position:absolute;top:-10px;right:-4px;font-size:22px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,0.3));}
+  @keyframes armedPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,163,36,0.55);}50%{box-shadow:0 0 0 9px rgba(232,163,36,0);}}
+  @media (prefers-reduced-motion: reduce){ .armed{animation:none;} }
+
+  /* --- Research panel (hidden, English, for the person running the study) --- */
+  .rp-status{white-space:pre-line;text-align:left;font-size:12px;line-height:1.5;margin-top:8px;padding:8px 12px;
+    border-radius:12px;background:rgba(30,40,60,0.05);border:1px solid rgba(30,40,60,0.06);}
+  .rp-rule{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;font-weight:700;}
+  .rp-rule-label{flex:1;}
+  .rp-rule-value{min-width:26px;text-align:center;font-size:15px;font-weight:800;}
+  .rp-step{width:34px;height:34px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+    font-size:18px;font-weight:800;background:#fff;border:2px solid rgba(var(--accent-rgb),0.45);}
+  #screen-research .hub-size-btn{font-size:13px;}
+
+  /* The hero card's label is semi-transparent, which lifted it above the
+     🔊 in the corner and swallowed its taps; shortcut chips wrap instead
+     of running off the right edge. */
+  .summary-speaker{z-index:2;}
+  .adaptive-section-list{flex-wrap:wrap;overflow-x:visible;gap:6px;}
+  .adaptive-chip{padding:6px 12px;}
+
+  /* --- Mascot beside its speech bubble: one row instead of a stack --- */
+  .guide-row{display:flex;align-items:center;gap:10px;margin:0 0 10px;}
+  .guide-row .mascot-wrap{flex-shrink:0;}
+  .guide-row .mascot{margin:0;}
+  .guide-row .speech-bubble{flex:1;margin:0;max-width:none;text-align:left;padding:8px 12px;}
+  .calc-guide{margin:0 50px 8px;}          /* clear of the home and ? buttons either side */
+  .novice-guidance .guide-row{margin:0 0 8px;}
+
+  /* --- Two-step calculators: ← beside the "next" pill in step 2 --- */
+  .calc-next-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:10px;}
+  .calc-next-row .next-btn{margin:0;}
+  .back-step{width:52px;height:52px;border-radius:50%;flex-shrink:0;align-items:center;justify-content:center;
+    font-size:calc(22px * var(--text-scale));font-weight:700;color:var(--ink);
+    background:linear-gradient(160deg, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.62) 100%);
+    border:2px solid rgba(30,40,60,0.18);box-shadow:0 8px 18px -8px rgba(16,24,48,0.40), var(--glass-inner);}
+  .back-step:active{transform:scale(0.94);}
+  .live-preview{margin-top:8px;padding:10px 12px;}
+
+  /* --- Loan-apply presets: a shortcut for readers; the guided tiers keep one way in (the keypad) --- */
+  .la-presets{margin-top:10px;margin-bottom:0;gap:8px;}
+  body.tier-novice .la-presets, body.tier-voice .la-presets{display:none;}
+
+  /* --- Outstanding balance: month buttons, or the date keypad in দক্ষ --- */
+  .oc-date-mode{display:none;}
+  body.tier-expert .oc-date-mode{display:flex;flex-direction:column;flex:1;}
+  body.tier-expert .oc-month-mode{display:none;}
+  .month-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .month-btn{position:relative;text-align:center;padding:12px 6px;border-radius:20px;
+    background:linear-gradient(165deg, var(--glass-top) 0%, var(--glass-bot) 100%);
+    border:2px solid rgba(var(--accent-rgb),0.45);
+    box-shadow:0 12px 26px -14px rgba(var(--accent-rgb),0.65), var(--glass-inner);transition:transform .08s ease;}
+  .month-btn:active{transform:scale(0.96);}
+  .mb-rel{font-size:calc(12px * var(--text-scale));font-weight:700;color:var(--muted);}
+  .mb-name{font-size:calc(22px * var(--text-scale));font-weight:800;color:var(--accent-dark);line-height:1.3;}
+  .mb-year{font-size:calc(13px * var(--text-scale));font-weight:700;color:var(--muted);}
+  .month-pager, .pd-pager{align-items:center;margin-top:10px;}
+
+  /* --- Money as pictures (see moneyPicHTML): the two guided tiers only --- */
+  .money-pic{display:none;flex-wrap:wrap;justify-content:center;gap:4px 10px;margin:6px 0 2px;}
+  body.tier-novice .money-pic, body.tier-voice .money-pic{display:flex;}
+  body.no-note-pics .money-pic{display:none;}
+  .money-pic:empty{margin:0;}
+  .display-box + .money-pic{margin:-2px 0 8px;}
+  .vf-body .money-pic{justify-content:flex-start;margin:3px 0 0;}
+  .note-group{display:inline-flex;align-items:center;gap:4px;}
+  .note{display:inline-flex;align-items:center;justify-content:center;min-width:40px;height:22px;padding:0 6px;
+    border-radius:4px;font-size:11px;font-weight:800;line-height:1;color:#fff;letter-spacing:0;
+    border:1px solid rgba(0,0,0,0.22);box-shadow:inset 0 0 0 2px rgba(255,255,255,0.30);}
+  .note.n1000{background:#7A4FA3;}    /* each in its real note's color */
+  .note.n500{background:#3E8E5A;}
+  .note.n100{background:#2F6FB0;}
+  .note.n50{background:#B5622F;}
+  .note.n10{background:#C0445A;}
+  /* ৳১ লাখ: a banded stack of a hundred ৳১০০০ notes */
+  .note.bundle{background:#7A4FA3;min-width:58px;height:24px;padding:0 14px 0 6px;margin-right:6px;
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,0.30), 3px 3px 0 -1px #5E3A82, 6px 6px 0 -2px #4A2D68;
+    background-image:linear-gradient(90deg, transparent 0 82%, rgba(255,255,255,0.85) 82% 92%, transparent 92% 100%);}
+  .note-x{font-size:calc(13px * var(--text-scale));font-weight:800;color:var(--ink);}
+
+  /* --- Result cards: the 🔊 sits in the corner; a year of dots stays one short block --- */
+  .result-card{position:relative;}
+  .month-dots{gap:4px;margin-top:10px;}
+  .month-dot{width:8px;height:8px;}
+  .split-bar-legend{gap:4px 14px;margin-top:8px;}
+  .split-bar{height:22px;}
+
+  /* --- Screens that are shown without the top bar: drop the icon clearance on centered content --- */
+  .hub-toggle-hint:empty{display:none;}
+
+  /* ------------------------------------------------------------
+     Layer 2: tighter vertical rhythm on short viewports. Phone
+     browsers leave roughly 600–800px of height once their own bars
+     are counted, so this is the normal case on the web; a tall
+     WebView (the Android app) keeps the roomier spacing.
+     ------------------------------------------------------------ */
+  @media (max-height:860px){
+    .banner{font-size:calc(38px * var(--text-scale));margin:0 0 2px;}
+    .banner .icon-img{width:38px;height:38px;}
+    .dots{margin-bottom:8px;}
+    .title{font-size:calc(18px * var(--text-scale));}
+    .speaker-btn{width:44px;height:44px;line-height:40px;font-size:calc(19px * var(--text-scale));margin-bottom:8px;}
+    .display-box{padding:8px 12px;min-height:46px;font-size:calc(26px * var(--text-scale));margin-bottom:8px;}
+    .keypad{gap:6px;}
+    .key{padding:9px 0;}
+    body.tier-novice .key, body.tier-voice .key{padding:12px 0;font-size:calc(24px * var(--text-scale));}
+    .next-btn{width:58px;height:58px;line-height:58px;margin-top:8px;font-size:calc(26px * var(--text-scale));}
+    #lc-next-btn, #dps-next-btn{padding:12px 20px;}
+    .chip-row{gap:8px;margin-bottom:8px;}
+    .chip, .apply-preset-chip{padding:8px 14px;}
+
+    .summary-card{padding:14px 18px 12px;margin-top:38px;}
+    .summary-amount{font-size:calc(30px * var(--text-scale));}
+    .summary-arrows{margin-top:2px;}
+    .summary-dots{margin-top:4px;}
+    .arrow-btn{width:36px;height:36px;line-height:36px;}
+    .grid2x2{gap:8px;margin-top:10px;}
+    .tile{padding:9px 6px 8px;}
+    .tile-icon{width:42px;height:42px;font-size:calc(24px * var(--text-scale));margin-bottom:4px;}
+    .bottom-nav{padding:4px 6px;}
+    .nav-item{padding:4px 14px;}
+    .novice-list{gap:8px;}
+    .novice-card{padding:10px 14px;gap:12px;}
+    .novice-card .n-icon{width:44px;height:44px;font-size:calc(22px * var(--text-scale));}
+    .novice-card .n-label{font-size:calc(16px * var(--text-scale));}
+    #dash-voice{padding-top:40px;}
+    .voice-grid{gap:10px;}
+    .voice-key{min-height:122px;padding:10px 8px;}
+    .voice-key .vk-num{font-size:calc(58px * var(--text-scale));}
+    .voice-key-wide{padding:8px 14px;margin-top:10px;}
+    .voice-key-wide .vk-num{width:48px;height:48px;font-size:calc(32px * var(--text-scale));}
+    .voice-head{margin:0 2px 10px;}
+    .voice-badge{width:60px;height:60px;border-radius:20px;font-size:calc(40px * var(--text-scale));}
+    .voice-fact{padding:9px 12px;margin-bottom:8px;}
+    .voice-fact.hero{padding:11px 12px;}
+    .voice-fact.hero .vf-value{font-size:calc(32px * var(--text-scale));}
+    .vf-value{font-size:calc(24px * var(--text-scale));}
+    .vf-icon{width:44px;height:44px;font-size:calc(22px * var(--text-scale));}
+
+    .paged-card{padding:14px 14px;}
+    .paged-arrows{margin-top:8px;}
+    .paged-dots{margin-top:8px;}
+    .action-row{margin-top:10px;gap:8px;}
+    .action-btn{padding:9px 6px;}
+    .fact-list-card{padding:8px 16px;}
+    .fact-row{padding:8px 0;}
+    .history-row{padding:9px 12px;margin-bottom:7px;}
+    .legend-row{margin:8px 0 2px;}
+    .result-card{padding:14px 14px;}
+    .result-heading{margin-bottom:6px;font-size:calc(16px * var(--text-scale));}
+    .result-amount{font-size:calc(32px * var(--text-scale));}
+    .result-row{padding:6px 4px;}
+    .walkthrough-btn{padding:10px;margin-top:10px;}
+    .list-tile, .call-tile{padding:10px 12px;margin-bottom:8px;}
+    .list-tile .l-icon, .call-tile .c-icon{width:40px;height:40px;}
+    .disclaimer{padding:7px 10px;margin-bottom:8px;}
+    .detail-section{padding:12px 14px;margin-top:10px;}
+    .member-header{margin-top:44px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:12px;}
+    .member-icon{width:56px;height:56px;margin:0;font-size:calc(30px * var(--text-scale));}
+    .toggle-row{margin:6px auto 10px;}
+    .toggle-tile{padding:10px;}
+    .logout-btn{padding:11px;margin-top:6px;}
+    .success-check{margin-top:30px;font-size:calc(60px * var(--text-scale));}
+
+    .hub-section{margin-top:10px;}
+    .hub-label{margin-bottom:4px;}
+    .hub-toggle{padding:6px 12px;margin-top:6px;}
+    .hub-size-btn{padding:8px 0;}
+    .hub-replay-link{margin-top:12px;}
+    .hub-toggle > .btn-speak{width:32px;height:32px;}
+    .month-btn{padding:9px 6px;}
+
+    /* All-in-one calculators (মাঝারি / দক্ষ): no decorative banner, and the
+       live preview's label and figure share a line above the bar. */
+    .banner.calc-plain{display:none;}
+    .live-preview{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 8px;padding:8px 12px;}
+    .live-preview-label{margin:0;}
+    .live-preview-figure{margin:0;order:1;}
+    .live-preview .split-bar{order:2;width:100%;height:16px;}
+    .balance-chip{padding:6px 6px;}
+    .balance-strip{margin-top:6px !important;}
+    /* Guided savings entry: the mascot row stands in for the banner */
+    body.tier-novice #screen-savings-register-input .banner, body.tier-voice #screen-savings-register-input .banner{display:none;}
+    body.tier-novice #screen-savings-register-input .title, body.tier-voice #screen-savings-register-input .title{margin-top:46px;}
+  }
 </style>
 </head>
 <body>
@@ -1178,8 +1411,8 @@
 </div>
 
 <!-- Tier-promotion / demotion nudge: always opt-in, never switches
-     the tier on its own. Triggered by the cleanStreak/frictionStreak
-     tracker — see the ADAPTIVE TIER PROMOTION TRACKER section. The
+     the tier on its own. Triggered by the per-tier score kept by the
+     adaptive engine — see the ADAPTIVE ENGINE section. The
      ✅/❌ marks let the spoken prompt name the buttons ("টিক চিহ্ন" /
      "ক্রস চিহ্ন") for anyone who can't read the labels. -->
 <div class="overlay" id="overlay-tier-nudge">
@@ -1231,11 +1464,11 @@
      numbers are filled in by renderOnboardingNumbers(), since they
      shift when নতুন is hidden. -->
 <div class="screen" id="screen-onboarding">
-  <div class="mascot-wrap" style="margin-top:20px;" id="onboarding-mascot"></div>
-  <div class="title">আসসালামু আলাইকুম</div>
-  <div class="speech-bubble" id="onboarding-bubble">আমি আপনাকে সাহায্য করব। বলুন, আপনি এই ধরনের অ্যাপ আগে কতটা ব্যবহার করেছেন?</div>
-  <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="toggleOnboardingAudio()">🔊</button>
-  <div class="novice-list onboard-list" style="margin-top:18px;">
+  <div class="guide-row" onclick="stopVoiceChain()">
+    <div class="mascot-wrap" id="onboarding-mascot"></div>
+    <div class="speech-bubble" id="onboarding-bubble"><b>আসসালামু আলাইকুম।</b> আমি আপনাকে সাহায্য করব। আপনার জন্য কোনটি ঠিক, বেছে নিন।</div>
+  </div>
+  <div class="novice-list onboard-list">
     <div class="novice-card" id="ob-voice" onclick="finishOnboarding('voice')">
       <div class="n-icon ob-num" style="background:var(--brand-tint);"></div>
       <div class="n-label">🔢 পড়তে অসুবিধা হয় — শুনে ও নম্বর চেপে চালাব</div>
@@ -1257,7 +1490,7 @@
     <span class="vk-num">০</span><span class="vk-label">আবার শুনুন</span>
     <span class="vk-waves"><i></i><i></i><i></i><i></i></span>
   </div>
-  <div class="subtitle tier-always-on" style="margin-top:14px;">এটি পরে ⚙ আইকন থেকে যেকোনো সময় বদলানো যাবে</div>
+  <div class="subtitle tier-always-on" style="margin:10px 0 0;">এটি পরে ⚙ আইকন থেকে যেকোনো সময় বদলানো যাবে</div>
 </div>
 
 <div class="screen" id="screen-dashboard">
@@ -1296,24 +1529,22 @@
        simultaneous choices for a first-time user — and are still one
        tap away once they move to Intermediate. -->
   <div id="dash-novice" class="tier-view">
-    <div class="mascot-wrap" style="margin-top:44px;" id="dash-mascot"></div>
-    <div class="speech-bubble">নিচের যেকোনো একটি বেছে নিন। পাশে 🔊 চাপলে শুনতে পারবেন।</div>
+    <div class="guide-row" style="margin-right:50px;" onclick="speak('একবার চাপলে শুনবেন, আবার চাপলে খুলবে।')">
+      <div class="mascot-wrap" id="dash-mascot"></div>
+      <div class="speech-bubble">একবার চাপলে শুনবেন, আবার চাপলে খুলবে।</div>
+    </div>
     <div class="novice-list">
-      <div class="novice-card cat-loan" onclick="showScreen('screen-loan-detail')">
+      <div class="novice-card cat-loan" data-say="tile_loan" onclick="showScreen('screen-loan-detail')">
         <div class="n-icon tint-loan">🤲</div><div class="n-label">আমার ঋণ</div>
-        <div class="n-audio" onclick="event.stopPropagation();playSound('tile_loan','এখানে আপনার ঋণের তথ্য দেখা যাবে।')">🔊</div>
       </div>
-      <div class="novice-card cat-savings" onclick="showScreen('screen-general-savings-detail')">
+      <div class="novice-card cat-savings" data-say="tile_savings" onclick="showScreen('screen-general-savings-detail')">
         <div class="n-icon tint-savings">🏺</div><div class="n-label">আমার সঞ্চয়</div>
-        <div class="n-audio" onclick="event.stopPropagation();playSound('tile_savings','এখানে আপনার সঞ্চয়ের তথ্য দেখা যাবে।')">🔊</div>
       </div>
-      <div class="novice-card cat-special" onclick="showScreen('screen-savings-detail')">
+      <div class="novice-card cat-special" data-say="tile_special_savings" onclick="showScreen('screen-savings-detail')">
         <div class="n-icon tint-special">🎗️</div><div class="n-label">বিশেষ সঞ্চয় (ডিপিএস)</div>
-        <div class="n-audio" onclick="event.stopPropagation();playSound('tile_special_savings','এখানে আপনার বিশেষ সঞ্চয়ের তথ্য দেখা যাবে।')">🔊</div>
       </div>
-      <div class="novice-card cat-insurance" onclick="showScreen('screen-insurance-detail')">
+      <div class="novice-card cat-insurance" data-say="tile_insurance" onclick="showScreen('screen-insurance-detail')">
         <div class="n-icon tint-insurance">☂️</div><div class="n-label">আমার বীমা</div>
-        <div class="n-audio" onclick="event.stopPropagation();playSound('tile_insurance','এখানে আপনার বীমার তথ্য দেখা যাবে।')">🔊</div>
       </div>
     </div>
   </div>
@@ -1415,7 +1646,7 @@
 <div class="screen" id="screen-accessibility-hub">
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playClip('help_accessibility_hub')">?</div>
-  <div class="title" style="margin-top:48px;">সহজলভ্যতা ও মোড</div>
+  <div class="title" style="margin-top:48px;" onclick="researchTap()">সহজলভ্যতা ও মোড</div>
 
   <div class="hub-section">
     <div class="hub-label" data-say="set_tier">ব্যবহারের ধরন</div>
@@ -1426,14 +1657,12 @@
       <div class="tier-seg-btn" id="hub-tier-btn-expert" onclick="setTier('expert')">দক্ষ</div>
     </div>
     <div class="hub-toggle" id="toggle-shownovice" data-say="set_show_novice" onclick="toggleA11yPref('showNovice')">"নতুন" মোড দেখান <div class="sw"></div></div>
-    <div class="hub-toggle-hint" style="margin-left:2px;">বন্ধ থাকলে তিনটি মোড থাকবে: ১২৩, মাঝারি ও দক্ষ। শুরুর পরিচিতি ও স্বয়ংক্রিয় মোড-পরামর্শও তখন "নতুন" বাদ দিয়ে চলবে।</div>
   </div>
 
   <div class="hub-section">
     <div class="hub-label">নিজে থেকে পড়ে শোনানো</div>
     <div class="hub-toggle" id="toggle-autoplay-voice" data-say="set_autoplay_voice" onclick="toggleA11yPref('autoplayVoice')">"১২৩" মোডে <div class="sw"></div></div>
     <div class="hub-toggle novice-opt" id="toggle-autonarrate" data-say="set_autoplay_novice" onclick="toggleA11yPref('autonarrate')">"নতুন" মোডে <div class="sw"></div></div>
-    <div class="hub-toggle-hint" style="margin-left:2px;">চালু থাকলে প্রতিটি পাতা খুললেই নিজে থেকে শোনানো হবে। বন্ধ থাকলে শুধু 🔊 চাপলে শোনা যাবে। ওপরের 🔊 বোতাম চেপেও এটি বন্ধ বা চালু করা যায়।</div>
   </div>
 
   <div class="hub-section">
@@ -1451,7 +1680,30 @@
     <div class="hub-toggle" id="toggle-haptic" data-say="set_haptic" onclick="toggleA11yPref('haptic')">স্পর্শে কম্পন <div class="sw"></div></div>
   </div>
 
-  <div class="hub-replay-link" data-say="set_replay_onboarding" onclick="localStorage.removeItem('agami_onboarded');showScreen('screen-onboarding')">শুরুর পরিচিতি আবার দেখুন</div>
+  <div class="hub-replay-link" data-say="set_replay_onboarding" onclick="replayOnboarding()">শুরুর পরিচিতি আবার দেখুন</div>
+</div>
+
+<!-- ==================== RESEARCH PANEL (hidden) ====================
+     For the person running the study, so it is in English and has no
+     audio. Opened by tapping the Settings title seven times. -->
+<div class="screen" id="screen-research">
+  <div class="back-icon" data-icon="back" data-emoji="←" onclick="showScreen('screen-accessibility-hub')">←</div>
+  <div class="home-icon top-right" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
+  <div class="title" style="margin-top:48px;">Research panel</div>
+  <div class="rp-status" id="rp-status"></div>
+  <div class="hub-label" style="margin-top:10px;">Adaptation rules</div>
+  <div id="rp-rules"></div>
+  <div class="hub-row" style="margin-top:8px;">
+    <div class="hub-size-btn" onclick="setRules('study')">Study rules</div>
+    <div class="hub-size-btn" onclick="setRules('demo')">Demo rules</div>
+  </div>
+  <div class="hub-toggle" id="toggle-notepics" onclick="toggleNotePics()">Note pictures in ১২৩ / নতুন <div class="sw"></div></div>
+  <div class="hub-label" style="margin-top:10px;">Log and member</div>
+  <div class="hub-row">
+    <div class="hub-size-btn" onclick="exportLogCSV()">Export CSV</div>
+    <div class="hub-size-btn" onclick="clearLog()">Clear log</div>
+    <div class="hub-size-btn" onclick="resetMember()">Reset member</div>
+  </div>
 </div>
 
 <!-- ==================== LOAN ==================== -->
@@ -1464,6 +1716,7 @@
     <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakPaged('loan')">🔊</div>
     <div class="paged-label" id="loan-label"></div>
     <div class="paged-value" id="loan-value"></div>
+    <div class="money-pic" id="loan-pic"></div>
     <div class="paged-sub" id="loan-sub"></div>
     <div class="paged-arrows">
       <div class="paged-arrow" data-icon="prev" data-emoji="‹" onclick="pageNav('loan',-1)">‹</div>
@@ -1493,16 +1746,27 @@
 
 <div class="screen cat-loan" id="screen-outstanding-date">
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
-  <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_outstanding_date','এখানে একটি তারিখ দিলে সেই তারিখ পর্যন্ত আপনার বকেয়া কত হবে তা হিসাব করে দেখানো হবে।')">?</div>
+  <div class="help-icon" data-icon="help" data-emoji="?" onclick="outstandingAudio('help')">?</div>
   <div class="dots"><div class="dot filled"></div><div class="dot"></div></div>
   <div class="banner" data-icon="calendar" data-emoji="📅">📅</div>
-  <div class="title">তারিখ নির্বাচন করুন</div>
-  <div class="subtitle">দিন মাস বছর - এই ক্রমে লিখুন</div>
-  <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="playSound('prompt_outstanding_date','যে তারিখের বকেয়া জানতে চান, সেই তারিখ দিন, দিন মাস বছর এই ক্রমে।')">🔊</button>
-  <div class="display-box" id="oc-date-display">DD MM YYYY</div>
-  <div class="keypad" id="oc-date-keypad"></div>
-  <div class="spacer"></div>
-  <div class="next-btn" data-icon="next" data-emoji="➜" onclick="computeOutstanding()">➜</div>
+  <div class="title" id="oc-title"></div>
+  <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="outstandingAudio('prompt')">🔊</button>
+  <!-- ১২৩ / নতুন / মাঝারি: one tap on a month button (the balance is worked
+       out per month anyway, so nothing is lost). দক্ষ keeps the date keypad. -->
+  <div class="oc-month-mode">
+    <div class="month-grid" id="oc-months"></div>
+    <div class="paged-arrows month-pager" id="oc-month-pager">
+      <div class="paged-arrow" data-icon="prev" data-emoji="‹" onclick="pageOutstandingMonths(-1)">‹</div>
+      <div class="paged-dots" id="oc-month-dots"></div>
+      <div class="paged-arrow" data-icon="next" data-emoji="›" onclick="pageOutstandingMonths(1)">›</div>
+    </div>
+  </div>
+  <div class="oc-date-mode">
+    <div class="display-box" id="oc-date-display">DD MM YYYY</div>
+    <div class="keypad" id="oc-date-keypad"></div>
+    <div class="spacer"></div>
+    <div class="next-btn" data-icon="next" data-emoji="➜" onclick="computeOutstanding()">➜</div>
+  </div>
 </div>
 
 <div class="screen cat-loan" id="screen-outstanding-result">
@@ -1510,9 +1774,10 @@
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_outstanding_result','এটি আপনার নির্বাচিত তারিখ পর্যন্ত মোট বকেয়ার হিসাব।')">?</div>
   <div class="dots"><div class="dot filled"></div><div class="dot filled"></div></div>
   <div class="result-card" style="margin-top:60px;">
-    <div class="result-heading">তারিখ অনুযায়ী বকেয়া</div>
+    <div class="result-heading" id="oc-result-heading">তারিখ অনুযায়ী বকেয়া</div>
     <div class="result-amount" id="oc-result-amount">৳ ০</div>
-    <div class="result-sub">নির্বাচিত তারিখ পর্যন্ত হিসাবকৃত</div>
+    <div class="money-pic" id="oc-result-pic"></div>
+    <div class="result-sub">নির্বাচিত সময় পর্যন্ত হিসাবকৃত</div>
     <button class="speaker-btn" style="margin-top:16px;" data-icon="speaker" data-emoji="🔊" onclick="speakOcResult()">🔊</button>
   </div>
 </div>
@@ -1521,18 +1786,18 @@
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_loancalc_input','এখানে ঋণের পরিমাণ ও মেয়াদ দিলে মাসিক কিস্তি হিসাব করে দেখানো হবে।')">?</div>
 
-  <div id="lc-mascot-block" style="display:none;">
-    <div id="lc-mascot" style="margin-top:36px;text-align:center;"></div>
-    <div class="speech-bubble">আপনি কত টাকা ঋণ নিতে চান?</div>
+  <div class="guide-row calc-guide" id="lc-mascot-block" style="display:none;" onclick="playCalcPrompt('loan')">
+    <div class="mascot-wrap" id="lc-mascot"></div>
+    <div class="speech-bubble" id="lc-bubble"></div>
   </div>
-  <div class="banner" data-icon="calc" data-emoji="🧮">🧮</div>
-  <div class="title">ঋণের পরিমাণ দিন</div>
-  <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="playSound('prompt_loan_amount','আপনি কত টাকা ঋণ নিতে চান তা দিন')">🔊</button>
+  <div class="banner calc-plain" data-icon="calc" data-emoji="🧮">🧮</div>
+  <div class="title calc-plain">ঋণের পরিমাণ দিন</div>
+  <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="playCalcPrompt('loan')">🔊</button>
   <div class="display-box" id="lc-amount-display">৳ ০</div>
+  <div class="money-pic" id="lc-amount-pic"></div>
   <div class="keypad" id="lc-amount-keypad"></div>
 
   <div id="lc-step2">
-    <div class="subtitle" style="margin-top:14px;">মেয়াদ নির্বাচন করুন</div>
     <div class="chip-row" id="lc-tenure-chips"></div>
     <div class="live-preview">
       <div class="live-preview-label">প্রতি মাসে দিতে হবে (আন্দাজ)</div>
@@ -1548,13 +1813,17 @@
   </div>
 
   <div class="spacer"></div>
-  <div class="next-btn" id="lc-next-btn" data-icon="next" data-emoji="➜" onclick="handleCalcNext('loan')">➜</div>
+  <div class="calc-next-row">
+    <div class="back-step" id="lc-back-btn" style="display:none;" onclick="calcBackToAmount('loan')">←</div>
+    <div class="next-btn" id="lc-next-btn" data-icon="next" data-emoji="➜" onclick="handleCalcNext('loan')">➜</div>
+  </div>
 </div>
 
 <div class="screen cat-loan" id="screen-loancalc-result">
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_loancalc_result','এটি আপনার হিসাবকৃত মাসিক কিস্তি, মূলধন ও সুদের বিস্তারিত।')">?</div>
   <div class="result-card" style="margin-top:50px;">
+    <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakLoanCalcResult()">🔊</div>
     <div class="result-heading">মাসিক কিস্তির হিসাব</div>
     <div class="result-amount" id="lc-emi">৳ ০</div>
     <div class="result-sub">মাসিক কিস্তি</div>
@@ -1568,7 +1837,6 @@
     <div class="result-row"><div class="rlabel">মোট পরিশোধযোগ্য</div><div class="rvalue" id="lc-total">৳ ০</div></div>
     <div class="month-dots" id="lc-month-dots"></div>
     <div class="month-dots-caption" id="lc-month-dots-caption"></div>
-    <button class="speaker-btn" style="margin-top:16px;" data-icon="speaker" data-emoji="🔊" onclick="speakLoanCalcResult()">🔊</button>
   </div>
   <div class="walkthrough-btn" onclick="speakLoanCalcWalkthrough()"><span class="a-icon" data-icon="speaker" data-emoji="🔊">🔊</span>শুনে বুঝুন — পুরো হিসাব</div>
   <div class="action-row" style="margin-top:16px;">
@@ -1586,6 +1854,7 @@
     <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakPaged('gensavings')">🔊</div>
     <div class="paged-label" id="gensavings-label"></div>
     <div class="paged-value" id="gensavings-value"></div>
+    <div class="money-pic" id="gensavings-pic"></div>
     <div class="paged-sub" id="gensavings-sub"></div>
     <div class="paged-arrows">
       <div class="paged-arrow" data-icon="prev" data-emoji="‹" onclick="pageNav('gensavings',-1)">‹</div>
@@ -1619,6 +1888,7 @@
   <div class="novice-guidance" id="sr-novice-guidance" style="margin-bottom:4px;"></div>
   <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="playSound('prompt_savings_register','আপনি প্রতি মাসে কত টাকা সঞ্চয় করতে চান তা দিন')">🔊</button>
   <div class="display-box" id="sr-amount-display">৳ ০</div>
+  <div class="money-pic" id="sr-amount-pic"></div>
   <div class="keypad" id="sr-amount-keypad"></div>
   <div class="spacer"></div>
   <div class="next-btn" data-icon="next" data-emoji="➜" onclick="requestSavingsRegistration('general')">➜</div>
@@ -1634,6 +1904,7 @@
     <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakPaged('savings')">🔊</div>
     <div class="paged-label" id="savings-label"></div>
     <div class="paged-value" id="savings-value"></div>
+    <div class="money-pic" id="savings-pic"></div>
     <div class="paged-sub" id="savings-sub"></div>
     <div class="paged-arrows">
       <div class="paged-arrow" data-icon="prev" data-emoji="‹" onclick="pageNav('savings',-1)">‹</div>
@@ -1662,18 +1933,18 @@
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_dps_input','এখানে মাসিক জমার পরিমাণ ও মেয়াদ দিলে ভবিষ্যতে কত টাকা পাবেন তা হিসাব করে দেখানো হবে।')">?</div>
 
-  <div id="dps-mascot-block" style="display:none;">
-    <div id="dps-mascot" style="margin-top:36px;text-align:center;"></div>
-    <div class="speech-bubble">আপনি প্রতি মাসে কত টাকা জমা রাখতে চান?</div>
+  <div class="guide-row calc-guide" id="dps-mascot-block" style="display:none;" onclick="playCalcPrompt('dps')">
+    <div class="mascot-wrap" id="dps-mascot"></div>
+    <div class="speech-bubble" id="dps-bubble"></div>
   </div>
-  <div class="banner" data-icon="savings" data-emoji="🏺">🏺</div>
-  <div class="title">মাসিক জমার পরিমাণ দিন</div>
-  <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="playSound('prompt_dps_amount','আপনি প্রতি মাসে কত টাকা জমা রাখতে চান তা দিন')">🔊</button>
+  <div class="banner calc-plain" data-icon="savings" data-emoji="🏺">🏺</div>
+  <div class="title calc-plain">মাসিক জমার পরিমাণ দিন</div>
+  <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="playCalcPrompt('dps')">🔊</button>
   <div class="display-box" id="dps-amount-display">৳ ০</div>
+  <div class="money-pic" id="dps-amount-pic"></div>
   <div class="keypad" id="dps-amount-keypad"></div>
 
   <div id="dps-step2">
-    <div class="subtitle" style="margin-top:14px;">মেয়াদ নির্বাচন করুন (বছর)</div>
     <div class="chip-row" id="dps-tenure-chips"></div>
     <div class="live-preview">
       <div class="live-preview-label">মেয়াদ শেষে পাবেন (আন্দাজ)</div>
@@ -1689,13 +1960,17 @@
   </div>
 
   <div class="spacer"></div>
-  <div class="next-btn" id="dps-next-btn" data-icon="next" data-emoji="➜" onclick="handleCalcNext('dps')">➜</div>
+  <div class="calc-next-row">
+    <div class="back-step" id="dps-back-btn" style="display:none;" onclick="calcBackToAmount('dps')">←</div>
+    <div class="next-btn" id="dps-next-btn" data-icon="next" data-emoji="➜" onclick="handleCalcNext('dps')">➜</div>
+  </div>
 </div>
 
 <div class="screen cat-special" id="screen-dps-result">
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_dps_result','এটি আপনার হিসাবকৃত পরিণত মূল্যের বিস্তারিত। নিচের সবুজ বাটনে চাপলে আবেদন প্রক্রিয়া শুরু হবে।')">?</div>
   <div class="result-card" style="margin-top:50px;">
+    <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakDpsResult()">🔊</div>
     <div class="result-heading">পরিণত মূল্যের হিসাব</div>
     <div class="result-amount" id="dps-maturity">৳ ০</div>
     <div class="result-sub">পরিণত মূল্য</div>
@@ -1708,7 +1983,6 @@
     <div class="result-row"><div class="rlabel">মোট মুনাফা</div><div class="rvalue" id="dps-interest">৳ ০</div></div>
     <div class="month-dots" id="dps-month-dots"></div>
     <div class="month-dots-caption" id="dps-month-dots-caption"></div>
-    <button class="speaker-btn" style="margin-top:16px;" data-icon="speaker" data-emoji="🔊" onclick="speakDpsResult()">🔊</button>
   </div>
   <div class="walkthrough-btn" onclick="speakDpsCalcWalkthrough()"><span class="a-icon" data-icon="speaker" data-emoji="🔊">🔊</span>শুনে বুঝুন — পুরো হিসাব</div>
   <div class="action-row" style="margin-top:16px;">
@@ -1721,7 +1995,7 @@
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_savings_register_success','আপনার সঞ্চয় নিবন্ধনের আবেদন জমা হয়েছে। আমাদের প্রতিনিধি শীঘ্রই যোগাযোগ করবেন।')">?</div>
   <div class="success-check" data-icon="check" data-emoji="✅">✅</div>
   <div class="title" style="margin-top:10px;">আবেদন সফলভাবে জমা হয়েছে</div>
-  <div class="subtitle" id="sr-success-sub"></div>
+  <div class="subtitle tier-always-on" id="sr-success-sub"></div>
   <button class="speaker-btn" style="margin-top:16px;" data-icon="speaker" data-emoji="🔊" onclick="speak(document.getElementById('sr-success-sub').innerText)">🔊</button>
 </div>
 
@@ -1741,7 +2015,7 @@
   <div class="help-icon stacked" data-icon="help" data-emoji="?" onclick="playSound('help_product_detail','এই পাতায় প্রোডাক্টের বিস্তারিত তথ্য, যোগ্যতা ও প্রয়োজনীয় কাগজপত্র দেখা যাবে।')">?</div>
   <div class="title" style="margin-top:48px;" id="pd-title"></div>
   <div class="subtitle" id="pd-sub"></div>
-  <div class="detail-section">
+  <div class="detail-section" id="pd-desc-section">
     <h4>বিবরণ</h4>
     <p id="pd-desc"></p>
   </div>
@@ -1757,7 +2031,12 @@
     <h4>প্রয়োজনীয় কাগজপত্র</h4>
     <ul id="pd-documents"></ul>
   </div>
-  <div class="action-row" id="pd-actions" style="margin-bottom:20px;"></div>
+  <div class="paged-arrows pd-pager" id="pd-pager">
+    <div class="paged-arrow" data-icon="prev" data-emoji="‹" onclick="pageProductDetail(-1)">‹</div>
+    <div class="paged-dots" id="pd-dots"></div>
+    <div class="paged-arrow" data-icon="next" data-emoji="›" onclick="pageProductDetail(1)">›</div>
+  </div>
+  <div class="action-row" id="pd-actions"></div>
 </div>
 
 <div class="screen cat-loan" id="screen-loan-apply">
@@ -1768,9 +2047,9 @@
   <div class="novice-guidance" id="la-novice-guidance" style="margin-bottom:4px;"></div>
   <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="playSound('prompt_loan_apply','আপনি কত টাকা ঋণের জন্য আবেদন করতে চান তা দিন')">🔊</button>
   <div class="display-box" id="la-amount-display">৳ ০</div>
+  <div class="money-pic" id="la-amount-pic"></div>
   <div class="keypad" id="la-amount-keypad"></div>
-  <div class="subtitle" style="margin-top:14px;">দ্রুত নির্বাচন করুন</div>
-  <div class="chip-row" id="la-preset-chips"></div>
+  <div class="chip-row la-presets" id="la-preset-chips"></div>
   <div class="spacer"></div>
   <div class="next-btn" data-icon="next" data-emoji="➜" onclick="requestLoanApplication()">➜</div>
 </div>
@@ -1780,7 +2059,7 @@
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_loan_apply_success','আপনার আবেদন জমা হয়েছে। আমাদের প্রতিনিধি শীঘ্রই যোগাযোগ করবেন।')">?</div>
   <div class="success-check" data-icon="check" data-emoji="✅">✅</div>
   <div class="title" style="margin-top:10px;">আবেদন সফলভাবে জমা হয়েছে</div>
-  <div class="subtitle" id="la-success-sub"></div>
+  <div class="subtitle tier-always-on" id="la-success-sub"></div>
   <button class="speaker-btn" style="margin-top:16px;" data-icon="speaker" data-emoji="🔊" onclick="playSound('loan_apply_success','আপনার ঋণ আবেদন সফলভাবে জমা হয়েছে। আমাদের প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন।')">🔊</button>
 </div>
 
@@ -1792,6 +2071,7 @@
     <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakPaged('insurance')">🔊</div>
     <div class="paged-label" id="insurance-label"></div>
     <div class="paged-value" id="insurance-value"></div>
+    <div class="money-pic" id="insurance-pic"></div>
     <div class="paged-sub" id="insurance-sub"></div>
     <div class="paged-arrows">
       <div class="paged-arrow" data-icon="prev" data-emoji="‹" onclick="pageNav('insurance',-1)">‹</div>
@@ -1878,6 +2158,7 @@
   <div class="overlay-card">
     <div class="overlay-title">আপনি কি এই ঋণ আবেদন প্রক্রিয়া চালিয়ে যেতে চান?</div>
     <div class="overlay-recap" id="loan-confirm-recap"></div>
+    <div class="money-pic" id="loan-confirm-pic"></div>
     <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="playDialogAudio('overlay-loan-confirm')">🔊</button>
     <div class="hold-confirm" id="loan-hold-confirm">
       <div class="hold-confirm-fill"></div>
@@ -1894,6 +2175,7 @@
   <div class="overlay-card">
     <div class="overlay-title">আপনি কি এই সঞ্চয় নিবন্ধনের আবেদন প্রক্রিয়া চালিয়ে যেতে চান?</div>
     <div class="overlay-recap" id="savings-confirm-recap"></div>
+    <div class="money-pic" id="savings-confirm-pic"></div>
     <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="playDialogAudio('overlay-savings-confirm')">🔊</button>
     <div class="hold-confirm" id="savings-hold-confirm">
       <div class="hold-confirm-fill"></div>
@@ -1922,12 +2204,36 @@
    ============================================================ */
 function playSound(key, fallbackText){
   stopVoiceChain(); // also cuts off any TTS narration still running
-  if(key && key.indexOf('help_') === 0){ noteHelpTapForTask(); }
+  if(key && key.indexOf('help_') === 0) noteHelpTapForTask();
+  else if(key) noteSpokenAgain(key);
   var audio = document.getElementById('audio-player');
   audio.onerror = function(){ speak(fallbackText); };
   audio.src = 'assets/audio/' + key + '.mp3';
   var p = audio.play();
   if(p && p.catch){ p.catch(function(){ speak(fallbackText); }); }
+}
+/* Browser speech: use the best Bengali voice this phone has, Bangladeshi
+   first, then Indian Bengali, then any Bengali. Voices load late on
+   some browsers, so the choice is refreshed when the list changes. */
+var _bnVoice = null;
+function pickBengaliVoice(){
+  try{
+    var rank = function(v){
+      var l = (v.lang || '').replace('_', '-').toLowerCase();
+      return l === 'bn-bd' ? 3 : l === 'bn-in' ? 2 : l.indexOf('bn') === 0 ? 1 : 0;
+    };
+    _bnVoice = (window.speechSynthesis.getVoices() || [])
+      .filter(function(v){ return rank(v) > 0; })
+      .sort(function(a, b){ return rank(b) - rank(a); })[0] || null;
+  }catch(e){}
+}
+if('speechSynthesis' in window){
+  pickBengaliVoice();
+  try{ window.speechSynthesis.addEventListener('voiceschanged', pickBengaliVoice); }catch(e){}
+}
+function useBengaliVoice(u){
+  if(_bnVoice){ u.voice = _bnVoice; u.lang = _bnVoice.lang; }
+  else u.lang = 'bn-BD';
 }
 function speak(text){
   try{
@@ -1947,7 +2253,7 @@ function speak(text){
     if('speechSynthesis' in window){
       window.speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(text);
-      u.lang = 'bn-BD';
+      useBengaliVoice(u);
       window.speechSynthesis.speak(u);
     }
   }catch(e){}
@@ -1981,7 +2287,7 @@ function speakThen(text, onDone){
   try{
     window.speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(text);
-    u.lang = 'bn-BD';
+    useBengaliVoice(u);
     u.onend = fire; u.onerror = fire;
     _ttsUtterance = u; // held so Chrome can't garbage-collect it before onend
     window.speechSynthesis.speak(u);
@@ -2075,11 +2381,65 @@ var CLIP_TEXT = {
   set_text_size: 'লেখা ছোট বা বড় করতে এখান থেকে একটি বেছে নিন।',
   set_contrast: 'রোদে পর্দা ভালো দেখা না গেলে এটি চালু করুন। রং আরও গাঢ় হবে।',
   set_haptic: 'বোতাম চাপলে ফোন হালকা কাঁপবে কি না, তা চালু বা বন্ধ করতে এখানে চাপুন।',
-  set_replay_onboarding: 'শুরুর পরিচিতি আবার দেখতে এখানে চাপুন।'
+  set_replay_onboarding: 'শুরুর পরিচিতি আবার দেখতে এখানে চাপুন।',
+  tap_again: 'ঠিক থাকলে আবার চাপুন।',
+  prompt_loan_tenure: 'কত মাসে ঋণ শোধ করতে চান, তা বেছে নিন।',
+  prompt_dps_tenure: 'কত বছর ধরে জমা রাখতে চান, তা বেছে নিন।',
+  prompt_outstanding_month: 'যে মাস পর্যন্ত বকেয়া জানতে চান, সেই মাসটি বেছে নিন।',
+  help_outstanding_month: 'এখানে একটি মাস বেছে নিলে, সেই মাস পর্যন্ত আপনার ঋণের কত টাকা বাকি থাকবে, তা দেখানো হবে।',
+  month_1: 'জানুয়ারি মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  month_2: 'ফেব্রুয়ারি মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  month_3: 'মার্চ মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  month_4: 'এপ্রিল মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  month_5: 'মে মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  month_6: 'জুন মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  month_7: 'জুলাই মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  month_8: 'আগস্ট মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  month_9: 'সেপ্টেম্বর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  month_10: 'অক্টোবর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  month_11: 'নভেম্বর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  month_12: 'ডিসেম্বর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
+  nudge_trial_back: 'নতুন পাতাটি কি একটু কঠিন লাগছে? চাইলে আগের মোডে ফিরে যেতে পারেন। ফিরতে চাইলে টিক চিহ্নের বোতামে চাপুন। না চাইলে ক্রস চিহ্নের বোতামে চাপুন।'
 };
 /* CLIP_TEXT:END */
-function clip(key, hl){ return { key:key, text:CLIP_TEXT[key], hl:hl }; }
-function playClip(key){ playSound(key, CLIP_TEXT[key]); }
+// Fallback words for the app's original clips where they are played by key
+// (the নতুন dashboard cards). Outside the markers, so the generator leaves
+// those recordings alone.
+var LEGACY_CLIP_TEXT = {
+  tile_loan: 'এখানে আপনার ঋণের তথ্য দেখা যাবে।',
+  tile_savings: 'এখানে আপনার সঞ্চয়ের তথ্য দেখা যাবে।',
+  tile_special_savings: 'এখানে আপনার বিশেষ সঞ্চয়ের তথ্য দেখা যাবে।',
+  tile_insurance: 'এখানে আপনার বীমার তথ্য দেখা যাবে।'
+};
+function clip(key, hl){ return { key:key, text:CLIP_TEXT[key] || LEGACY_CLIP_TEXT[key], hl:hl }; }
+function playClip(key){ playSound(key, CLIP_TEXT[key] || LEGACY_CLIP_TEXT[key]); }
+
+/* Phone browsers only let a page play sound once its player has been
+   started from a tap, and an auto-played clip starts a moment after the
+   tap that opened the page, which is too late to count. So the very
+   first touch anywhere starts (and at once stops) a tenth of a second
+   of silence on the shared player, and wakes the speech engine. After
+   that, pages can speak by themselves. Not needed in the Android app,
+   harmless there. */
+var SILENT_CLIP = 'data:audio/wav;base64,UklGRmQGAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YUAGAAAA' + new Array(534).join('AAAA');
+function unlockAudio(){
+  document.removeEventListener('pointerdown', unlockAudio, true);
+  document.removeEventListener('touchend', unlockAudio, true);
+  try{
+    var audio = document.getElementById('audio-player');
+    if(audio.paused && !voiceChainActive){
+      audio.onerror = audio.onended = null;   // nothing may be triggered by the silent clip
+      audio.src = SILENT_CLIP;
+      var p = audio.play();
+      if(p && p.catch) p.catch(function(){});
+    }
+  }catch(e){}
+  try{
+    if(!window.AndroidTTS && 'speechSynthesis' in window) window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
+  }catch(e){}
+}
+document.addEventListener('pointerdown', unlockAudio, true);
+document.addEventListener('touchend', unlockAudio, true);
 
 /* ============================================================
    TAP FEEDBACK SOUND: a short synthesized tone on every tap of a
@@ -2169,6 +2529,46 @@ function addButtonSpeakers(root){
 }
 
 /* ============================================================
+   TAP TO HEAR, TAP AGAIN TO DO (১২৩ and নতুন)
+   ------------------------------------------------------------
+   In the two guided tiers the small 🔊 icons are hidden and the
+   button itself does both jobs: the first tap says what it does
+   (its data-say clip) and lights it up; a second tap on the same
+   button does it. A whole button is a far bigger target than a 28px
+   icon for unsteady fingers, a slip can't open the wrong page, and
+   the screens are less busy. "ঠিক থাকলে আবার চাপুন" is added for a
+   member's first few taps, then dropped once the habit is learned.
+   Tapping anything else moves the highlight; it also fades by itself.
+   মাঝারি keeps the 🔊 icons and single taps; দক্ষ has neither.
+   Buttons with no clip (keypad, arrows, back, home, dialog buttons,
+   the ১২৩ number keys the menu already reads out) act at once.
+   ============================================================ */
+var TAP_AGAIN_HINTS = 4, ARMED_MS = 12000;
+var armedEl = null, armTimer = null;
+function twoTapOn(){ return currentTier === 'voice' || currentTier === 'novice'; }
+function disarm(){
+  clearTimeout(armTimer);
+  if(armedEl) armedEl.classList.remove('armed');
+  armedEl = null;
+}
+document.addEventListener('click', function(e){
+  if(!twoTapOn()) return;
+  var el = e.target.closest('[data-say]');
+  if(!el || el === armedEl){ disarm(); return; }   // nothing to say, or the confirming tap: let it act
+  e.stopPropagation();
+  e.preventDefault();
+  disarm();
+  armedEl = el;
+  el.classList.add('armed');
+  armTimer = setTimeout(disarm, ARMED_MS);
+  var key = el.getAttribute('data-say');
+  var segs = [clip(key)];
+  if(memberState.tapHints < TAP_AGAIN_HINTS){ segs.push(clip('tap_again')); memberState.tapHints++; saveMember(); }
+  noteSpokenAgain(key);
+  playVoiceChain(segs);
+}, true);
+
+/* ============================================================
    SCREEN-READER SEMANTICS (TalkBack)
    ------------------------------------------------------------
    Most controls are plain <div>s with click handlers, which TalkBack
@@ -2183,11 +2583,12 @@ var A11Y_TAPPABLE = '.tile, .tile-sm, .novice-card, .action-btn, .nav-item, .key
   '.next-btn, .back-icon, .home-icon, .help-icon, .arrow-btn, .paged-arrow, .list-tile, .call-tile, .call-btn, ' +
   '.tier-seg-btn, .hub-gear, .hub-size-btn, .hub-toggle, .walkthrough-btn, .voice-key-wide, .voice-fact, ' +
   '.tile-speaker, .n-audio, .paged-speaker, .summary-speaker, .btn-speak, .overlay-btn, .logout-btn, ' +
-  '.toggle-tile, .see-more-row, .adaptive-chip, .hub-replay-link, .hold-confirm';
+  '.toggle-tile, .see-more-row, .adaptive-chip, .hub-replay-link, .hold-confirm, .month-btn, .back-step, .rp-step, .guide-row';
 var A11Y_NAMES = [
   ['.back-icon', 'পেছনে যান'], ['.home-icon', 'মূল পাতা'], ['.help-icon', 'সাহায্য শুনুন'],
   ['.tile-speaker, .n-audio, .paged-speaker, .summary-speaker, .btn-speak, .speaker-btn', 'শুনুন'],
   ['.call-btn', 'ফোন করুন'], ['.key.del', 'মুছুন'], ['.hub-gear:not(#autoplay-btn)', 'সেটিংস'],
+  ['.back-step', 'টাকার অঙ্কে ফিরে যান'],
   ['#autoplay-btn', 'নিজে থেকে পড়ে শোনানো'],
   ['.next-btn:not(#lc-next-btn):not(#dps-next-btn)', 'পরবর্তী'],
   ['[data-emoji="‹"]', 'আগের তথ্য'], ['[data-emoji="›"]', 'পরের তথ্য']
@@ -2218,10 +2619,14 @@ function startA11ySemantics(){
   applyA11ySemantics(document.body);
   new MutationObserver(function(muts){
     muts.forEach(function(m){
-      if(m.type === 'attributes') syncA11yState(m.target);
+      if(m.type === 'attributes'){ if(m.attributeName === 'class') syncA11yState(m.target); }
       else m.addedNodes.forEach(function(n){ if(n.nodeType === 1) applyA11ySemantics(n); });
+      // Anything that changes inside the screen on show (or the tier /
+      // text size on <body>) can change its height: re-fit it.
+      var t = m.target;
+      if(t === document.body || (t.closest && !t.classList.contains('screen') && t.closest('.screen.active'))) scheduleFit();
     });
-  }).observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class'] });
+  }).observe(document.body, { childList:true, subtree:true, attributes:true, attributeFilter:['class','style'] });
   // Keyboard / switch access: Enter or Space presses a focused div-button.
   document.addEventListener('keydown', function(e){
     var t = e.target;
@@ -2232,10 +2637,60 @@ function startA11ySemantics(){
   });
 }
 
+/* ============================================================
+   ONE-SCREEN FIT (layer 3 of "ONE-SCREEN LAYOUT" in the CSS)
+   ------------------------------------------------------------
+   Measures the screen on show: its natural height (with the flexible
+   spacers collapsed) against the viewport, starting from full size.
+   If it is taller, the screen is shrunk through --z just enough to
+   fit. Shrinking widens the logical page and lets text re-wrap, so
+   it only ever steps downward until the screen fits (stepping both
+   ways can oscillate). FIT_MIN stops text becoming unreadably small:
+   below it the screen scrolls instead.
+   ============================================================ */
+var FIT_MIN = 0.72;
+var _fitQueued = false;
+function fitScreen(){
+  var s = document.querySelector('.screen.active');
+  if(!s) return;
+  var z = 1;
+  s.style.setProperty('--z', 1);
+  for(var i = 0; i < 8; i++){
+    var have = s.clientHeight;
+    s.style.height = 'auto';
+    var need = s.scrollHeight;
+    s.style.height = '';
+    if(!have || need <= have || z <= FIT_MIN) break;
+    z = Math.max(FIT_MIN, z * (have - 1) / need);
+    s.style.setProperty('--z', z.toFixed(3));
+  }
+}
+function scheduleFit(){
+  if(_fitQueued) return;
+  _fitQueued = true;
+  setTimeout(function(){ _fitQueued = false; fitScreen(); }, 0);
+}
+window.addEventListener('resize', scheduleFit);
+
+/* Demo dates are placed around today, so the prototype never shows a
+   "next instalment" that is already in the past. demoDay(15) is the
+   coming 15th (this month's if it hasn't passed); monthsFrom() steps a
+   date by whole months. The loan was paid out 11 months before this
+   month, which is what its demo balance (৳২৮,৫০০ of ৳৫০,০০০ over 24
+   months at 12%) corresponds to. */
+var BN_MONTHS = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+function demoDay(day){
+  var n = new Date();
+  return new Date(n.getFullYear(), n.getMonth() + (n.getDate() > day ? 1 : 0), day);
+}
+function monthsFrom(d, k){ return new Date(d.getFullYear(), d.getMonth() + k, d.getDate()); }
+function bnDate(d){ return toBengaliDigits(d.getDate()) + ' ' + BN_MONTHS[d.getMonth()] + ', ' + toBengaliDigits(d.getFullYear()); }
+var DEMO_LOAN_DUE = demoDay(15), DEMO_SAVINGS_DUE = demoDay(10), DEMO_DPS_DUE = demoDay(1);
+
 var CONFIG = {
   loanAnnualRatePct: 12,
   dpsAnnualRatePct: 8,
-  loanDisbursementDate: new Date(2025, 0, 15)
+  loanDisbursementDate: new Date(new Date().getFullYear(), new Date().getMonth() - 11, 15)
 };
 
 /* ============================================================
@@ -2257,7 +2712,7 @@ var demoMember = {
     productName: "দাবি সাধারণ ঋণ",
     principal: 50000,
     outstanding: 28500,
-    nextDueDate: "১৫ সেপ্টেম্বর, ২০২৬",
+    nextDueDate: bnDate(DEMO_LOAN_DUE),
     monthlyInstallment: 2354,
     tenureMonths: 24,
     overdueInstallments: 1,
@@ -2266,7 +2721,7 @@ var demoMember = {
   savingsGeneral: {
     totalDeposit: 12400,
     lastInstallment: 400,
-    nextContributionDate: "১০ সেপ্টেম্বর, ২০২৬"
+    nextContributionDate: bnDate(DEMO_SAVINGS_DUE)
   },
   specialSavings: {
     dpsName: "বিশেষ সঞ্চয়ী হিসাব (ডিপিএস)",
@@ -2288,19 +2743,19 @@ var demoMember = {
     status: "সক্রিয়"
   },
   loanPaymentHistory: [
-    { date: "১৫ আগস্ট, ২০২৬", amount: 2354, channel: "ব্রাঞ্চ", type: "cash" },
-    { date: "১৫ জুলাই, ২০২৬", amount: 0, channel: "শিডিউল মিস", type: "missed" },
-    { date: "১৫ জুন, ২০২৬", amount: 2354, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" }
+    { date: bnDate(monthsFrom(DEMO_LOAN_DUE, -1)), amount: 2354, channel: "ব্রাঞ্চ", type: "cash" },
+    { date: bnDate(monthsFrom(DEMO_LOAN_DUE, -2)), amount: 0, channel: "শিডিউল মিস", type: "missed" },
+    { date: bnDate(monthsFrom(DEMO_LOAN_DUE, -3)), amount: 2354, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" }
   ],
   generalSavingsHistory: [
-    { date: "১০ আগস্ট, ২০২৬", amount: 400, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" },
-    { date: "১০ জুলাই, ২০২৬", amount: 400, channel: "ব্রাঞ্চ", type: "cash" },
-    { date: "১০ জুন, ২০২৬", amount: 400, channel: "ব্রাঞ্চ", type: "cash" }
+    { date: bnDate(monthsFrom(DEMO_SAVINGS_DUE, -1)), amount: 400, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" },
+    { date: bnDate(monthsFrom(DEMO_SAVINGS_DUE, -2)), amount: 400, channel: "ব্রাঞ্চ", type: "cash" },
+    { date: bnDate(monthsFrom(DEMO_SAVINGS_DUE, -3)), amount: 400, channel: "ব্রাঞ্চ", type: "cash" }
   ],
   specialSavingsHistory: [
-    { date: "১ আগস্ট, ২০২৬", amount: 500, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" },
-    { date: "১ জুলাই, ২০২৬", amount: 0, channel: "শিডিউল মিস", type: "missed" },
-    { date: "১ জুন, ২০২৬", amount: 500, channel: "ব্রাঞ্চ", type: "cash" }
+    { date: bnDate(monthsFrom(DEMO_DPS_DUE, -1)), amount: 500, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" },
+    { date: bnDate(monthsFrom(DEMO_DPS_DUE, -2)), amount: 0, channel: "শিডিউল মিস", type: "missed" },
+    { date: bnDate(monthsFrom(DEMO_DPS_DUE, -3)), amount: 500, channel: "ব্রাঞ্চ", type: "cash" }
   ]
 };
 
@@ -2454,7 +2909,7 @@ function monthsBetween(d1, d2){
 }
 
 var HIDE_TOPBAR_SCREENS = ['screen-login-mobile','screen-login-pin',
-  'screen-onboarding','screen-loan-apply-success','screen-savings-register-success','screen-accessibility-hub'];
+  'screen-onboarding','screen-loan-apply-success','screen-savings-register-success','screen-accessibility-hub','screen-research'];
 
 // Short orientation lines for the "auto-narrate" preference: only
 // spoken automatically when currentTier === 'novice' AND the member
@@ -2483,11 +2938,9 @@ function showScreen(id){
   // the task tracker below, which may open a nudge with its own audio.
   stopVoiceChain();
 
-  // Tier-promotion tracker: check whether this navigation completes
-  // or abandons an in-progress trackable task, then (if the
-  // destination itself is a trackable start screen) begin tracking.
+  // Adaptive engine: this navigation may finish, abandon or start a
+  // measured task (see FLOW_TASKS / VISIT_TASKS).
   noteTaskNavigation(id);
-  if(TASK_DEFS[id]) startTask(id);
 
   // Real usage tracking for the Expert-tier Adaptive Section (see
   // SHORTCUT_CANDIDATES) — replaces the old hardcoded shortcut list.
@@ -2497,21 +2950,25 @@ function showScreen(id){
   var bar = document.getElementById('top-bar');
   if(bar) bar.classList.toggle('hidden', HIDE_TOPBAR_SCREENS.indexOf(id) !== -1);
 
+  disarm();
   if(id !== 'screen-voice-info') settleVoicePick();
   if(currentTier === 'voice' && id === 'screen-dashboard') beginVoiceMenuTask();
   else voiceMenuTask = null;
+  // Tier offers wait for a calm moment: the dashboard or a success page.
+  if(nudgeDue && NUDGE_SCREENS.indexOf(id) !== -1){ nudgeDue = false; checkForNudge(); }
+  if(id === 'screen-research') renderResearchPanel();
   autoPlayScreen(id);
 
   if(id === 'screen-loancalc-input'){
     lcNoviceRevealed = false;
     var lcM = document.getElementById('lc-mascot');
-    if(lcM && !lcM.innerHTML) lcM.innerHTML = mascotSVG(64);
+    if(lcM && !lcM.innerHTML) lcM.innerHTML = mascotSVG(44);
     updateCalcStepUI('loan');
   }
   if(id === 'screen-dps-input'){
     dpsNoviceRevealed = false;
     var dpsM = document.getElementById('dps-mascot');
-    if(dpsM && !dpsM.innerHTML) dpsM.innerHTML = mascotSVG(64);
+    if(dpsM && !dpsM.innerHTML) dpsM.innerHTML = mascotSVG(44);
     updateCalcStepUI('dps');
   }
 
@@ -2526,6 +2983,8 @@ function showScreen(id){
     if(chips) chips.style.display = '';
     if(title) title.innerText = 'প্রোডাক্টসমূহ';
   }
+  document.getElementById(id).scrollTop = 0;
+  fitScreen();
 }
 
 /* Android hardware/gesture Back, called by MainActivity. Closes an open
@@ -2617,14 +3076,11 @@ var SHORTCUT_CANDIDATES = {
   'screen-insurance-detail': 'বীমা'
 };
 var screenVisitCounts = {};
-function loadScreenVisits(){
-  try{ screenVisitCounts = JSON.parse(localStorage.getItem('agami_screen_visits') || '{}'); }
-  catch(e){ screenVisitCounts = {}; }
-}
 function noteScreenVisit(id){
   if(!SHORTCUT_CANDIDATES[id]) return;
   screenVisitCounts[id] = (screenVisitCounts[id] || 0) + 1;
-  try{ localStorage.setItem('agami_screen_visits', JSON.stringify(screenVisitCounts)); }catch(e){}
+  memberState.visits = screenVisitCounts;
+  saveMember();
 }
 function getTopFrequentScreens(n){
   return Object.keys(screenVisitCounts)
@@ -2635,14 +3091,21 @@ function getTopFrequentScreens(n){
 }
 
 var tierReady = false; // false until the saved tier is restored at startup
-function setTier(tier){
+function setTier(tier, by){
   var prevTier = currentTier;
   var changed = tier !== prevTier;
   currentTier = tier;
-  try{ localStorage.setItem('agami_tier', tier); }catch(e){}
-  // A streak describes how someone copes with ONE tier, so it starts
-  // over whenever the tier really changes (by nudge or by hand).
-  if(tierReady && changed){ cleanStreak = 0; frictionStreak = 0; persistTierTracker(); }
+  memberState.tier = tier;
+  // A score describes how someone copes with ONE tier, so the tier
+  // being entered starts with an empty one, and any trial or task in
+  // progress belonged to the tier being left.
+  if(tierReady && changed){
+    memberState.results[tier] = [];
+    memberState.trial = null;
+    flow = visit = null;
+    logEvent('tier', { from:prevTier, to:tier, by:by || 'user' });
+  }
+  saveMember();
   document.body.classList.remove('tier-voice','tier-novice','tier-intermediate','tier-expert');
   document.body.classList.add('tier-' + tier);
 
@@ -2679,6 +3142,8 @@ function refreshTierSensitiveScreens(){
     if(document.getElementById('savings-history-list')) renderHistoryList('savings-history-list', demoMember.specialSavingsHistory);
   }
   renderProducts();
+  renderProductDetailPage();
+  renderOutstandingMonths();
 }
 
 function renderDashboardTier(){
@@ -2722,9 +3187,11 @@ function renderAdaptiveSection(){
 /* ============================================================
    TIER-ADAPTIVE CALCULATORS (Loan + DPS)
    ------------------------------------------------------------
-   Novice: amount and tenure are revealed as two separate steps
-   (mascot + one field, then a "continue" tap reveals tenure) rather
-   than both at once — fewer simultaneous decisions.
+   Novice: amount and tenure are two separate steps on the same
+   screen. Step 1 is the mascot's question, the amount and the keypad;
+   "continue" swaps the keypad for the tenure choices and the live
+   preview (step 2), with ← to go back and change the amount. One
+   decision at a time, and each step fits the screen without scrolling.
    Intermediate: today's default — amount + tenure together, live
    preview, "Next" leads to the full result/walkthrough screen.
    Expert: amount + tenure + the full numeric breakdown all inline
@@ -2743,25 +3210,42 @@ function renderCalcTier(){
   updateCalcStepUI('dps');
 }
 
+var CALC_BUBBLES = {
+  loan: ['আপনি কত টাকা ঋণ নিতে চান?', 'কত মাসে শোধ করতে চান? একটি বেছে নিন।'],
+  dps:  ['আপনি প্রতি মাসে কত টাকা জমা রাখতে চান?', 'কত বছর ধরে জমা রাখবেন? একটি বেছে নিন।']
+};
+function calcStep2(kind){ return noviceLike() && (kind === 'loan' ? lcNoviceRevealed : dpsNoviceRevealed); }
+
 function updateCalcStepUI(kind){
   var p = kind === 'loan' ? 'lc' : 'dps';
-  var revealed = kind === 'loan' ? lcNoviceRevealed : dpsNoviceRevealed;
-  var mascotBlock = document.getElementById(p + '-mascot-block');
+  var novice = noviceLike(), step2Now = calcStep2(kind);
+  var screen = document.getElementById(kind === 'loan' ? 'screen-loancalc-input' : 'screen-dps-input');
   var step2 = document.getElementById(p + '-step2');
-  var expertExtra = document.getElementById(p + '-expert-extra');
   var nextBtn = document.getElementById(p + '-next-btn');
   if(!step2 || !nextBtn) return;
+  function show(id, on, how){ var el = document.getElementById(id); if(el) el.style.display = on ? (how || '') : 'none'; }
 
-  if(noviceLike()){
-    if(mascotBlock) mascotBlock.style.display = 'block';
-    step2.style.display = revealed ? 'block' : 'none';
-    nextBtn.innerText = revealed ? 'হিসাব দেখুন ➜' : 'পরবর্তী ➜';
-  } else {
-    if(mascotBlock) mascotBlock.style.display = 'none';
-    step2.style.display = 'block';
-    nextBtn.innerText = currentTier === 'expert' ? 'আবেদন করুন' : '➜';
-  }
-  if(expertExtra) expertExtra.style.display = (currentTier === 'expert') ? 'block' : 'none';
+  show(p + '-mascot-block', novice, 'flex');
+  screen.querySelectorAll('.calc-plain').forEach(function(el){ el.style.display = novice ? 'none' : ''; });
+  show(p + '-amount-keypad', !step2Now, 'grid');
+  step2.style.display = (!novice || step2Now) ? 'block' : 'none';
+  show(p + '-back-btn', step2Now, 'flex');
+  show(p + '-expert-extra', currentTier === 'expert', 'block');
+  document.getElementById(p + '-bubble').innerText = CALC_BUBBLES[kind][step2Now ? 1 : 0];
+  nextBtn.innerText = novice ? (step2Now ? 'হিসাব দেখুন ➜' : 'পরবর্তী ➜')
+    : (currentTier === 'expert' ? 'আবেদন করুন' : '➜');
+  scheduleFit();
+}
+
+// The calculator's 🔊: the amount question, or in step 2 the tenure one.
+function playCalcPrompt(kind){
+  if(calcStep2(kind)){ playClip(kind === 'loan' ? 'prompt_loan_tenure' : 'prompt_dps_tenure'); return; }
+  if(kind === 'loan') playSound('prompt_loan_amount','আপনি কত টাকা ঋণ নিতে চান তা দিন');
+  else playSound('prompt_dps_amount','আপনি প্রতি মাসে কত টাকা জমা রাখতে চান তা দিন');
+}
+function calcBackToAmount(kind){
+  if(kind === 'loan') lcNoviceRevealed = false; else dpsNoviceRevealed = false;
+  updateCalcStepUI(kind);
 }
 
 function handleCalcNext(kind){
@@ -2770,6 +3254,7 @@ function handleCalcNext(kind){
       if(parseInt(lcDigits || '0', 10) <= 0){ speak('ঋণের পরিমাণ দিন'); return; }
       lcNoviceRevealed = true;
       updateCalcStepUI('loan');
+      if(autoPlayOn()) playCalcPrompt('loan');
       return;
     }
     if(currentTier === 'expert'){ applyDirectFromCalc('loan'); return; }
@@ -2779,6 +3264,7 @@ function handleCalcNext(kind){
       if(parseInt(dpsDigits || '0', 10) <= 0){ speak('মাসিক জমার পরিমাণ দিন'); return; }
       dpsNoviceRevealed = true;
       updateCalcStepUI('dps');
+      if(autoPlayOn()) playCalcPrompt('dps');
       return;
     }
     if(currentTier === 'expert'){ applyDirectFromCalc('dps'); return; }
@@ -2830,42 +3316,40 @@ function mascotSVG(size){
     '</svg>';
 }
 
-/* Reusable Novice-only guidance block: mascot + a reassuring line,
-   with its own speaker control (built with DOM methods, not string
-   concatenation, so the message never needs escaping). Used on the
-   PIN screen and both apply screens — the moments most likely to
-   cause hesitation for a first-time user. */
+/* Reusable Novice-only guidance block: the mascot beside a reassuring
+   line (one row, so it costs little height); tapping it reads the line
+   out. Built with DOM methods, not string concatenation, so the
+   message never needs escaping. Used on the PIN screen and both apply
+   screens — the moments most likely to cause hesitation for a
+   first-time user. */
 function renderNoviceGuidance(containerId, message){
   var el = document.getElementById(containerId);
   if(!el) return;
   el.innerHTML = '';
+  var row = document.createElement('div');
+  row.className = 'guide-row';
   var mascotDiv = document.createElement('div');
-  mascotDiv.style.textAlign = 'center';
-  mascotDiv.innerHTML = mascotSVG(46);
+  mascotDiv.className = 'mascot-wrap';
+  mascotDiv.innerHTML = mascotSVG(44);
   var bubble = document.createElement('div');
   bubble.className = 'speech-bubble';
-  bubble.style.marginTop = '4px';
-  bubble.style.display = 'flex';
-  bubble.style.alignItems = 'center';
-  bubble.style.justifyContent = 'center';
-  bubble.style.gap = '8px';
-  var textSpan = document.createElement('span');
-  textSpan.innerText = message;
-  var speakerSpan = document.createElement('span');
-  speakerSpan.innerText = '🔊';
-  speakerSpan.style.cursor = 'pointer';
-  speakerSpan.style.flexShrink = '0';
-  speakerSpan.onclick = function(){ speak(message); };
-  bubble.appendChild(textSpan);
-  bubble.appendChild(speakerSpan);
-  el.appendChild(mascotDiv);
-  el.appendChild(bubble);
+  bubble.innerText = message;
+  row.onclick = function(){ speak(message); };
+  row.appendChild(mascotDiv);
+  row.appendChild(bubble);
+  el.appendChild(row);
 }
 
 function finishOnboarding(tier){
-  try{ localStorage.setItem('agami_onboarded', '1'); }catch(e){}
-  setTier(tier);
+  memberState.onboarded = true;
+  setTier(tier, 'onboarding');
+  saveMember();
   showScreen('screen-dashboard');
+}
+function replayOnboarding(){
+  memberState.onboarded = false;
+  saveMember();
+  showScreen('screen-onboarding');
 }
 
 /* ============================================================
@@ -2916,9 +3400,9 @@ function voiceFacts(cat){
   if(cat === 'loan'){
     var l = m.activeLoan;
     return [
-      { emoji:'💰', label:'মোট বকেয়া', value:formatTaka(l.outstanding),
+      { emoji:'💰', label:'মোট বকেয়া', value:formatTaka(l.outstanding), amt:l.outstanding,
         say:'আপনার মোট বকেয়া ' + spokenTaka(l.outstanding) + '।' },
-      { icon:'calendar', emoji:'📅', label:'পরবর্তী কিস্তি', value:formatTaka(l.monthlyInstallment), sub:l.nextDueDate,
+      { icon:'calendar', emoji:'📅', label:'পরবর্তী কিস্তি', value:formatTaka(l.monthlyInstallment), amt:l.monthlyInstallment, sub:l.nextDueDate,
         say:'পরবর্তী কিস্তি ' + spokenTaka(l.monthlyInstallment) + ', ' + l.nextDueDate + ' তারিখে।' },
       l.overdueInstallments > 0
         ? { emoji:'⚠️', label:'বকেয়া কিস্তি', value:toBengaliDigits(l.overdueInstallments) + ' টি', sub:formatTaka(l.overdueAmount),
@@ -2929,9 +3413,9 @@ function voiceFacts(cat){
   if(cat === 'savings'){
     var g = m.savingsGeneral;
     return [
-      { icon:'savings', emoji:'🏺', label:'মোট জমা', value:formatTaka(g.totalDeposit),
+      { icon:'savings', emoji:'🏺', label:'মোট জমা', value:formatTaka(g.totalDeposit), amt:g.totalDeposit,
         say:'আপনার সঞ্চয়ে মোট জমা ' + spokenTaka(g.totalDeposit) + '।' },
-      { emoji:'💵', label:'সর্বশেষ জমা', value:formatTaka(g.lastInstallment),
+      { emoji:'💵', label:'সর্বশেষ জমা', value:formatTaka(g.lastInstallment), amt:g.lastInstallment,
         say:'সর্বশেষ জমা ' + spokenTaka(g.lastInstallment) + '।' },
       { icon:'calendar', emoji:'📅', label:'পরবর্তী জমার তারিখ', value:g.nextContributionDate,
         say:'পরবর্তী জমার তারিখ ' + g.nextContributionDate + '।' }
@@ -2940,19 +3424,19 @@ function voiceFacts(cat){
   if(cat === 'special'){
     var sp = m.specialSavings;
     return [
-      { icon:'special_savings', emoji:'🎗️', label:'মোট জমা', value:formatTaka(sp.totalDeposit),
+      { icon:'special_savings', emoji:'🎗️', label:'মোট জমা', value:formatTaka(sp.totalDeposit), amt:sp.totalDeposit,
         say:'আপনার বিশেষ সঞ্চয়ে মোট জমা ' + spokenTaka(sp.totalDeposit) + '।' },
-      { emoji:'💵', label:'মাসিক কিস্তি', value:formatTaka(sp.monthlyDeposit),
+      { emoji:'💵', label:'মাসিক কিস্তি', value:formatTaka(sp.monthlyDeposit), amt:sp.monthlyDeposit,
         say:'প্রতি মাসে জমা ' + spokenTaka(sp.monthlyDeposit) + '।' },
-      { emoji:'🎯', label:'মেয়াদ শেষে পাবেন', value:formatTaka(sp.maturityAmount), sub:sp.maturityDate,
+      { emoji:'🎯', label:'মেয়াদ শেষে পাবেন', value:formatTaka(sp.maturityAmount), amt:sp.maturityAmount, sub:sp.maturityDate,
         say:'মেয়াদ শেষে, ' + sp.maturityDate + ', আপনি পাবেন ' + spokenTaka(sp.maturityAmount) + '।' }
     ];
   }
   var ins = m.insurance;
   return [
-    { icon:'insurance', emoji:'☂️', label:'বীমার পরিমাণ', value:formatTaka(ins.coverageAmount),
+    { icon:'insurance', emoji:'☂️', label:'বীমার পরিমাণ', value:formatTaka(ins.coverageAmount), amt:ins.coverageAmount,
       say:'আপনার বীমার পরিমাণ ' + spokenTaka(ins.coverageAmount) + '।' },
-    { emoji:'💵', label:'প্রিমিয়াম পরিশোধিত', value:formatTaka(ins.premiumPaid),
+    { emoji:'💵', label:'প্রিমিয়াম পরিশোধিত', value:formatTaka(ins.premiumPaid), amt:ins.premiumPaid,
       say:'প্রিমিয়াম দেওয়া হয়েছে ' + spokenTaka(ins.premiumPaid) + '।' },
     { icon:'calendar', emoji:'📅', label:'মেয়াদ শেষ', value:ins.policyEndDate, sub:'অবস্থা: ' + ins.status,
       say:'বীমার মেয়াদ শেষ হবে ' + ins.policyEndDate + '। বীমাটি এখন ' + ins.status + '।' }
@@ -2991,6 +3475,12 @@ function openVoiceInfo(cat){
       d.className = part[0];
       d.innerText = part[1];
       body.appendChild(d);
+      if(part[0] === 'vf-value' && f.amt){
+        var pic = document.createElement('div');
+        pic.className = 'money-pic';
+        pic.innerHTML = moneyPicHTML(f.amt);
+        body.appendChild(pic);
+      }
     });
     var spk = document.createElement('div');
     spk.className = 'vf-speak';
@@ -3062,11 +3552,7 @@ function dashboardHelp(){
 var VOICE_PICK_MIN_DWELL_MS = 4000;
 var voiceMenuTask = null;    // { heard:{vk-N:true}, repeats:n } while the ১২৩ menu is open
 var voicePick = null;        // { clean, at } from the pick until the account page is left
-var voiceNudgeDue = false;
-function beginVoiceMenuTask(){
-  voiceMenuTask = { heard:{}, repeats:0 };
-  if(voiceNudgeDue){ voiceNudgeDue = false; checkForNudge(); }
-}
+function beginVoiceMenuTask(){ voiceMenuTask = { heard:{}, repeats:0 }; }
 function noteVoiceHeard(hl){
   if(voiceMenuTask && hl) voiceMenuTask.heard[hl] = true;
 }
@@ -3085,10 +3571,10 @@ function voiceMenuPick(cat){
 // Called from showScreen() when the ১২৩ account page is left.
 function settleVoicePick(){
   if(!voicePick) return;
-  var clean = voicePick.clean && Date.now() - voicePick.at >= VOICE_PICK_MIN_DWELL_MS;
+  var ms = Date.now() - voicePick.at;
+  var clean = voicePick.clean && ms >= VOICE_PICK_MIN_DWELL_MS;
   voicePick = null;
-  recordTaskOutcome(clean);
-  voiceNudgeDue = true;
+  recordTaskOutcome(clean, { task:'voice menu', flags: clean ? '' : 'listened', ms:ms });
 }
 
 /* ------------------------------------------------------------
@@ -3183,10 +3669,6 @@ function playOnboardingMenu(){
   segs.push(clip('onboard_repeat', 'ob-0'));
   playVoiceChain(segs);
 }
-function toggleOnboardingAudio(){
-  if(voiceChainActive) stopVoiceChain();
-  else playOnboardingMenu();
-}
 
 function activeScreenId(){
   var s = document.querySelector('.screen.active');
@@ -3259,109 +3741,298 @@ function playVoiceChain(segments){
 }
 
 /* ============================================================
-   TIER-PROMOTION TRACKER (rule-based, on-device, explainable)
+   STORAGE: one record per member, one for the device
    ------------------------------------------------------------
-   Only a fixed set of screens count as trackable "tasks" — ones
-   with a real start and a real finish where a member is actually
-   committing to something (applying for a loan, registering
-   general savings, registering DPS). Passive browsing (detail
-   pages, history, calculators used just to explore) is never
-   tracked — there's no clean success/fail moment to measure.
+   Rural phones are shared, so everything the app learns about a
+   person (tier, settings, progress toward the next tier) is kept
+   under the mobile number they log in with, not for the phone as a
+   whole. The device record holds only what belongs to the phone or
+   the study: which tiers exist, the adaptation rules, the research
+   log, and who used it last, so the login screens can speak in that
+   person's tier before anyone has logged in.
+   ============================================================ */
+var STORE_KEY = 'agami_v2';
+var DEFAULT_RULES = { window:10, promote:8, days:3, rough:6, trialTasks:3, trialRough:2 };
+var DEMO_RULES    = { window:4,  promote:3, days:1, rough:3, trialTasks:3, trialRough:2 };
+var LOG_MAX = 1500;   // also keeps the CSV small enough for Android's share sheet
+var store = { device:{ showNovice:false, notePics:true, rules:null, lastMember:'guest' }, members:{}, log:[] };
+var memberId = 'guest', memberState = null, RULES = DEFAULT_RULES;
 
-   Three friction signals, all cheap and already-happening:
-     - Help tapped 2+ times on the SAME task attempt
-     - The member goes back to the dashboard before finishing
-     - It took more than 2x the expected baseline time
+function newMemberState(){
+  return { tier:'intermediate', onboarded:false, prefs:null, results:{}, suppress:0, trial:null, times:{}, visits:{}, tapHints:0 };
+}
+function loadStore(){
+  try{
+    var saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
+    if(saved){
+      store.device = Object.assign(store.device, saved.device);
+      store.members = saved.members || {};
+      store.log = saved.log || [];
+    }
+  }catch(e){}
+  RULES = Object.assign({}, DEFAULT_RULES, store.device.rules);
+  // A link ending in ?rules=demo (or ?rules=study) sets the rules on this
+  // phone, so a QR code can put a whole audience on the quick demo rules.
+  var asked = /[?&]rules=(demo|study)(?:&|$)/.exec(window.location.search || '');
+  if(asked){ RULES = Object.assign({}, asked[1] === 'demo' ? DEMO_RULES : DEFAULT_RULES); store.device.rules = RULES; }
+}
+// Batched: one tap can change several things. Flushed when the page is hidden.
+var _saveTimer = null;
+function flushStore(){
+  clearTimeout(_saveTimer);
+  _saveTimer = null;
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(store)); }catch(e){}
+}
+function saveStore(){ if(!_saveTimer) _saveTimer = setTimeout(flushStore, 150); }
+window.addEventListener('pagehide', flushStore);
+document.addEventListener('visibilitychange', function(){ if(document.hidden) flushStore(); });
+function saveMember(){ store.members[memberId] = memberState; saveStore(); }
 
-   A task with none of those is "clean" -> cleanStreak++, resets
-   frictionStreak. Any friction -> frictionStreak++, resets
-   cleanStreak. At cleanStreak>=5 we offer a promotion; at
-   frictionStreak>=3 we offer stepping down a tier. The nudge is
-   ALWAYS opt-in (see overlay-tier-nudge) and never switches the
-   tier on its own. Declining sets a 3-task cooldown so it doesn't
-   nag — 10 when the offer is to leave or enter ১২৩, since moving a
-   non-reader onto a reading screen (or a reader onto the voice menu)
-   by mistake costs more. Everything here persists in localStorage
-   since a rural user often does exactly one task per app session.
+function loadMember(id){
+  memberId = id || 'guest';
+  memberState = Object.assign(newMemberState(), store.members[memberId]);
+  store.device.lastMember = memberId;
+  a11yPrefs = Object.assign({ textSize:'m', contrast:false, autonarrate:true, autoplayVoice:true, haptic:true },
+    memberState.prefs, { showNovice: !!store.device.showNovice });
+  screenVisitCounts = memberState.visits || {};
+  document.body.classList.toggle('no-note-pics', !store.device.notePics);
+  applyA11yPrefs();
+}
+function validTier(tier){ return tierLadder().indexOf(tier) === -1 ? 'intermediate' : tier; }
+// PIN accepted: from here on the app is this member's.
+function loginAs(mobile){
+  var id = mobile || 'guest';
+  flow = visit = null;
+  nudgeDue = false;
+  if(id !== memberId){
+    saveMember();
+    tierReady = false;      // restoring a saved tier is not a tier change
+    loadMember(id);
+    setTier(validTier(memberState.tier));
+    tierReady = true;
+  }
+  logEvent('login', {});
+  saveMember();
+}
+
+/* Research log: one row per task result, offer, answer, tier change
+   and setting change. Members are written as the last four digits of
+   their number. Exported as CSV from the research panel. */
+function maskMember(id){ return id === 'guest' ? 'guest' : '…' + String(id).slice(-4); }
+function logEvent(type, data){
+  store.log.push(Object.assign({ t:new Date().toISOString(), member:maskMember(memberId), tier:currentTier, type:type }, data));
+  if(store.log.length > LOG_MAX) store.log.splice(0, store.log.length - LOG_MAX);
+  saveStore();
+}
+var LOG_COLUMNS = ['t','member','tier','type','task','clean','flags','ms','from','to','by','kind','accepted','key','value'];
+function logCSV(){
+  function esc(v){ v = v === undefined || v === null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  return LOG_COLUMNS.join(',') + '\n' +
+    store.log.map(function(r){ return LOG_COLUMNS.map(function(c){ return esc(r[c]); }).join(','); }).join('\n');
+}
+function exportLogCSV(){
+  var csv = logCSV();
+  var name = 'agami-log-' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '-') + '.csv';
+  // The Android app has no downloads: hand the text to its share sheet.
+  try{
+    if(window.AndroidApp && typeof window.AndroidApp.shareText === 'function'){ window.AndroidApp.shareText(name, csv); return; }
+  }catch(e){}
+  try{
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type:'text/csv;charset=utf-8' }));
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }catch(e){ showInfoOverlay('Export failed'); }
+}
+
+/* ============================================================
+   ADAPTIVE ENGINE (rule-based, on-device, explainable)
+   ------------------------------------------------------------
+   WHAT IS MEASURED. Two kinds of task, each with a clear start and
+   finish:
+     - Flows (FLOW_TASKS): entering a start screen and reaching one
+       of its "done" screens. The three calculators count once;
+       applying or registering counts double. Leaving for the
+       dashboard first is an abandoned flow.
+     - Visits (VISIT_TASKS): opening an account or history page and
+       staying on it. These are what a member does every week, so
+       they are what lets the system move at all: applications happen
+       once or twice a year. Paging through an account's details
+       counts as one more.
+   ১২৩ is measured on its own menu instead (voiceMenuPick).
+
+   SIGNS OF DIFFICULTY (any one makes a task "rough"):
+     help       "?" tapped twice during the task
+     abandon    a flow left for the dashboard before its done screen
+     slow       a flow took over twice this member's own usual time
+                (the fixed baseline is used until 5 clean samples)
+     backspace  three or more corrections on a keypad
+     wrongturn  a page opened and left again within 2 seconds
+     replay     the same button's audio asked for again and again
+     deadtaps   three taps on things that aren't buttons
+
+   THE SCORE. Per tier, the last RULES.window results are kept (10).
+   RULES.promote clean ones (8) spread over RULES.days different days
+   (3) offer the next tier up; RULES.rough rough ones (6, so 4 or
+   fewer clean) offer the tier below. A window survives one slip,
+   which a streak did not.
+
+   THE OFFER is always opt-in (overlay-tier-nudge) and is only made
+   on the dashboard or a success page, never in the middle of a
+   money task. Declining rests the question for 3 tasks, 10 when it
+   is about entering or leaving ১২৩, where a wrong move costs more.
+   After a move up, the next RULES.trialTasks tasks are a trial: if
+   RULES.trialRough of them are rough, the member is asked at once
+   whether to go back, instead of waiting for a full window.
 
    The ladder is ১২৩ → [নতুন] → মাঝারি → দক্ষ, with নতুন left out
-   while it is hidden in Settings. ১২৩ has its own task and signal
-   (see "১২৩ PROMOTION SIGNAL" in the VOICE TIER section).
+   while it is hidden in Settings. Every result and offer goes to the
+   research log; the rules can be changed in the research panel.
    ============================================================ */
-var TASK_DEFS = {
-  'screen-loan-apply':              { successScreens:['screen-loan-apply-success'],       baselineMs:25000 },
-  'screen-savings-register-input':  { successScreens:['screen-savings-register-success'], baselineMs:20000 },
-  'screen-dps-input':                { successScreens:['screen-savings-register-success'], baselineMs:35000 }
+// start screen -> { done: { screen that completes it: weight } }
+var FLOW_TASKS = {
+  'screen-loan-apply':             { done:{ 'screen-loan-apply-success':2 }, baselineMs:25000 },
+  'screen-savings-register-input': { done:{ 'screen-savings-register-success':2 }, baselineMs:20000 },
+  'screen-dps-result':             { done:{ 'screen-savings-register-success':2 }, baselineMs:30000, optional:true },
+  'screen-dps-input':              { done:{ 'screen-dps-result':1, 'screen-savings-register-success':2 }, baselineMs:35000 },
+  'screen-loancalc-input':         { done:{ 'screen-loancalc-result':1, 'screen-loan-apply':1 }, baselineMs:35000 },
+  'screen-outstanding-date':       { done:{ 'screen-outstanding-result':1 }, baselineMs:15000 }
 };
-var taskTracker = { taskId:null, startTime:null, helpTaps:0, hadFriction:false };
-var cleanStreak = 0, frictionStreak = 0, nudgeSuppressCount = 0;
-var pendingNudgeTier = null, pendingNudgeCopy = null;
+var VISIT_TASKS = { 'screen-loan-detail':1, 'screen-general-savings-detail':1, 'screen-savings-detail':1,
+  'screen-insurance-detail':1, 'screen-loan-history':1, 'screen-general-savings-history':1, 'screen-savings-history':1 };
+var VISIT_CLEAN_MS = 4000, WRONG_TURN_MS = 2000;
+var NUDGE_SCREENS = ['screen-dashboard','screen-loan-apply-success','screen-savings-register-success'];
+
+var flow = null;     // { id, start, flags:{}, help, backs }
+var visit = null;    // { id, start, flags:{}, help, pages }
+var screenSignals = { deadTaps:0, spoken:{} };
+var nudgeDue = false;
+var pendingNudgeTier = null, pendingNudgeCopy = null, pendingNudgeKind = null;
+
 function tierLadder(){
   return a11yPrefs.showNovice ? ['voice','novice','intermediate','expert'] : ['voice','intermediate','expert'];
 }
+function todayKey(){ var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
+function median(list){ var s = list.slice().sort(function(a, b){ return a - b; }); return s[Math.floor(s.length / 2)]; }
+function flagTask(name){ if(flow) flow.flags[name] = true; if(visit) visit.flags[name] = true; }
 
-function startTask(screenId){
-  if(taskTracker.taskId && taskTracker.taskId !== screenId){
-    finishTask(false); // a different task was left mid-way -> counts as abandoned
-  }
-  if(taskTracker.taskId === screenId) return;
-  taskTracker = { taskId: screenId, startTime: Date.now(), helpTaps: 0, hadFriction: false };
-}
-
+// "?" tapped (playSound calls this for every help_ clip)
 function noteHelpTapForTask(){
-  if(!taskTracker.taskId) return;
-  taskTracker.helpTaps++;
-  if(taskTracker.helpTaps >= 2) taskTracker.hadFriction = true;
+  [flow, visit].forEach(function(t){
+    if(!t) return;
+    t.help = (t.help || 0) + 1;
+    if(t.help >= 2) t.flags.help = true;
+  });
 }
+function noteBackspace(){
+  if(!flow) return;
+  flow.backs = (flow.backs || 0) + 1;
+  if(flow.backs >= 3) flow.flags.backspace = true;
+}
+// The same button's audio asked for again on this screen. In the
+// guided tiers the first tap always speaks, so it takes a third.
+function noteSpokenAgain(key){
+  var n = screenSignals.spoken[key] = (screenSignals.spoken[key] || 0) + 1;
+  if(n >= (twoTapOn() ? 3 : 2)) flagTask('replay');
+}
+function notePaged(){ if(visit) visit.pages = (visit.pages || 0) + 1; }
+// Taps that land on nothing: the member expects something to be a button.
+document.addEventListener('click', function(e){
+  if(e.target.closest(A11Y_TAPPABLE + ', button, [onclick], [data-say], .overlay, .top-bar')) return;
+  if(++screenSignals.deadTaps >= 3) flagTask('deadtaps');
+}, true);
 
-// Called from showScreen() on every navigation, BEFORE possibly
-// starting a new task at the destination screen.
-function noteTaskNavigation(destScreenId){
-  if(!taskTracker.taskId) return;
-  var def = TASK_DEFS[taskTracker.taskId];
-  if(def.successScreens.indexOf(destScreenId) !== -1){
-    var elapsed = Date.now() - taskTracker.startTime;
-    if(elapsed > def.baselineMs * 2) taskTracker.hadFriction = true;
-    finishTask(true);
-  } else if(destScreenId === 'screen-dashboard'){
-    finishTask(false);
+// Called from showScreen() on every navigation.
+function noteTaskNavigation(dest){
+  if(visit && visit.id !== dest) endVisit();
+  if(flow){
+    var def = FLOW_TASKS[flow.id];
+    if(def.done[dest]) endFlow(true, def.done[dest]);
+    else if(dest === 'screen-dashboard') endFlow(false, 1);
   }
-  // any other in-flow screen (e.g. dps-input -> dps-result -> confirm): keep tracking
-}
-
-function finishTask(completed){
-  if(!taskTracker.taskId) return;
-  if(currentTier === 'voice'){
-    // ১২৩ is measured on its own menu (voiceMenuPick), not on these
-    // reading-tier tasks, which its dashboard doesn't lead to anyway.
-    taskTracker = { taskId:null, startTime:null, helpTaps:0, hadFriction:false };
-    return;
+  screenSignals = { deadTaps:0, spoken:{} };
+  if(currentTier === 'voice') return;   // ১২৩ is measured on its own menu
+  if(FLOW_TASKS[dest] && !(flow && flow.id === dest)){
+    if(flow) endFlow(false, 1);         // a different flow was left mid-way
+    flow = { id:dest, start:Date.now(), flags:{} };
   }
-  var clean = completed && !taskTracker.hadFriction;
-  taskTracker = { taskId:null, startTime:null, helpTaps:0, hadFriction:false };
-  recordTaskOutcome(clean);
-  checkForNudge();
+  if(VISIT_TASKS[dest] && !visit) visit = { id:dest, start:Date.now(), flags:{}, pages:0 };
+}
+function endFlow(completed, weight){
+  var f = flow, def = FLOW_TASKS[f.id];
+  flow = null;
+  if(currentTier === 'voice') return;
+  var ms = Date.now() - f.start;
+  var past = memberState.times[f.id] || (memberState.times[f.id] = []);
+  if(!completed){
+    if(def.optional) return;
+    f.flags.abandon = true;
+  } else if(ms > (past.length >= 5 ? median(past) : def.baselineMs) * 2){
+    f.flags.slow = true;
+  }
+  var clean = completed && !Object.keys(f.flags).length;
+  if(clean){ past.push(ms); if(past.length > 10) past.shift(); }
+  recordTaskOutcome(clean, { task:f.id.replace('screen-', ''), weight:weight, flags:Object.keys(f.flags).join('+'), ms:ms });
+}
+function endVisit(){
+  var v = visit;
+  visit = null;
+  if(currentTier === 'voice') return;
+  var ms = Date.now() - v.start;
+  if(ms < WRONG_TURN_MS) v.flags.wrongturn = true;
+  var rough = Object.keys(v.flags).length > 0;
+  if(!rough && ms < VISIT_CLEAN_MS) return;   // a glance: says nothing either way
+  var name = v.id.replace('screen-', '');
+  recordTaskOutcome(!rough, { task:'view ' + name, flags:Object.keys(v.flags).join('+'), ms:ms });
+  if(!rough && v.pages >= 2) recordTaskOutcome(true, { task:'browse ' + name, ms:ms });
 }
 
-function recordTaskOutcome(clean){
-  if(clean){ cleanStreak++; frictionStreak = 0; }
-  else { frictionStreak++; cleanStreak = 0; }
-  persistTierTracker();
+function recordTaskOutcome(clean, info){
+  info = info || {};
+  var list = memberState.results[currentTier] || (memberState.results[currentTier] = []);
+  for(var i = 0; i < (info.weight || 1); i++) list.push({ c: clean ? 1 : 0, d: todayKey() });
+  while(list.length > RULES.window) list.shift();
+  var trial = memberState.trial;
+  if(trial){
+    trial.left--;
+    if(!clean) trial.rough++;
+    if(trial.rough >= RULES.trialRough) trial.offer = true;
+    else if(trial.left <= 0) memberState.trial = null;
+  }
+  nudgeDue = true;
+  logEvent('task', { task:info.task, clean: clean ? 1 : 0, flags:info.flags || '', ms:info.ms });
+  saveMember();
+}
+function tierScore(){
+  var list = memberState.results[currentTier] || [], days = {}, clean = 0;
+  list.forEach(function(r){ clean += r.c; days[r.d] = 1; });
+  return { n:list.length, clean:clean, rough:list.length - clean, days:Object.keys(days).length };
 }
 
-// Returns true if a nudge was put on screen.
+// Returns true if an offer was put on screen.
 function checkForNudge(){
-  if(nudgeSuppressCount > 0){ nudgeSuppressCount--; persistTierTracker(); return false; }
-  var ladder = tierLadder();
-  var idx = ladder.indexOf(currentTier);
+  var ladder = tierLadder(), idx = ladder.indexOf(currentTier);
   if(idx === -1) return false;
-  if(cleanStreak >= 5 && idx < ladder.length - 1){
-    pendingNudgeTier = ladder[idx+1];
+  var trial = memberState.trial;
+  if(trial && trial.offer){
+    memberState.trial = null;
+    if(trial.from !== currentTier && ladder.indexOf(trial.from) !== -1){
+      pendingNudgeTier = trial.from;
+      showNudge('trialBack');
+      return true;
+    }
+  }
+  if(memberState.suppress > 0){ memberState.suppress--; saveMember(); return false; }
+  var s = tierScore();
+  if(idx < ladder.length - 1 && s.n >= RULES.window && s.clean >= RULES.promote && s.days >= RULES.days){
+    pendingNudgeTier = ladder[idx + 1];
     showNudge('promote');
     return true;
   }
-  if(frictionStreak >= 3 && idx > 0){
-    pendingNudgeTier = ladder[idx-1];
+  if(idx > 0 && !trial && s.rough >= RULES.rough){
+    pendingNudgeTier = ladder[idx - 1];
     showNudge('demote');
     return true;
   }
@@ -3376,17 +4047,22 @@ var NUDGE_COPY = {
   fromVoice: { title:'আপনি নিজেই সব খুঁজে নিচ্ছেন!',
     sub:'ছবি আর লেখা দিয়ে সাজানো পাতাটি একবার দেখবেন? পরে আবার এই মোডে ফিরতে পারবেন।', key:'nudge_voice_promote' },
   toVoice: { title:'একটু সাহায্য লাগবে?',
-    sub:'শুনে শুনে, নম্বর চেপে চালানোর সহজ মোডটি চালু করব? পরে আবার বদলাতে পারবেন।', key:'nudge_voice_demote' }
+    sub:'শুনে শুনে, নম্বর চেপে চালানোর সহজ মোডটি চালু করব? পরে আবার বদলাতে পারবেন।', key:'nudge_voice_demote' },
+  trialBack: { title:'নতুন পাতাটি কি কঠিন লাগছে?',
+    sub:'চাইলে আগের মোডে ফিরে যেতে পারেন। পরে আবার চেষ্টা করা যাবে।', key:'nudge_trial_back' }
 };
 
 function showNudge(kind){
   var mascotEl = document.getElementById('nudge-mascot');
   if(mascotEl && !mascotEl.innerHTML) mascotEl.innerHTML = mascotSVG(56);
-  pendingNudgeCopy = pendingNudgeTier === 'voice' ? NUDGE_COPY.toVoice
+  pendingNudgeKind = kind;
+  pendingNudgeCopy = kind === 'trialBack' ? NUDGE_COPY.trialBack
+    : pendingNudgeTier === 'voice' ? NUDGE_COPY.toVoice
     : currentTier === 'voice' ? NUDGE_COPY.fromVoice
     : NUDGE_COPY[kind];
   document.getElementById('nudge-title').innerText = pendingNudgeCopy.title;
   document.getElementById('nudge-sub').innerText = pendingNudgeCopy.sub;
+  logEvent('nudge_shown', { kind:kind, to:pendingNudgeTier });
   showOverlay('overlay-tier-nudge');
   // Spoken on arrival in the talking tiers (if their auto-play is on),
   // and always when offering ১২৩: that offer exists because reading
@@ -3401,33 +4077,101 @@ function respondToNudge(accepted){
   stopVoiceChain();
   hideOverlay('overlay-tier-nudge');
   var involvesVoice = currentTier === 'voice' || pendingNudgeTier === 'voice';
-  var target = pendingNudgeTier;
+  var target = pendingNudgeTier, kind = pendingNudgeKind, from = currentTier;
   pendingNudgeTier = null;
   pendingNudgeCopy = null;
+  pendingNudgeKind = null;
+  logEvent('nudge_answer', { kind:kind, to:target, accepted: accepted ? 1 : 0 });
   if(accepted && target){
-    setTier(target);
+    setTier(target, 'nudge');
+    // Moving up starts a short trial in the new tier.
+    memberState.trial = kind === 'promote' ? { from:from, left:RULES.trialTasks, rough:0 } : null;
   } else {
-    nudgeSuppressCount = involvesVoice ? 10 : 3;
-    autoPlayScreen(activeScreenId()); // the page's own audio was held back for the nudge
+    memberState.suppress = involvesVoice ? 10 : 3;
+    memberState.results[currentTier] = [];
+    autoPlayScreen(activeScreenId()); // the page's own audio was held back for the offer
   }
-  cleanStreak = 0; frictionStreak = 0;
-  persistTierTracker();
+  saveMember();
 }
 
-function persistTierTracker(){
-  try{
-    localStorage.setItem('agami_tier_tracker', JSON.stringify({
-      cleanStreak: cleanStreak, frictionStreak: frictionStreak, nudgeSuppressCount: nudgeSuppressCount
-    }));
-  }catch(e){}
+/* ============================================================
+   RESEARCH PANEL (hidden: tap the Settings title 7 times)
+   ------------------------------------------------------------
+   For whoever runs the study, not for members: where this member's
+   score stands, the adaptation rules (with a quick "demo" setting
+   that makes an offer appear within a few taps), the note-picture
+   switch for with/without comparisons, and the log.
+   ============================================================ */
+var _researchTaps = 0, _researchTimer = null;
+function researchTap(){
+  clearTimeout(_researchTimer);
+  _researchTimer = setTimeout(function(){ _researchTaps = 0; }, 3000);
+  if(++_researchTaps >= 7){ _researchTaps = 0; showScreen('screen-research'); }
 }
-function loadTierTracker(){
-  try{
-    var saved = JSON.parse(localStorage.getItem('agami_tier_tracker') || '{}');
-    cleanStreak = saved.cleanStreak || 0;
-    frictionStreak = saved.frictionStreak || 0;
-    nudgeSuppressCount = saved.nudgeSuppressCount || 0;
-  }catch(e){}
+var RULE_ROWS = [
+  ['window',  'Results kept (last N tasks)', 2, 30],
+  ['promote', 'Clean results to offer the next tier', 1, 30],
+  ['days',    'Different days those must span', 1, 14],
+  ['rough',   'Rough results to offer help', 1, 30]
+];
+function renderResearchPanel(){
+  var s = tierScore();
+  document.getElementById('rp-status').innerText =
+    'Member ' + maskMember(memberId) + ' · tier ' + currentTier + '\n' +
+    'Last ' + s.n + ' results: ' + s.clean + ' clean, ' + s.rough + ' rough, over ' + s.days + ' day(s)' +
+    (memberState.trial ? ' · on trial' : '') + (memberState.suppress ? ' · offers resting ' + memberState.suppress : '') + '\n' +
+    'Log: ' + store.log.length + ' rows';
+  var box = document.getElementById('rp-rules');
+  box.innerHTML = '';
+  RULE_ROWS.forEach(function(row){
+    var line = document.createElement('div');
+    line.className = 'rp-rule';
+    var label = document.createElement('span');
+    label.className = 'rp-rule-label';
+    label.innerText = row[1];
+    line.appendChild(label);
+    [-1, 0, 1].forEach(function(step){
+      var b = document.createElement('span');
+      if(step === 0){ b.className = 'rp-rule-value'; b.innerText = RULES[row[0]]; }
+      else {
+        b.className = 'rp-step';
+        b.innerText = step < 0 ? '−' : '+';
+        b.onclick = function(){ RULES[row[0]] = Math.max(row[2], Math.min(row[3], RULES[row[0]] + step)); saveRules(); };
+      }
+      line.appendChild(b);
+    });
+    box.appendChild(line);
+  });
+  document.getElementById('toggle-notepics').classList.toggle('on', !!store.device.notePics);
+}
+function saveRules(){
+  if(RULES.promote > RULES.window) RULES.promote = RULES.window;
+  if(RULES.rough > RULES.window) RULES.rough = RULES.window;
+  store.device.rules = RULES;
+  logEvent('setting', { key:'rules', value:[RULES.window, RULES.promote, RULES.days, RULES.rough].join('/') });
+  renderResearchPanel();
+}
+function setRules(preset){
+  RULES = Object.assign({}, preset === 'demo' ? DEMO_RULES : DEFAULT_RULES);
+  saveRules();
+}
+function toggleNotePics(){
+  store.device.notePics = !store.device.notePics;
+  document.body.classList.toggle('no-note-pics', !store.device.notePics);
+  logEvent('setting', { key:'notePics', value: store.device.notePics ? 1 : 0 });
+  renderResearchPanel();
+}
+function clearLog(){ store.log = []; saveStore(); renderResearchPanel(); }
+// Forget this member: they start again from the "choose your level" screen.
+function resetMember(){
+  delete store.members[memberId];
+  flow = visit = null;
+  tierReady = false;
+  loadMember(memberId);
+  setTier(validTier(memberState.tier));
+  tierReady = true;
+  saveMember();
+  showScreen('screen-onboarding');
 }
 
 /* ============================================================
@@ -3479,15 +4223,13 @@ function initHoldConfirm(el, durationMs, onComplete){
 // autonarrate = নতুন auto-play (name kept so saved settings carry over);
 // autoplayVoice = ১২৩ auto-play; showNovice = offer the নতুন tier at all.
 var a11yPrefs = { textSize:'m', contrast:false, autonarrate:true, autoplayVoice:true, haptic:true, showNovice:false };
-function loadA11yPrefs(){
-  try{
-    var saved = localStorage.getItem('agami_a11y');
-    if(saved) a11yPrefs = Object.assign(a11yPrefs, JSON.parse(saved));
-  }catch(e){}
-  applyA11yPrefs();
-}
+// Settings are the member's own (see loadMember), except "show নতুন",
+// which decides what tiers exist on this phone.
 function saveA11yPrefs(){
-  try{ localStorage.setItem('agami_a11y', JSON.stringify(a11yPrefs)); }catch(e){}
+  memberState.prefs = { textSize:a11yPrefs.textSize, contrast:a11yPrefs.contrast, autonarrate:a11yPrefs.autonarrate,
+    autoplayVoice:a11yPrefs.autoplayVoice, haptic:a11yPrefs.haptic };
+  store.device.showNovice = !!a11yPrefs.showNovice;
+  saveMember();
 }
 function applyA11yPrefs(){
   setTextSize(a11yPrefs.textSize, true);
@@ -3520,12 +4262,20 @@ function toggleA11yPref(key){
   a11yPrefs[key] = !a11yPrefs[key];
   applyA11yPrefs();
   saveA11yPrefs();
+  logEvent('setting', { key:key, value: a11yPrefs[key] ? 1 : 0 });
   // Hiding নতুন while it's in use moves the member to the next tier up.
   if(key === 'showNovice' && !a11yPrefs.showNovice && currentTier === 'novice') setTier('intermediate');
   if((key === 'autoplayVoice' || key === 'autonarrate') && !a11yPrefs[key]) stopVoiceChain();
 }
 
-function doLogout(){ hideOverlay('overlay-logout'); showScreen('screen-login-mobile'); }
+function doLogout(){
+  hideOverlay('overlay-logout');
+  logEvent('logout', {});
+  // A shared phone shouldn't keep the last person's number on the login screen.
+  mobileDigits = '';
+  document.getElementById('mobile-display').innerText = '\u00A0';
+  showScreen('screen-login-mobile');
+}
 
 
 function buildKeypad(containerId, onDigit, onDelete){
@@ -3536,7 +4286,7 @@ function buildKeypad(containerId, onDigit, onDelete){
   keys.forEach(function(k){
     var div = document.createElement('div');
     if(k === ''){ div.className='key'; div.style.visibility='hidden'; }
-    else if(k === '⌫'){ div.className='key del'; div.innerText=k; div.onclick=onDelete; }
+    else if(k === '⌫'){ div.className='key del'; div.innerText=k; div.onclick=function(){ noteBackspace(); onDelete(); }; }
     else{ div.className='key'; div.innerText=k; div.onclick=function(){ onDigit(digitMap[k]); }; }
     container.appendChild(div);
   });
@@ -3556,9 +4306,8 @@ buildKeypad('pin-keypad', function(d){
     pinDigits+=d; updatePinDisplay();
     if(pinDigits.length===4){ setTimeout(function(){
       pinDigits=''; updatePinDisplay(); initDashboard();
-      var onboarded = false;
-      try{ onboarded = localStorage.getItem('agami_onboarded') === '1'; }catch(e){}
-      showScreen(onboarded ? 'screen-dashboard' : 'screen-onboarding');
+      loginAs(mobileDigits);
+      showScreen(memberState.onboarded ? 'screen-dashboard' : 'screen-onboarding');
     }, 300); }
   }
 }, function(){ pinDigits = pinDigits.slice(0,-1); updatePinDisplay(); });
@@ -3570,7 +4319,7 @@ function initPaged(prefix, pages){
 }
 function renderPaged(prefix){
   var st = pagedStates[prefix];
-  var cardEl = document.getElementById(prefix + '-pagedcard');
+  var cardEl = document.getElementById(prefix + '-label').closest('.paged-card');
   var flatEl = document.getElementById(prefix + '-flatlist');
 
   if(currentTier === 'expert' && flatEl){
@@ -3590,6 +4339,7 @@ function renderPaged(prefix){
   document.getElementById(prefix+'-value').innerText = p.value;
   var subEl = document.getElementById(prefix+'-sub');
   if(subEl) subEl.innerText = p.sub || '';
+  setMoneyPic(prefix + '-pic', p.amt);
   var dotsEl = document.getElementById(prefix+'-dots');
   dotsEl.innerHTML = '';
   st.pages.forEach(function(_,i){
@@ -3601,6 +4351,7 @@ function renderPaged(prefix){
 function pageNav(prefix, dir){
   var st = pagedStates[prefix];
   st.index = Math.max(0, Math.min(st.pages.length-1, st.index+dir));
+  notePaged();
   renderPaged(prefix);
 }
 function speakPaged(prefix){
@@ -3650,30 +4401,30 @@ function initDashboard(){
   var paidInstallments = Math.round(paid / loan.monthlyInstallment);
   var remainingInstallments = Math.max(0, loan.tenureMonths - paidInstallments);
   initPaged('loan', [
-    { label:'মোট বকেয়া', value: formatTaka(loan.outstanding) },
-    { label:'বিতরণকৃত পরিমাণ', value: formatTaka(loan.principal), sub:'বিতরণের তারিখ: ১৫ জানুয়ারি, ২০২৫' },
+    { label:'মোট বকেয়া', value: formatTaka(loan.outstanding), amt: loan.outstanding },
+    { label:'বিতরণকৃত পরিমাণ', value: formatTaka(loan.principal), amt: loan.principal, sub:'বিতরণের তারিখ: ' + bnDate(CONFIG.loanDisbursementDate) },
     { label:'পরবর্তী কিস্তির তারিখ', value: loan.nextDueDate, sub:'কিস্তির পরিমাণ: ' + formatTaka(loan.monthlyInstallment) },
     { label:'ঋণের মেয়াদ', value: toBengaliDigits(loan.tenureMonths) + ' মাস', sub:'মোট কিস্তি সংখ্যা: ' + toBengaliDigits(loan.tenureMonths) + ' টি' },
     { label:'বকেয়া কিস্তি সংখ্যা', value: toBengaliDigits(loan.overdueInstallments) + ' টি',
       sub: loan.overdueInstallments > 0 ? 'বকেয়া পরিমাণ: ' + formatTaka(loan.overdueAmount) : 'কোনো বকেয়া কিস্তি নেই' },
-    { label:'মোট পরিশোধ', value: formatTaka(paid), sub:'বাকি কিস্তি: ' + toBengaliDigits(remainingInstallments) + ' টি' }
+    { label:'মোট পরিশোধ', value: formatTaka(paid), amt: paid, sub:'বাকি কিস্তি: ' + toBengaliDigits(remainingInstallments) + ' টি' }
   ]);
 
   initPaged('gensavings', [
-    { label:'মোট জমাকৃত পরিমাণ', value: formatTaka(genSav.totalDeposit) },
-    { label:'সর্বশেষ কিস্তির পরিমাণ', value: formatTaka(genSav.lastInstallment), sub:'পরবর্তী জমার তারিখ: ' + genSav.nextContributionDate }
+    { label:'মোট জমাকৃত পরিমাণ', value: formatTaka(genSav.totalDeposit), amt: genSav.totalDeposit },
+    { label:'সর্বশেষ কিস্তির পরিমাণ', value: formatTaka(genSav.lastInstallment), amt: genSav.lastInstallment, sub:'পরবর্তী জমার তারিখ: ' + genSav.nextContributionDate }
   ]);
 
   initPaged('savings', [
-    { label:'মোট জমাকৃত পরিমাণ', value: formatTaka(spSav.totalDeposit) },
+    { label:'মোট জমাকৃত পরিমাণ', value: formatTaka(spSav.totalDeposit), amt: spSav.totalDeposit },
     { label:'জমা শুরুর তারিখ', value: spSav.startDate, sub:'সঞ্চয়ের মেয়াদ: ' + toBengaliDigits(spSav.termYears) + ' বছর' },
-    { label:'মাসিক কিস্তি', value: formatTaka(spSav.monthlyDeposit), sub:'মেয়াদপূর্তির তারিখ: ' + spSav.maturityDate },
-    { label:'মেয়াদপূর্তির পরিমাণ', value: formatTaka(spSav.maturityAmount) }
+    { label:'মাসিক কিস্তি', value: formatTaka(spSav.monthlyDeposit), amt: spSav.monthlyDeposit, sub:'মেয়াদপূর্তির তারিখ: ' + spSav.maturityDate },
+    { label:'মেয়াদপূর্তির পরিমাণ', value: formatTaka(spSav.maturityAmount), amt: spSav.maturityAmount }
   ]);
 
   var ins = demoMember.insurance;
   initPaged('insurance', [
-    { label:'প্রিমিয়াম পরিশোধিত পরিমাণ', value: formatTaka(ins.premiumPaid) },
+    { label:'প্রিমিয়াম পরিশোধিত পরিমাণ', value: formatTaka(ins.premiumPaid), amt: ins.premiumPaid },
     { label:'বীমার ধরন', value: ins.insuranceType, sub:'কভারেজ পরিমাণ: ' + formatTaka(ins.coverageAmount) },
     { label:'সুবিধাভোগীর নাম', value: ins.beneficiaryName },
     { label:'আবেদনকারী', value: ins.applicantName },
@@ -3888,7 +4639,33 @@ function openProductDetail(id){
   pdScreen.classList.remove('cat-loan','cat-savings','cat-special','cat-insurance','cat-calc','cat-products');
   if(pdCatMap[p.category]) pdScreen.classList.add(pdCatMap[p.category]);
 
+  pdPage = 0;
+  renderProductDetailPage();
   showScreen('screen-product-detail');
+}
+
+/* The product page shows one section at a time (description, benefits,
+   eligibility, documents) with the same ‹ › and dots as the account
+   cards, so it never needs scrolling. দক্ষ sees them all at once. */
+var pdPage = 0;
+var PD_SECTIONS = ['pd-desc-section','pd-benefits-section','pd-eligibility-section','pd-documents-section'];
+function renderProductDetailPage(){
+  var paged = currentTier !== 'expert';
+  PD_SECTIONS.forEach(function(id, i){
+    document.getElementById(id).style.display = (!paged || i === pdPage) ? '' : 'none';
+  });
+  document.getElementById('pd-pager').style.display = paged ? '' : 'none';
+  var dots = document.getElementById('pd-dots');
+  dots.innerHTML = '';
+  PD_SECTIONS.forEach(function(_, i){
+    var d = document.createElement('div');
+    d.className = 'paged-dot' + (i === pdPage ? ' filled' : '');
+    dots.appendChild(d);
+  });
+}
+function pageProductDetail(dir){
+  pdPage = Math.max(0, Math.min(PD_SECTIONS.length - 1, pdPage + dir));
+  renderProductDetailPage();
 }
 
 function goToLoanCalcFor(id){ showScreen('screen-loancalc-input'); }
@@ -3921,9 +4698,11 @@ function renderContacts(){
     var tile = document.createElement('div');
     tile.className = 'call-tile';
     tile.setAttribute('data-say', c.say);
+    // The whole row places the call, not only the green disc: a far bigger target.
+    tile.onclick = function(){ showInfoOverlay('ডেমো — সরাসরি কল করা যাবে না'); };
     tile.innerHTML = '<div class="c-icon" data-icon="'+c.icon+'" data-emoji="'+c.emoji+'">'+c.emoji+'</div>'+
       '<div class="c-info"><div class="c-title">'+c.title+'</div><div class="c-num">'+c.num+'</div></div>'+
-      '<div class="call-btn" data-icon="call" data-emoji="📞" onclick="showInfoOverlay(\'ডেমো — সরাসরি কল করা যাবে না\')">📞</div>';
+      '<div class="call-btn" data-icon="call" data-emoji="📞">📞</div>';
     container.appendChild(tile);
   });
   initIcons(container);
@@ -3971,29 +4750,133 @@ function updateOcDisplay(){
   document.getElementById('oc-date-display').innerText = formatted;
 }
 var lastOcAmount = 0;
+// দক্ষ only: an exact date typed on the keypad.
 function computeOutstanding(){
   if(ocDigits.length < 8){ speak('সম্পূর্ণ তারিখ দিন'); return; }
   var day = parseInt(ocDigits.substring(0,2),10);
   var month = parseInt(ocDigits.substring(2,4),10);
   var year = parseInt(ocDigits.substring(4,8),10);
   var targetDate = new Date(year, month-1, day);
-
+  // new Date() silently rolls 45/13/2026 over into another month: refuse it instead.
+  if(targetDate.getDate() !== day || targetDate.getMonth() !== month-1 || year < 2000 || year > 2100){
+    showInfoOverlay('তারিখটি সঠিক নয়। দিন, মাস, বছর — এই ক্রমে লিখুন।');
+    return;
+  }
+  showOutstandingFor(targetDate, 'তারিখ অনুযায়ী বকেয়া');
+}
+function showOutstandingFor(targetDate, heading){
   var loan = demoMember.activeLoan;
   var EMI = calcEMI(loan.principal, CONFIG.loanAnnualRatePct, loan.tenureMonths);
   var t = monthsBetween(CONFIG.loanDisbursementDate, targetDate);
   t = Math.max(0, Math.min(loan.tenureMonths, t));
   var ob = calcOutstanding(EMI, CONFIG.loanAnnualRatePct, loan.tenureMonths, t);
   lastOcAmount = ob;
+  document.getElementById('oc-result-heading').innerText = heading;
   document.getElementById('oc-result-amount').innerText = formatTaka(ob);
+  setMoneyPic('oc-result-pic', ob);
   showScreen('screen-outstanding-result');
 }
-function speakOcResult(){ speak('আপনার নির্বাচিত তারিখ পর্যন্ত বকেয়া হলো ' + formatTaka(lastOcAmount)); }
+function speakOcResult(){ speak(document.getElementById('oc-result-heading').innerText + ' ' + spokenTaka(lastOcAmount)); }
+
+/* ============================================================
+   OUTSTANDING BALANCE: MONTH BUTTONS (১২৩ / নতুন / মাঝারি)
+   ------------------------------------------------------------
+   Typing a date as eight digits in the right order was the hardest
+   input in the app. The balance only changes once a month (the
+   calculation uses the month and year, never the day), so these tiers
+   pick a month with one tap instead: this month up to the month the
+   loan is fully repaid, six buttons to a page so nothing scrolls.
+   দক্ষ keeps the exact-date keypad (see .oc-date-mode in the CSS).
+   ============================================================ */
+var OC_PER_PAGE = 6, ocMonthPage = 0;
+function outstandingMonthCount(){
+  var loan = demoMember.activeLoan;
+  var left = loan.tenureMonths - monthsBetween(CONFIG.loanDisbursementDate, new Date());
+  return Math.max(1, Math.min(24, left + 1)); // through the month the balance reaches zero
+}
+function renderOutstandingMonths(){
+  var grid = document.getElementById('oc-months');
+  if(!grid) return;
+  var total = outstandingMonthCount(), pages = Math.ceil(total / OC_PER_PAGE);
+  ocMonthPage = Math.max(0, Math.min(pages - 1, ocMonthPage));
+  var now = new Date();
+  grid.innerHTML = '';
+  for(var k = ocMonthPage * OC_PER_PAGE; k < Math.min(total, (ocMonthPage + 1) * OC_PER_PAGE); k++){
+    var d = new Date(now.getFullYear(), now.getMonth() + k, 1);
+    var btn = document.createElement('div');
+    btn.className = 'month-btn';
+    btn.setAttribute('data-say', 'month_' + (d.getMonth() + 1));
+    btn.innerHTML = '<div class="mb-rel">' + (k === 0 ? 'এই মাস' : k === 1 ? 'আগামী মাস' : toBengaliDigits(k) + ' মাস পর') + '</div>' +
+      '<div class="mb-name">' + BN_MONTHS[d.getMonth()] + '</div><div class="mb-year">' + toBengaliDigits(d.getFullYear()) + '</div>';
+    btn.onclick = (function(offset){ return function(){ pickOutstandingMonth(offset); }; })(k);
+    grid.appendChild(btn);
+  }
+  addButtonSpeakers(grid);
+  document.getElementById('oc-month-pager').style.display = pages > 1 ? '' : 'none';
+  var dots = document.getElementById('oc-month-dots');
+  dots.innerHTML = '';
+  for(var i = 0; i < pages; i++){
+    var dot = document.createElement('div');
+    dot.className = 'paged-dot' + (i === ocMonthPage ? ' filled' : '');
+    dots.appendChild(dot);
+  }
+  document.getElementById('oc-title').innerText = currentTier === 'expert' ? 'তারিখ নির্বাচন করুন' : 'কোন মাস পর্যন্ত বকেয়া জানতে চান?';
+}
+function pageOutstandingMonths(dir){ ocMonthPage += dir; renderOutstandingMonths(); }
+function pickOutstandingMonth(offset){
+  var now = new Date();
+  var d = new Date(now.getFullYear(), now.getMonth() + offset, 15);
+  showOutstandingFor(d, BN_MONTHS[d.getMonth()] + ' ' + toBengaliDigits(d.getFullYear()) + ' পর্যন্ত বকেয়া');
+}
+// The screen's 🔊 and ?: the month wording, or in দক্ষ the original date wording.
+function outstandingAudio(which){
+  if(currentTier !== 'expert'){ playClip(which === 'help' ? 'help_outstanding_month' : 'prompt_outstanding_month'); return; }
+  if(which === 'help') playSound('help_outstanding_date','এখানে একটি তারিখ দিলে সেই তারিখ পর্যন্ত আপনার বকেয়া কত হবে তা হিসাব করে দেখানো হবে।');
+  else playSound('prompt_outstanding_date','যে তারিখের বকেয়া জানতে চান, সেই তারিখ দিন, দিন মাস বছর এই ক্রমে।');
+}
+
+/* ============================================================
+   MONEY AS PICTURES (১২৩ and নতুন)
+   ------------------------------------------------------------
+   Under an amount, the same sum drawn as notes: bundles of ৳১ লাখ
+   (the banded stack of a hundred ৳১০০০ notes a bank hands over),
+   then ৳১০০০, ৳৫০০, ৳১০০, ৳৫০ and ৳১০ notes, each in its real
+   note's color with "×N". Someone who can't read "৳ ২৮,৫০০" still
+   knows a ৳১০০০ note, and on the amount keypads the picture changes
+   with every digit, so one zero too many shows at once. Sums under
+   ৳১০ are left to the numeral. Shown by CSS in the two guided tiers
+   only; the research panel can switch it off for comparison.
+   ============================================================ */
+var NOTE_TYPES = [
+  { v:100000, cls:'bundle', label:'১ লাখ' },
+  { v:1000, cls:'n1000', label:'১০০০' },
+  { v:500,  cls:'n500',  label:'৫০০' },
+  { v:100,  cls:'n100',  label:'১০০' },
+  { v:50,   cls:'n50',   label:'৫০' },
+  { v:10,   cls:'n10',   label:'১০' }
+];
+function moneyPicHTML(amount){
+  amount = Math.round(amount || 0);
+  var out = '';
+  NOTE_TYPES.forEach(function(t){
+    var n = Math.floor(amount / t.v);
+    amount -= n * t.v;
+    if(n) out += '<span class="note-group"><span class="note ' + t.cls + '">' + t.label + '</span>' +
+      '<span class="note-x">×' + toBengaliDigits(n) + '</span></span>';
+  });
+  return out;
+}
+function setMoneyPic(id, amount){
+  var el = document.getElementById(id);
+  if(el) el.innerHTML = moneyPicHTML(amount);
+}
 
 var lcDigits = '';
 buildKeypad('lc-amount-keypad', function(d){ if(lcDigits.length<8){ lcDigits+=d; updateLcDisplay(); updateLoanCalcLive(); } },
   function(){ lcDigits = lcDigits.slice(0,-1); updateLcDisplay(); updateLoanCalcLive(); });
 function updateLcDisplay(){
   document.getElementById('lc-amount-display').innerText = '৳ ' + (lcDigits.length ? toBengaliDigits(groupBD(lcDigits)) : '০');
+  setMoneyPic('lc-amount-pic', parseInt(lcDigits || '0', 10));
 }
 /* Live preview on the input screen itself: recomputes on every digit
    press and every tenure-chip tap, so the split-bar and EMI figure
@@ -4073,6 +4956,7 @@ buildKeypad('dps-amount-keypad', function(d){ if(dpsDigits.length<7){ dpsDigits+
   function(){ dpsDigits = dpsDigits.slice(0,-1); updateDpsDisplay(); updateDpsCalcLive(); });
 function updateDpsDisplay(){
   document.getElementById('dps-amount-display').innerText = '৳ ' + (dpsDigits.length ? toBengaliDigits(groupBD(dpsDigits)) : '০');
+  setMoneyPic('dps-amount-pic', parseInt(dpsDigits || '0', 10));
 }
 function updateDpsCalcLive(){
   var P = parseInt(dpsDigits || '0', 10);
@@ -4139,11 +5023,12 @@ function speakDpsCalcWalkthrough(){
    ============================================================ */
 var laDigits = '';
 var laPrefillTenure = null; // set only when reached via the loan calculator, for the confirm-overlay recap
-var laPresetAmounts = [650000, 4000, 300000, 450000, 30000];
+var laPresetAmounts = [4000, 30000, 300000, 450000, 650000];
 buildKeypad('la-amount-keypad', function(d){ if(laDigits.length<8){ laDigits+=d; updateLaDisplay(); } },
   function(){ laDigits = laDigits.slice(0,-1); updateLaDisplay(); });
 function updateLaDisplay(){
   document.getElementById('la-amount-display').innerText = laDigits.length ? formatTaka(parseInt(laDigits,10)) : '৳ ০';
+  setMoneyPic('la-amount-pic', parseInt(laDigits || '0', 10));
 }
 function renderLaPresetChips(){
   var container = document.getElementById('la-preset-chips');
@@ -4174,6 +5059,7 @@ function requestLoanApplication(){
   var amt = parseInt(laDigits || '0', 10);
   if(amt <= 0){ speak('অনুগ্রহ করে ঋণের পরিমাণ দিন'); return; }
   var recap = document.getElementById('loan-confirm-recap');
+  setMoneyPic('loan-confirm-pic', amt);
   if(laPrefillTenure){
     var emi = calcEMI(amt, CONFIG.loanAnnualRatePct, laPrefillTenure);
     recap.innerText = 'আপনি ' + formatTaka(amt) + ' টাকা ঋণ নেবেন। প্রতি মাসে দিতে হবে ' +
@@ -4208,6 +5094,7 @@ buildKeypad('sr-amount-keypad', function(d){ if(srDigits.length<7){ srDigits+=d;
   function(){ srDigits = srDigits.slice(0,-1); updateSrDisplay(); });
 function updateSrDisplay(){
   document.getElementById('sr-amount-display').innerText = '৳ ' + (srDigits.length ? toBengaliDigits(groupBD(srDigits)) : '০');
+  setMoneyPic('sr-amount-pic', parseInt(srDigits || '0', 10));
 }
 function openSavingsRegisterInput(){
   srDigits = '';
@@ -4235,6 +5122,7 @@ function requestSavingsRegistration(type){
       recap.innerText = 'আপনি প্রতি মাসে ' + formatTaka(amt2) + ' টাকা করে ' + toBengaliDigits(years) + ' বছর জমা দেবেন।';
     }
   }
+  setMoneyPic('savings-confirm-pic', pendingSavingsRegistration.amount);
   showOverlay('overlay-savings-confirm');
   resetHoldConfirm('savings-hold-confirm');
 }
@@ -4266,24 +5154,23 @@ function setLang(lang){
 
 initDashboard();
 initIcons();
-document.getElementById('onboarding-mascot').innerHTML = mascotSVG(84);
-document.getElementById('dash-mascot').innerHTML = mascotSVG(64);
+document.getElementById('onboarding-mascot').innerHTML = mascotSVG(52);
+document.getElementById('dash-mascot').innerHTML = mascotSVG(44);
 renderNoviceGuidance('pin-novice-guidance', 'চিন্তা করবেন না, শুধু আপনার ৪ সংখ্যার গোপন পিনটি চাপুন');
 renderNoviceGuidance('la-novice-guidance', 'আপনি যত টাকা ঋণ নিতে চান তা এখানে লিখুন');
 renderNoviceGuidance('sr-novice-guidance', 'আপনি প্রতি মাসে যত টাকা জমা রাখতে চান তা লিখুন');
-loadA11yPrefs();
-loadTierTracker();
-loadScreenVisits();
+loadStore();
+loadMember(store.device.lastMember);
 initHoldConfirm(document.getElementById('loan-hold-confirm'), 900, confirmLoanApplication);
 initHoldConfirm(document.getElementById('savings-hold-confirm'), 900, confirmSavingsRegistration);
-var savedTier = 'intermediate';
-try{ savedTier = localStorage.getItem('agami_tier') || 'intermediate'; }catch(e){}
-if(tierLadder().indexOf(savedTier) === -1) savedTier = 'intermediate'; // e.g. নতুন while it's hidden
-setTier(savedTier);
+setTier(validTier(memberState.tier)); // e.g. not নতুন while it is hidden
 tierReady = true;
 // The opening login screen never goes through showScreen(), so hide the top bar here too.
 document.getElementById('top-bar').classList.toggle('hidden', HIDE_TOPBAR_SCREENS.indexOf(activeScreenId()) !== -1);
+HIDE_TOPBAR_SCREENS.forEach(function(id){ document.getElementById(id).classList.add('no-topbar'); });
 startA11ySemantics();
+fitScreen();
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitScreen);
 </script>
 
 </body>

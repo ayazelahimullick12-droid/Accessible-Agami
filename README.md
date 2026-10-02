@@ -1,8 +1,7 @@
 # Accessible Agami
 
 An accessible, adaptive version of the Agami app for rural members in Bangladesh, including people who
-cannot read. It adapts between tiers (১২৩ voice menu → [নতুন] → মাঝারি → দক্ষ): the app suggests moving up
-or down, and the member always decides.
+cannot read. Live demo: **https://accessible-agami.onrender.com/**
 
 One codebase, two ways to ship it:
 
@@ -13,26 +12,98 @@ One codebase, two ways to ship it:
 | **Website** | the same files served as a static site | `render.yaml` |
 
 Editing `agami.html` or replacing a clip in `assets/audio/` updates both: the Android build copies the files
-in automatically, and Render redeploys on every push.
+in automatically, and Render redeploys from GitHub.
+
+## What it does
+
+- **Four ways to use it (tiers):** ১২৩ (a spoken, numbered menu for people who can't read), নতুন (guided, one
+  thing at a time; hidden by default, switch it on in Settings), মাঝারি (the standard screens) and দক্ষ
+  (everything at once).
+- **It adapts, but the member decides.** The app scores how each task goes and offers to move a member up or
+  down a tier. See *How the adaptation works* below.
+- **Nothing scrolls.** Every screen fits the phone it is opened on; long pages are split into steps or pages.
+- **Everything can be heard.** In ১২৩ and নতুন, the first tap on a button says what it does and a second tap
+  does it. মাঝারি has a small 🔊 on each button. Pages, dialogs and tier offers speak for themselves in the
+  two guided tiers, with a 🔊/🔇 switch in the top bar.
+- **Amounts as pictures.** In ১২৩ and নতুন, sums are also drawn as taka notes, including while typing.
+- **Each member has their own settings**, kept under the mobile number they log in with, because phones are
+  shared.
+
+## How the adaptation works
+
+- **What is measured:** everyday tasks (opening an account or history page and staying on it, paging through
+  its details, using a calculator) and the rarer applications, which count double. ১২৩ is measured on its own
+  menu: picking a number before the voice reads it out, then staying on that page.
+- **Signs of difficulty:** two taps on **?**, abandoning a task, taking over twice the member's own usual
+  time, three keypad corrections, opening a page and leaving within 2 seconds, replaying the same button's
+  audio, and three taps on things that aren't buttons.
+- **The rule:** of the last 10 results in a tier, 8 clean ones spread over 3 different days offer the next
+  tier up; 6 rough ones offer the tier below.
+- **The offer** only appears on the dashboard or a success page. Declining rests it for 3 tasks (10 when it
+  involves ১২৩). After moving up, the next 3 tasks are a trial: two rough ones bring an immediate "go back?".
+
+## Research panel and running a demo
+
+Open **Settings (⚙) and tap the title 7 times.** The panel (in English) shows the current member's score and
+lets you:
+
+- **Change the rules.** *Demo rules* make an offer appear after 4 results on the same day, which is what you
+  want on stage; *Study rules* restore 8 of 10 over 3 days.
+- **Switch the note pictures off** to compare with and without.
+- **Export the log as CSV** (every task result, offer, answer, tier and setting change, with a timestamp;
+  members appear as the last four digits of their number), clear it, or **reset the current member** so they
+  start again from "choose your level".
+
+To show a tier offer live: choose *Demo rules*, go to the dashboard in মাঝারি, then open an account page,
+wait about 5 seconds, and go back. After the fourth time the offer appears.
+
+**For a QR code:** a link ending in `?rules=demo`
+(`https://accessible-agami.onrender.com/?rules=demo`) puts whoever opens it on the demo rules without
+touching the panel, so an audience sees the offers too. The plain link keeps the study rules.
+
+Any mobile number and any 4-digit PIN log in; each new number is a new member and starts at "choose your
+level".
 
 ## Audio
 
-- `assets/audio/` holds every clip. The app's original clips are unchanged. The clips added for the ১২৩ tier,
-  onboarding, tier prompts, button speakers, dialogs and settings are TTS stand-ins in a Bangladeshi voice.
-- **[AUDIO_SCRIPTS.md](AUDIO_SCRIPTS.md)** lists each added clip's file name, where it plays, and its script.
+- `assets/audio/` holds every clip. The app's original clips are unchanged. The clips added since are TTS
+  stand-ins in a Bangladeshi voice.
+- **[AUDIO_SCRIPTS.md](AUDIO_SCRIPTS.md)** lists each added clip's file name, where it plays and its script.
   To use your own recording, save it under the same file name in `assets/audio/`.
 - The scripts live in the `CLIP_TEXT` block of `agami.html`. `tools/generate_audio.py` reads them to make
   missing stand-ins (`python tools/generate_audio.py`, after `pip install edge-tts`) and to refresh the sheet
   (`--doc`). It never overwrites an existing file unless you pass `--force` with clip names.
+- Amounts, dates and names are read by the phone's own Bengali voice, so they need one installed (see the
+  notes under each platform).
 
 ---
+
+## Host the website (Render)
+
+The site is set up from `render.yaml` (a Blueprint): a static site whose build step publishes only the app
+itself, with `agami.html` as the home page.
+
+- **After every push to GitHub, redeploy:** in the Render dashboard open the service → *Manual Deploy →
+  Deploy latest commit* (or suspend and resume it). If *Auto-Deploy* is on, this happens by itself.
+- **First-time setup:** render.com → *New → Blueprint* → choose this repository → *Deploy Blueprint*.
+  Without a Blueprint: *New → Static Site*, build command
+  `rm -rf public && mkdir -p public && cp -r assets public/ && cp agami.html public/index.html && cp agami.html public/agami.html`,
+  publish directory `public`.
+
+**Notes for the web version**
+- Browsers only allow sound after the first tap on a page, so the opening login screen can't speak by
+  itself; everything after the first tap can.
+- Amounts are read by the browser's own voice. That works in Chrome on Android with Google's Bengali voice
+  installed and may be silent on phones without a Bengali voice. Recorded clips play everywhere.
+- Each browser keeps its own members, settings and log.
+- On a laptop or projector the app stays a phone-width column in the middle of the window.
 
 ## Build the Android app (Android Studio)
 
 The project uses AGP 9.3 and Gradle 9.6, which Android Studio **2026.1.2 (Quail 2) or newer** opens. It was
 built successfully from the command line with the JDK that ships with Android Studio Quail 4 (2026.1.4).
 
-1. **Get the code.** Either use this folder, or clone it:
+1. **Get the code.** Use this folder, or clone it:
    `git clone https://github.com/ayazelahimullick12-droid/Accessible-Agami.git`
 2. **Open the `android` folder**, not the repo root: Android Studio → *File → Open…* → select
    `Accessible-Agami/android` → *OK*. Trust the project if asked.
@@ -65,25 +136,7 @@ Command-line alternative (no Studio UI): `cd android` then `gradlew.bat assemble
   play right after a spoken amount.
 - **Auto-play:** allows audio without a tap first, so pages can speak for themselves.
 - **Back:** closes a dialog, or goes back to the dashboard, instead of quitting the app.
+- **Sharing:** `window.AndroidApp.shareText` sends the research log to the phone's share sheet, since a
+  WebView can't save files.
 - **Phone behaviour:** keeps the page clear of the status and navigation bars, and silences audio when the
   app goes to the background (for example during a phone call).
-
-## Host the website (Render)
-
-1. Make sure the latest code is pushed to GitHub (`main` branch).
-2. Go to **https://render.com** → *Sign up / Log in with GitHub*.
-3. Click **New → Blueprint**. Connect your GitHub account if asked, choose the **Accessible-Agami**
-   repository, and Render finds `render.yaml`. Review and click **Deploy Blueprint** (or *Apply*).
-   - *Without a Blueprint:* **New → Static Site** → pick the repo → set the **Build Command** to
-     `rm -rf public && mkdir -p public && cp -r assets public/ && cp agami.html public/index.html && cp agami.html public/agami.html`
-     and the **Publish Directory** to `public` → *Deploy Static Site*.
-4. When the deploy log says *Your site is live*, open the URL at the top of the service page. It looks like
-   `https://accessible-agami.onrender.com`; Render adds a suffix if the name is taken.
-5. From now on, every push to `main` redeploys automatically. Static sites are free and don't go to sleep.
-
-**Notes for the web version**
-- Browsers only allow sound after the first tap on a page. The opening login screen can't speak on its
-  own, but everything after the first tap can.
-- Amounts are read by the browser's own voice. That works in Chrome on Android with Google's Bengali voice
-  installed, but may be silent on a desktop computer.
-- Each browser keeps its own settings, tier and progress (stored in that browser only).

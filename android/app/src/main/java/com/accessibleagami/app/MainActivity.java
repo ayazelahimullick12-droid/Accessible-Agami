@@ -2,6 +2,7 @@ package com.accessibleagami.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Insets;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,8 +21,9 @@ import java.util.Locale;
 /**
  * Shows agami.html (copied in from the repo root at build time, see
  * app/build.gradle.kts) full screen, and gives the page the phone's own
- * speech engine as window.AndroidTTS. Back is handed to androidBack() in
- * the page, which closes a dialog or steps back toward the dashboard.
+ * speech engine as window.AndroidTTS and a share sheet as window.AndroidApp.
+ * Back is handed to androidBack() in the page, which closes a dialog or
+ * steps back toward the dashboard.
  */
 public class MainActivity extends Activity implements TextToSpeech.OnInitListener {
 
@@ -48,6 +50,7 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         web.setWebViewClient(new WebViewClient());
         web.setWebChromeClient(new WebChromeClient());
         web.addJavascriptInterface(new TtsBridge(), "AndroidTTS");
+        web.addJavascriptInterface(new AppBridge(), "AndroidApp");
 
         FrameLayout root = new FrameLayout(this);
         root.setBackgroundColor(BASE_BG);
@@ -123,6 +126,25 @@ public class MainActivity extends Activity implements TextToSpeech.OnInitListene
         @JavascriptInterface
         public boolean isSpeaking() {
             return ttsReady && tts.isSpeaking();
+        }
+    }
+
+    /** window.AndroidApp: things a page can't do for itself inside a WebView. */
+    private class AppBridge {
+        /** The research log: a WebView can't save a file, so the CSV goes to the share sheet. */
+        @JavascriptInterface
+        public void shareText(String title, String text) {
+            Intent send = new Intent(Intent.ACTION_SEND);
+            send.setType("text/plain");
+            send.putExtra(Intent.EXTRA_SUBJECT, title);
+            send.putExtra(Intent.EXTRA_TEXT, text);
+            runOnUiThread(() -> {
+                try {
+                    startActivity(Intent.createChooser(send, title));
+                } catch (RuntimeException e) {
+                    // No app to share with, or the log is too large for one share: nothing to do here.
+                }
+            });
         }
     }
 
