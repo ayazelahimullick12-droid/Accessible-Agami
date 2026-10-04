@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>আগামী</title>
-<meta name="theme-color" content="#EEF1F6">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23E2E5F8'/%3E%3Cpath d='M16 97 Q16 66 50 64 Q84 66 84 97 Z' fill='%233B47B5'/%3E%3Ccircle cx='50' cy='41' r='23' fill='%23D29A70'/%3E%3Cpath d='M27 42 Q24 15 50 15 Q76 15 73 42 Q71 28 60 25 Q52 31 40 26 Q30 29 27 42Z' fill='%232A2733'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#DC1279">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23FCE4EF'/%3E%3Cpath d='M16 97 Q16 66 50 64 Q84 66 84 97 Z' fill='%23DC1279'/%3E%3Ccircle cx='50' cy='41' r='23' fill='%23D29A70'/%3E%3Cpath d='M27 42 Q24 15 50 15 Q76 15 73 42 Q71 28 60 25 Q52 31 40 26 Q30 29 27 42Z' fill='%232A2733'/%3E%3C/svg%3E">
 <style>
   :root{
     /* Core palette — drawn from rural Bengali craft rather than generic
        fintech blue/teal: marigold, paddy-green and terracotta come from
        nakshi-kantha thread colors and rice-paddy/harvest tones, so the
        app reads as "of this place" rather than a templated SaaS skin.
-       BRAC magenta is now the LOAN category color only; the app-wide
-       chrome (buttons, focus rings, hero card) uses a gender-neutral
-       indigo --brand, distinct from every category hue. */
-    --brand:#3B47B5;
-    --brand-dark:#262F80;
-    --brand-tint:#E2E5F8;
+       The app-wide chrome (buttons, focus rings, hero card, the
+       selected tier) is BRAC magenta, the colour of the আগামী logo;
+       the loan category keeps its own, slightly deeper magenta. */
+    --brand:#DC1279;
+    --brand-dark:#A3005A;
+    --brand-tint:#FCE4EF;
     --magenta:#D6006F;
     --magenta-dark:#A80058;
     --magenta-tint:#FBE2ED;
@@ -71,7 +71,7 @@
     --space-5:24px; --space-6:32px;
     --radius-sm:12px; --radius-md:16px; --radius-lg:22px; --radius-xl:28px;
     --shadow-soft:0 6px 16px rgba(43,33,30,0.08);
-    --shadow-card:0 10px 24px rgba(59,71,181,0.16);
+    --shadow-card:0 10px 24px rgba(220,18,121,0.14);
     /* Text-size accessibility control (S/M/L). Every font-size in this
        stylesheet is written as calc(Npx * var(--text-scale)), so this
        one variable resizes all text app-wide without touching layout,
@@ -141,7 +141,7 @@
   .key.del{color:var(--accent-dark);font-size:calc(18px * var(--text-scale));}
   .spacer{flex:1;}
   .next-btn{width:70px;height:70px;border-radius:50%;background:linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);color:#fff;font-size:calc(30px * var(--text-scale));text-align:center;line-height:70px;margin:14px auto 0 auto;
-    box-shadow:0 6px 14px rgba(59,71,181,0.35), inset 0 1px 1px rgba(255,255,255,0.25);
+    box-shadow:0 6px 14px rgba(220,18,121,0.35), inset 0 1px 1px rgba(255,255,255,0.25);
     box-shadow:0 6px 14px color-mix(in srgb, var(--accent) 35%, transparent), inset 0 1px 1px rgba(255,255,255,0.25);}
   .help-icon{position:absolute;top:58px;right:18px;width:42px;height:42px;border-radius:50%;background:#fff;border:2px solid var(--accent);color:var(--accent);font-size:calc(20px * var(--text-scale));text-align:center;line-height:38px;font-weight:700;z-index:5;}
   .home-icon{position:absolute;top:58px;left:18px;width:42px;height:42px;border-radius:50%;background:#fff;border:2px solid var(--accent);color:var(--accent);font-size:calc(20px * var(--text-scale));text-align:center;line-height:38px;z-index:5;}
@@ -597,11 +597,11 @@
   .hub-size-btn.active{background:var(--brand);color:#fff;border-color:var(--brand);}
   .hub-toggle{width:100%;background:#fff;border:2px solid #eadfe0;border-radius:12px;padding:13px;margin-top:8px;
     display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:calc(13px * var(--text-scale));text-align:left;}
-  .hub-toggle.on{background:var(--adaptive-blue-tint);border-color:var(--adaptive-blue);}
+  .hub-toggle.on{background:var(--brand-tint);border-color:var(--brand);}
   .hub-toggle-hint{font-size:calc(11px * var(--text-scale));color:var(--muted);font-weight:500;margin-top:4px;line-height:1.5;}
   .sw{width:42px;height:25px;border-radius:13px;background:#ddd;position:relative;flex-shrink:0;margin-left:10px;}
   .sw::after{content:'';position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:transform .15s ease;}
-  .hub-toggle.on .sw{background:var(--adaptive-blue);}
+  .hub-toggle.on .sw{background:var(--brand);}
   .hub-toggle.on .sw::after{transform:translateX(17px);}
   .hub-replay-link{text-align:center;margin-top:20px;font-size:calc(13px * var(--text-scale));color:var(--brand);font-weight:700;text-decoration:underline;}
 
@@ -648,9 +648,9 @@
     /* RGB triplets so glows/auras can take any alpha without color-mix(),
        which older Android WebViews lack. --accent-rgb follows the same
        category classes as --accent; --aura-b/-c are the two supporting
-       aurora hues per screen (root screens: brand indigo, teal and a
+       aurora hues per screen (root screens: brand magenta, teal and a
        touch of marigold). */
-    --accent-rgb:59,71,181;
+    --accent-rgb:220,18,121;
     --aura-b:232,163,36;
     --aura-c:46,139,135;
   }
@@ -741,17 +741,17 @@
     background-image:radial-gradient(120% 90% at 30% 10%, rgba(255,255,255,0.42) 0%, rgba(255,255,255,0) 55%);
   }
 
-  /* --- Hero summary card: holographic indigo, stitch kept --------
+  /* --- Hero summary card: holographic magenta, stitch kept -------
      The nakshi-kantha running-stitch outline stays exactly as it
      was; a teal glow in the corner and a single light sweep
      each time the dashboard opens give it the futuristic sheen. */
   .summary-card{
     background:
       radial-gradient(120% 80% at 0% 0%, rgba(255,255,255,0.30) 0%, rgba(255,255,255,0) 50%),
-      radial-gradient(80% 70% at 100% 100%, rgba(46,139,135,0.60) 0%, rgba(46,139,135,0) 60%),
-      linear-gradient(155deg, #5361D6 0%, var(--brand) 45%, #1B2163 100%);
+      radial-gradient(80% 70% at 100% 100%, rgba(232,163,36,0.45) 0%, rgba(232,163,36,0) 60%),
+      linear-gradient(155deg, #F0559F 0%, var(--brand) 45%, #78003F 100%);
     border:1px solid rgba(255,255,255,0.45);
-    box-shadow:0 24px 44px -18px rgba(59,71,181,0.75), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -12px 28px -12px rgba(10,14,50,0.45);
+    box-shadow:0 24px 44px -18px rgba(220,18,121,0.75), inset 0 1px 0 rgba(255,255,255,0.5), inset 0 -12px 28px -12px rgba(60,0,30,0.45);
     overflow:hidden;
   }
   .summary-card::after{
@@ -833,8 +833,8 @@
   }
   .logout-btn{
     background:linear-gradient(165deg, var(--glass-top) 0%, var(--glass-bot) 100%);
-    border-color:rgba(38,47,128,0.55);border-radius:18px;
-    box-shadow:0 12px 26px -16px rgba(38,47,128,0.60), var(--glass-inner);
+    border-color:rgba(163,0,90,0.55);border-radius:18px;
+    box-shadow:0 12px 26px -16px rgba(163,0,90,0.60), var(--glass-inner);
   }
 
   /* Selected states: filled, lit, glowing */
@@ -846,16 +846,16 @@
   .hub-size-btn.active, .toggle-tile.selected{
     background:linear-gradient(165deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0) 55%), var(--brand);
     border-color:rgba(255,255,255,0.50);
-    box-shadow:0 10px 22px -10px rgba(59,71,181,0.90), inset 0 1px 0 rgba(255,255,255,0.40);
+    box-shadow:0 10px 22px -10px rgba(220,18,121,0.90), inset 0 1px 0 rgba(255,255,255,0.40);
   }
   .hub-toggle.on{
-    background:linear-gradient(165deg, rgba(220,231,240,0.96) 0%, rgba(220,231,240,0.70) 100%);
-    border-color:rgba(44,95,138,0.55);
-    box-shadow:0 12px 24px -14px rgba(44,95,138,0.75), var(--glass-inner);
+    background:linear-gradient(165deg, rgba(252,228,239,0.96) 0%, rgba(252,228,239,0.70) 100%);
+    border-color:rgba(220,18,121,0.50);
+    box-shadow:0 12px 24px -14px rgba(220,18,121,0.65), var(--glass-inner);
   }
   .sw{background:rgba(30,40,60,0.14);box-shadow:inset 0 1px 3px rgba(0,0,0,0.14);}
   .sw::after{box-shadow:0 2px 6px rgba(0,0,0,0.28);transition:transform .25s cubic-bezier(.3,1.3,.5,1);}
-  .hub-toggle.on .sw{background:linear-gradient(180deg, #3B7DB8 0%, var(--adaptive-blue) 100%);box-shadow:0 0 12px rgba(44,95,138,0.55), inset 0 1px 2px rgba(0,0,0,0.15);}
+  .hub-toggle.on .sw{background:linear-gradient(180deg, #EE4C98 0%, var(--brand-dark) 100%);box-shadow:0 0 12px rgba(220,18,121,0.55), inset 0 1px 2px rgba(0,0,0,0.15);}
 
   /* --- Floating chrome: the only real backdrop blur ------------- */
   .tier-seg, .hub-gear{
@@ -866,8 +866,8 @@
   }
   .tier-seg-btn{border-radius:14px;transition:background .2s ease, color .2s ease, box-shadow .2s ease;}
   .tier-seg-btn.active{
-    background:linear-gradient(165deg, #33394D 0%, #141825 100%);
-    box-shadow:0 6px 14px -6px rgba(20,24,37,0.70), inset 0 1px 0 rgba(255,255,255,0.18);
+    background:linear-gradient(165deg, #EE4C98 0%, #A3005A 100%);
+    box-shadow:0 6px 14px -6px rgba(220,18,121,0.80), inset 0 1px 0 rgba(255,255,255,0.25);
   }
   /* Bottom nav becomes a floating dock; Home is lit because the
      dock only ever appears on the dashboard. */
@@ -900,7 +900,7 @@
   .overlay-btn.yes{
     background:linear-gradient(165deg, rgba(255,255,255,0.26) 0%, rgba(255,255,255,0) 55%), var(--brand);
     border-color:rgba(255,255,255,0.35);
-    box-shadow:0 12px 24px -10px rgba(59,71,181,0.85), inset 0 1px 0 rgba(255,255,255,0.40);
+    box-shadow:0 12px 24px -10px rgba(220,18,121,0.85), inset 0 1px 0 rgba(255,255,255,0.40);
   }
   .overlay-btn.no{background:rgba(30,40,60,0.07);border-color:rgba(30,40,60,0.08);}
   .overlay-recap{background:rgba(30,40,60,0.05);border:1px solid rgba(30,40,60,0.06);}
@@ -1178,7 +1178,24 @@
   .help-icon, .home-icon, .back-icon, .help-icon.stacked{top:calc(54px / var(--z,1));}
   /* Screens shown without the top bar (HIDE_TOPBAR_SCREENS) start higher */
   .screen.no-topbar{padding-top:calc(16px / var(--z,1));}
-  .screen.no-topbar > .help-icon, .screen.no-topbar > .home-icon, .screen.no-topbar > .back-icon{top:calc(12px / var(--z,1));}
+  .screen.no-topbar > .help-icon, .screen.no-topbar > .home-icon, .screen.no-topbar > .back-icon, .screen.no-topbar > .app-logo{top:calc(12px / var(--z,1));}
+  /* brac আগামী logo, top-left of the home and login screens (where
+     other screens have 🏠). Drawn in the page's own fonts so it stays
+     sharp; a file saved as assets/icons/agami_logo.png replaces it. */
+  .app-logo{position:absolute;top:58px;left:18px;height:42px;min-width:60px;padding:0 9px;box-sizing:border-box;z-index:5;
+    border-radius:11px;background:linear-gradient(160deg, #EC2E8C 0%, var(--brand) 55%, #C80A6B 100%);color:#fff;
+    display:flex;flex-direction:column;justify-content:center;align-items:flex-start;line-height:1;
+    box-shadow:0 8px 16px -8px rgba(220,18,121,0.75), inset 0 1px 0 rgba(255,255,255,0.35);pointer-events:none;}
+  .app-logo .al-brac{font-family:'Poppins','Hind Siliguri',sans-serif;font-weight:600;font-size:12.5px;letter-spacing:-0.2px;margin-bottom:1px;}
+  .app-logo .al-agami{font-weight:700;font-size:17px;letter-spacing:0;}
+  .app-logo .al-img{display:none;}
+  .app-logo.has-img{padding:0;background:none;box-shadow:none;}
+  .app-logo.has-img .al-img{display:block;height:100%;border-radius:11px;}
+  .app-logo.has-img span{display:none;}
+  /* নতুন: the guide row moves below the logo */
+  #dash-novice > .guide-row:first-child{margin:46px 0 10px !important;}
+  /* Room for the bottom bar's 8px lift, so a page shrunk to fit never slides under it. */
+  #screen-dashboard > .tier-view{padding-bottom:10px;}
   .top-bar{left:50%;right:auto;transform:translateX(-50%);width:calc(var(--app-w) - 28px);}
   /* Two quick taps must stay two taps (tap-to-hear), never a zoom; and a
      held finger on the confirm bar must not be taken over by the browser. */
@@ -1461,6 +1478,7 @@
 </div>
 
 <div class="screen active" id="screen-login-mobile">
+  <div class="app-logo" role="img" aria-label="ব্র্যাক আগামী"><img class="al-img" src="assets/icons/agami_logo.png" alt="" onload="this.parentNode.classList.add('has-img')" onerror="this.remove()"><span class="al-brac">brac</span><span class="al-agami">আগামী</span></div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_login_mobile','এই পাতায় আপনার ব্র্যাক নিবন্ধিত মোবাইল নম্বরটি লিখুন। সমস্যা হলে নিকটস্থ ব্র্যাক অফিসে যোগাযোগ করুন।')">?</div>
   <div class="dots"><div class="dot filled"></div><div class="dot"></div></div>
   <div class="banner" data-icon="mobile" data-emoji="📱">📱</div>
@@ -1475,6 +1493,7 @@
 <!-- No OTP step: reading a code out of an SMS is exactly what a member
      who can't read can't do, so login is mobile number -> PIN. -->
 <div class="screen" id="screen-login-pin">
+  <div class="app-logo" role="img" aria-label="ব্র্যাক আগামী"><img class="al-img" src="assets/icons/agami_logo.png" alt="" onload="this.parentNode.classList.add('has-img')" onerror="this.remove()"><span class="al-brac">brac</span><span class="al-agami">আগামী</span></div>
   <div class="back-icon" data-icon="back" data-emoji="←" onclick="showScreen('screen-login-mobile')">←</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_login_pin','এখানে আপনার ৪ সংখ্যার গোপন পিন দিন। পিন কাউকে বলবেন না।')">?</div>
   <div class="dots"><div class="dot filled"></div><div class="dot filled"></div></div>
@@ -1526,14 +1545,15 @@
 </div>
 
 <div class="screen" id="screen-dashboard">
+  <div class="app-logo" role="img" aria-label="ব্র্যাক আগামী"><img class="al-img" src="assets/icons/agami_logo.png" alt="" onload="this.parentNode.classList.add('has-img')" onerror="this.remove()"><span class="al-brac">brac</span><span class="al-agami">আগামী</span></div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="dashboardHelp()">?</div>
 
   <!-- VOICE (১২৩): for members who can't read. The same 4 core accounts
        as Novice, as four giant numbered keys read out like a phone
        menu ("ঋণের তথ্য জানতে ১ চাপুন ..."). Read-only by design — no
        apply, no calculators. It is the bottom rung of the promotion
-       ladder: picking numbers before the menu reads them out is what
-       earns the offer to move up (see voiceMenuPick). ০ replays the menu. -->
+       ladder: picking numbers without asking for help is what earns
+       the offer to move up (see voiceMenuPick). ০ replays the menu. -->
   <div id="dash-voice" class="tier-view">
     <div class="voice-grid">
       <div class="tile voice-key cat-loan" id="vk-1" onclick="voiceMenuPick('loan')">
@@ -3399,7 +3419,7 @@ function applyDirectFromCalc(kind){
    style as before, so it still reads as a friendly person, not an icon. */
 function mascotSVG(size){
   return '<svg class="mascot" style="width:'+size+'px;height:'+size+'px;" viewBox="0 0 100 100">' +
-    '<path d="M16 97 Q16 66 50 64 Q84 66 84 97 Z" fill="#3B47B5"/>' +
+    '<path d="M16 97 Q16 66 50 64 Q84 66 84 97 Z" fill="#DC1279"/>' +
     '<path d="M41 64.5 Q50 75 59 64.5 Z" fill="#2E8B87"/>' +
     '<circle cx="50" cy="41" r="23" fill="#D29A70"/>' +
     '<path d="M27 42 Q24 15 50 15 Q76 15 73 42 Q71 28 60 25 Q52 31 40 26 Q30 29 27 42Z" fill="#2A2733"/>' +
@@ -4601,10 +4621,12 @@ function renderHistoryList(containerId, list){
       '<div class="history-info"><div class="history-date">'+item.date+'</div><div class="history-channel">'+item.channel+'</div></div>'+
       '<div class="history-amount">'+(missed ? '' : '✅ ')+formatTaka(item.amount)+'</div>';
     // Each row says itself: tap to hear (two taps' first in ১২৩/নতুন, its 🔊 in মাঝারি).
-    if(acc){
+    // দক্ষ has no audio aids, so there the row is plain text, not a button.
+    // (The list is redrawn on every tier change.)
+    if(acc && currentTier !== 'expert'){
       row.setAttribute('data-say', missed ? 'pay_missed' : 'pay_got');
       row.setAttribute('data-pay', 'row:' + acc + ':' + i);
-      row.onclick = function(){ if(!twoTapOn() && currentTier !== 'expert') playVoiceChain(paySegments(item)); };
+      row.onclick = function(){ if(!twoTapOn()) playVoiceChain(paySegments(item)); };
     }
     container.appendChild(row);
   });

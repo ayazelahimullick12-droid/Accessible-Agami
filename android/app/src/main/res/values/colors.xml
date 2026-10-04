@@ -2,5 +2,5 @@
 <resources>
     <!-- Same colors as agami.html: base-bg and brand-tint -->
     <color name="base_bg">#EEF1F6</color>
-    <color name="ic_launcher_background">#E2E5F8</color>
+    <color name="ic_launcher_background">#FCE4EF</color>
 </resources>

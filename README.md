@@ -29,6 +29,9 @@ in automatically, and Render redeploys from GitHub.
   the account page says how to hear them, and they are spoken when a line is tapped or ০ is pressed, so
   people nearby don't hear them by default.
 - **Amounts as pictures.** In ১২৩ and নতুন, sums are also drawn as taka notes, including while typing.
+- **BRAC look.** The brac আগামী logo sits top-left on the home and login screens, and buttons, highlights
+  and the selected tier are BRAC magenta. The logo is drawn in the page's fonts; to use the original image
+  instead, save it as `assets/icons/agami_logo.png`.
 - **Pictures from village life.** Icons are drawn for the members the app is for: a hand with bangles
   receiving taka (ঋণ), a clay money bank (সঞ্চয়), a tin-roof house (হোম), a woman in a saree (প্রোফাইল), the
   passbook (ইতিহাস). They are SVGs in `assets/icons/`; see the note there to swap one for your own picture.
