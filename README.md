@@ -21,23 +21,11 @@ in automatically, and Render redeploys from GitHub.
   (everything at once).
 - **It adapts, but the member decides.** The app scores how each task goes and offers to move a member up or
   down a tier. See *How the adaptation works* below.
-- **Nothing scrolls.** Every screen and dialog fits the phone it is opened on; long pages are split into
-  steps or pages.
+- **Nothing scrolls.** Every screen fits the phone it is opened on; long pages are split into steps or pages.
 - **Everything can be heard.** In ১২৩ and নতুন, the first tap on a button says what it does and a second tap
   does it. মাঝারি has a small 🔊 on each button. Pages, dialogs and tier offers speak for themselves in the
   two guided tiers, with a 🔊/🔇 switch in the top bar.
 - **Amounts as pictures.** In ১২৩ and নতুন, sums are also drawn as taka notes, including while typing.
-- **"Did BRAC get my money?"** A member who hands a payment to a field worker can check that BRAC recorded
-  it, without reading:
-  - After login, a dialog announces payments recorded since the member last looked ("সুখবর! ব্র্যাক আপনার
-    জমা পেয়েছে"), with the amount spoken and shown as notes. Each payment is announced once.
-  - Each account page and the dashboard lead with the latest payment: ✅ green when BRAC received it, ❌ red
-    for a month with nothing received.
-  - In ১২৩, the account page reads the latest payment first. Key ৮ reads earlier payments one by one, and
-    key ৭ gives BRAC's call-centre number, which is BRAC's own and not the field worker's.
-  - Every history row says whether BRAC received it, and each history page has a "paid, but not here?"
-    button.
-  - The number is `CONFIG.hotline` in `agami.html`. Set `CONFIG.hotlineTel` to make the button dial it.
 - **Each member has their own settings**, kept under the mobile number they log in with, because phones are
   shared.
 

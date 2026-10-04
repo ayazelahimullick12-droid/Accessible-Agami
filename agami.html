@@ -1183,10 +1183,7 @@
      held finger on the confirm bar must not be taken over by the browser. */
   html, body{touch-action:manipulation;-webkit-touch-callout:none;}
   .hold-confirm{touch-action:none;}
-  /* The top bar stays above dialogs (its 🔇 works while one speaks), so a
-     dialog is centred in the space below it. */
-  .overlay{height:100dvh;box-sizing:border-box;padding:58px 0 14px;}
-  .overlay-card{max-width:400px;max-height:calc(100vh - 72px);max-height:calc((100dvh - 72px) / var(--oz,1));overflow-y:auto;zoom:var(--oz,1);}
+  .overlay-card{max-width:400px;max-height:calc(100vh - 28px);overflow-y:auto;}
 
   /* --- Tap to hear, tap again to do (১২৩, নতুন): no 🔊 icons; the tapped
          button is ringed and pulses until it is tapped again --- */
@@ -1212,54 +1209,6 @@
   .summary-speaker{z-index:2;}
   .adaptive-section-list{flex-wrap:wrap;overflow-x:visible;gap:6px;}
   .adaptive-chip{padding:6px 12px;}
-
-  /* ============================================================
-     PAYMENT CHECK (see the PAYMENT CHECK section in the script):
-     green ✅ = BRAC recorded it, red ❌ = nothing recorded that month.
-     ============================================================ */
-  .receipt-strip{position:relative;display:flex;align-items:center;gap:10px;padding:7px 12px;margin:4px 0 2px;border-radius:18px;
-    background:linear-gradient(165deg, rgba(220,238,226,0.97) 0%, rgba(220,238,226,0.78) 100%);
-    border:2px solid rgba(47,125,79,0.55);box-shadow:0 10px 22px -14px rgba(47,125,79,0.7), var(--glass-inner);transition:transform .08s ease;}
-  .receipt-strip:active{transform:scale(0.98);}
-  .receipt-strip.missed{background:linear-gradient(165deg, rgba(245,223,213,0.97) 0%, rgba(245,223,213,0.78) 100%);
-    border-color:rgba(193,80,46,0.6);box-shadow:0 10px 22px -14px rgba(193,80,46,0.7), var(--glass-inner);}
-  .rs-mark{font-size:calc(26px * var(--text-scale));line-height:1;flex-shrink:0;}
-  .rs-body{flex:1;min-width:0;}
-  .rs-title{font-size:calc(14px * var(--text-scale));font-weight:800;color:var(--paddy-dark);line-height:1.35;}
-  .receipt-strip.missed .rs-title{color:var(--terracotta-dark);}
-  .rs-sub{font-size:calc(13px * var(--text-scale));font-weight:700;color:var(--ink);}
-  .receipt-strip .money-pic{justify-content:flex-start;margin:3px 0 0;}
-  .rs-go{font-size:22px;font-weight:800;color:var(--muted);flex-shrink:0;}
-  .receipt-strip > .btn-speak{position:static;flex-shrink:0;}
-
-  .history-status{font-size:calc(12px * var(--text-scale));font-weight:800;margin-top:1px;color:var(--paddy-dark);}
-  .history-row.missed .history-status{color:var(--terracotta-dark);}
-  .history-row{flex-wrap:wrap;}
-  .history-row > .money-pic{flex-basis:100%;justify-content:flex-start;margin:4px 0 0 38px;}
-  .history-row > .btn-speak{position:static;flex-shrink:0;margin-left:8px;}
-  .history-row.compact .history-status{font-size:calc(10px * var(--text-scale));}
-  .pay-report-btn{border-color:rgba(193,80,46,0.55);color:var(--terracotta-dark);}
-
-  .voice-fact.receipt-ok, .voice-fact.pay-row.ok{border-color:rgba(47,125,79,0.6);}
-  .voice-fact.receipt-missed, .voice-fact.pay-row.missed{border-color:rgba(193,80,46,0.7);
-    background:linear-gradient(165deg, rgba(245,223,213,0.92) 0%, rgba(245,223,213,0.62) 100%);}
-  .voice-fact.receipt-ok .vf-label, .voice-fact.pay-row.ok .vf-sub{color:var(--paddy-dark);}
-  .voice-fact.receipt-missed .vf-label, .voice-fact.pay-row.missed .vf-sub{color:var(--terracotta-dark);}
-  .voice-fact.pay-row .vf-icon, .voice-fact[class*="receipt-"] .vf-icon{background:rgba(255,255,255,0.75);}
-  .voice-fact.pay-row .vf-value{font-size:calc(24px * var(--text-scale));}
-  .voice-fact.vk-hl{box-shadow:0 0 0 4px rgba(var(--accent-rgb),0.40), var(--glass-shadow);}
-  .voice-nav + .voice-nav{margin-top:8px;}
-  .voice-key-wide.pay-report .vk-num{background:rgba(193,80,46,0.16);color:var(--terracotta-dark);}
-
-  .receipt-stamp{font-size:42px;line-height:1;margin-bottom:6px;}
-  #overlay-receipt .overlay-title{color:var(--paddy-dark);margin-bottom:10px;}
-  .receipt-row{display:flex;align-items:center;gap:10px;text-align:left;padding:8px 10px;margin-bottom:8px;border-radius:14px;
-    background:rgba(220,238,226,0.7);border:1px solid rgba(47,125,79,0.35);}
-  .rr-icon{font-size:24px;flex-shrink:0;}
-  .rr-body{flex:1;min-width:0;}
-  .rr-what{font-size:calc(13px * var(--text-scale));font-weight:700;color:var(--muted);}
-  .rr-amt{font-size:calc(17px * var(--text-scale));font-weight:800;}
-  .receipt-row .money-pic{justify-content:flex-start;margin:3px 0 0;}
 
   /* --- Mascot beside its speech bubble: one row instead of a stack --- */
   .guide-row{display:flex;align-items:center;gap:10px;margin:0 0 10px;}
@@ -1685,34 +1634,9 @@
   </div>
   <div id="vi-facts"></div>
   <div class="spacer"></div>
-  <!-- Accounts with payments: ৮ hears the earlier ones, ৭ reports one that is missing -->
-  <div class="voice-nav" id="vi-pay-keys">
-    <div class="voice-key-wide" id="vi-history" onclick="openVoiceHistory()"><span class="vk-num">৮</span><span class="vk-label">আগের জমা</span></div>
-    <div class="voice-key-wide pay-report" id="vi-report" onclick="reportMissingPayment()"><span class="vk-num">৭</span><span class="vk-label">জমা নেই? ফোন</span></div>
-  </div>
   <div class="voice-nav">
     <div class="voice-key-wide" id="vi-repeat" onclick="playVoiceInfo()"><span class="vk-num">০</span><span class="vk-label">আবার শুনুন</span></div>
     <div class="voice-key-wide" id="vi-back" onclick="showScreen('screen-dashboard')"><span class="vk-num">৯</span><span class="vk-label">মূল মেনু</span></div>
-  </div>
-</div>
-
-<!-- ১২৩: earlier payments of one account, read out one by one -->
-<div class="screen" id="screen-voice-history">
-  <div class="help-icon" data-icon="help" data-emoji="?" onclick="playVoiceChain([clip('voice_help_history')])">?</div>
-  <div class="voice-head">
-    <div class="voice-badge" id="vh-num">১</div>
-    <div class="voice-head-icon">🧾</div>
-    <div class="voice-head-title">আগের জমা</div>
-    <span class="vk-waves"><i></i><i></i><i></i><i></i></span>
-  </div>
-  <div id="vh-rows"></div>
-  <div class="spacer"></div>
-  <div class="voice-nav">
-    <div class="voice-key-wide pay-report" id="vh-report" onclick="reportMissingPayment()"><span class="vk-num">৭</span><span class="vk-label">জমা নেই? ফোন করুন</span></div>
-  </div>
-  <div class="voice-nav">
-    <div class="voice-key-wide" id="vh-repeat" onclick="playVoiceHistory()"><span class="vk-num">০</span><span class="vk-label">আবার শুনুন</span></div>
-    <div class="voice-key-wide" id="vh-back" onclick="showScreen('screen-dashboard')"><span class="vk-num">৯</span><span class="vk-label">মূল মেনু</span></div>
   </div>
 </div>
 
@@ -1788,7 +1712,6 @@
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_loan_detail','এই পাতায় আপনার চলতি ঋণের বিস্তারিত তথ্য দেখা যাবে। ডান বা বাম বাটনে চেপে বিভিন্ন তথ্য দেখুন।')">?</div>
   <div class="title" style="margin-top:48px;">দাবি সাধারণ ঋণ</div>
-  <div class="receipt-strip" id="loan-receipt" onclick="showScreen('screen-loan-history')"></div>
   <div class="paged-card" id="loan-pagedcard" style="margin-top:8px;">
     <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakPaged('loan')">🔊</div>
     <div class="paged-label" id="loan-label"></div>
@@ -1819,9 +1742,6 @@
   <div id="loan-history-list-spark"></div>
   <div id="loan-history-list" style="margin-top:12px;"></div>
   <div class="legend-row" id="loan-history-legend"></div>
-  <div class="action-row">
-    <div class="action-btn full pay-report-btn" data-say="btn_pay_report" onclick="reportMissingPayment()"><span class="a-icon">📞</span>টাকা দিয়েছেন, কিন্তু এখানে নেই?</div>
-  </div>
 </div>
 
 <div class="screen cat-loan" id="screen-outstanding-date">
@@ -1930,7 +1850,6 @@
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_general_savings_detail','এই পাতায় আপনার সাধারণ সঞ্চয় হিসাবের তথ্য দেখা যাবে।')">?</div>
   <div class="title" style="margin-top:48px;">সাধারণ সঞ্চয়</div>
-  <div class="receipt-strip" id="savings-receipt" onclick="showScreen('screen-general-savings-history')"></div>
   <div class="paged-card" style="margin-top:8px;">
     <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakPaged('gensavings')">🔊</div>
     <div class="paged-label" id="gensavings-label"></div>
@@ -1958,9 +1877,6 @@
   <div id="gensavings-history-list-spark"></div>
   <div id="gensavings-history-list" style="margin-top:12px;"></div>
   <div class="legend-row" id="gensavings-history-legend"></div>
-  <div class="action-row">
-    <div class="action-btn full pay-report-btn" data-say="btn_pay_report" onclick="reportMissingPayment()"><span class="a-icon">📞</span>টাকা দিয়েছেন, কিন্তু এখানে নেই?</div>
-  </div>
 </div>
 
 <div class="screen cat-savings" id="screen-savings-register-input">
@@ -1984,7 +1900,6 @@
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_savings_detail','এই পাতায় আপনার বিশেষ সঞ্চয়ী (ডিপিএস) হিসাবের তথ্য দেখা যাবে।')">?</div>
   <div class="title" style="margin-top:48px;">বিশেষ সঞ্চয়ী হিসাব (ডিপিএস)</div>
-  <div class="receipt-strip" id="special-receipt" onclick="showScreen('screen-savings-history')"></div>
   <div class="paged-card" style="margin-top:8px;">
     <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakPaged('savings')">🔊</div>
     <div class="paged-label" id="savings-label"></div>
@@ -2012,9 +1927,6 @@
   <div id="savings-history-list-spark"></div>
   <div id="savings-history-list" style="margin-top:12px;"></div>
   <div class="legend-row" id="savings-history-legend"></div>
-  <div class="action-row">
-    <div class="action-btn full pay-report-btn" data-say="btn_pay_report" onclick="reportMissingPayment()"><span class="a-icon">📞</span>টাকা দিয়েছেন, কিন্তু এখানে নেই?</div>
-  </div>
 </div>
 
 <div class="screen cat-special" id="screen-dps-input">
@@ -2229,19 +2141,6 @@
     <div class="toggle-tile" id="lang-en" data-say="btn_lang_en" onclick="setLang('en')">English</div>
   </div>
   <div class="logout-btn" data-say="btn_logout" onclick="showOverlay('overlay-logout')"><span class="icon-wrap" data-icon="logout" data-emoji="🚪">🚪</span> লগআউট</div>
-</div>
-
-<!-- After login: payments BRAC recorded since the member last looked -->
-<div class="overlay" id="overlay-receipt">
-  <div class="overlay-card">
-    <div class="receipt-stamp">✅</div>
-    <div class="overlay-title">ব্র্যাক আপনার জমা পেয়েছে</div>
-    <div id="receipt-list"></div>
-    <button class="speaker-btn" data-icon="speaker" data-emoji="🔊" onclick="playDialogAudio('overlay-receipt')">🔊</button>
-    <div class="overlay-row">
-      <div class="overlay-btn yes" style="flex:1;" onclick="closeReceipt()"><span class="dlg-mark">✅</span>ঠিক আছে</div>
-    </div>
-  </div>
 </div>
 
 <div class="overlay" id="overlay-logout">
@@ -2500,19 +2399,7 @@ var CLIP_TEXT = {
   month_10: 'অক্টোবর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
   month_11: 'নভেম্বর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
   month_12: 'ডিসেম্বর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
-  nudge_trial_back: 'নতুন পাতাটি কি একটু কঠিন লাগছে? চাইলে আগের মোডে ফিরে যেতে পারেন। ফিরতে চাইলে টিক চিহ্নের বোতামে চাপুন। না চাইলে ক্রস চিহ্নের বোতামে চাপুন।',
-  pay_received: 'ব্র্যাক আপনার শেষ জমা পেয়েছে।',
-  pay_latest_missed: 'শেষ মাসে ব্র্যাক আপনার কোনো জমা পায়নি।',
-  pay_got: 'ব্র্যাক এই টাকা পেয়েছে।',
-  pay_missed: 'এই মাসে ব্র্যাক আপনার কোনো জমা পায়নি।',
-  pay_new: 'সুখবর! ব্র্যাক আপনার জমা পেয়েছে।',
-  dlg_close_ok: 'শোনা হলে টিক চিহ্নের বোতামে চাপুন।',
-  pay_report: 'টাকা দিয়েছেন, কিন্তু এখানে দেখা যাচ্ছে না? ব্র্যাকের কল সেন্টারে ফোন করে জানান। এই নম্বর আপনার মাঠকর্মীর নয়, সরাসরি ব্র্যাকের। বন্ধ করতে টিক চিহ্নের বোতামে চাপুন।',
-  btn_pay_report: 'টাকা দিয়েছেন, কিন্তু তালিকায় নেই? এখানে চাপলে ব্র্যাকের কল সেন্টারে জানাতে পারবেন।',
-  voice_info_nav_pay: 'আগের জমাগুলো শুনতে আট চাপুন। টাকা দিয়েছেন অথচ এখানে নেই, তাহলে সাত চাপুন। সব আবার শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন।',
-  voice_history_intro: 'আপনার আগের জমাগুলো শুনুন।',
-  voice_history_nav: 'টাকা দিয়েছেন অথচ এখানে নেই, তাহলে সাত চাপুন। আবার শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন।',
-  voice_help_history: 'এখানে আপনার আগের জমাগুলো আছে। সবুজ টিক মানে ব্র্যাক টাকা পেয়েছে। লাল ক্রস মানে সেই মাসে ব্র্যাক কোনো জমা পায়নি। টাকা দিয়েছেন অথচ এখানে নেই, তাহলে সাত চাপুন।'
+  nudge_trial_back: 'নতুন পাতাটি কি একটু কঠিন লাগছে? চাইলে আগের মোডে ফিরে যেতে পারেন। ফিরতে চাইলে টিক চিহ্নের বোতামে চাপুন। না চাইলে ক্রস চিহ্নের বোতামে চাপুন।'
 };
 /* CLIP_TEXT:END */
 // Fallback words for the app's original clips where they are played by key
@@ -2634,7 +2521,7 @@ function addButtonSpeakers(root){
     var s = document.createElement('span');
     s.className = 'btn-speak';
     s.textContent = '🔊';
-    s.onclick = function(e){ e.stopPropagation(); noteSpokenAgain(key); playVoiceChain(sayElSegments(el)); };
+    s.onclick = function(e){ e.stopPropagation(); playClip(key); };
     // In rows, sit just before the call button / on-off switch.
     el.insertBefore(s, el.querySelector(':scope > .call-btn, :scope > .sw'));
     el.classList.add('has-speak');
@@ -2675,7 +2562,7 @@ document.addEventListener('click', function(e){
   el.classList.add('armed');
   armTimer = setTimeout(disarm, ARMED_MS);
   var key = el.getAttribute('data-say');
-  var segs = sayElSegments(el);
+  var segs = [clip(key)];
   if(memberState.tapHints < TAP_AGAIN_HINTS){ segs.push(clip('tap_again')); memberState.tapHints++; saveMember(); }
   noteSpokenAgain(key);
   playVoiceChain(segs);
@@ -2696,7 +2583,7 @@ var A11Y_TAPPABLE = '.tile, .tile-sm, .novice-card, .action-btn, .nav-item, .key
   '.next-btn, .back-icon, .home-icon, .help-icon, .arrow-btn, .paged-arrow, .list-tile, .call-tile, .call-btn, ' +
   '.tier-seg-btn, .hub-gear, .hub-size-btn, .hub-toggle, .walkthrough-btn, .voice-key-wide, .voice-fact, ' +
   '.tile-speaker, .n-audio, .paged-speaker, .summary-speaker, .btn-speak, .overlay-btn, .logout-btn, ' +
-  '.toggle-tile, .see-more-row, .adaptive-chip, .hub-replay-link, .hold-confirm, .month-btn, .back-step, .rp-step, .guide-row, .receipt-strip';
+  '.toggle-tile, .see-more-row, .adaptive-chip, .hub-replay-link, .hold-confirm, .month-btn, .back-step, .rp-step, .guide-row';
 var A11Y_NAMES = [
   ['.back-icon', 'পেছনে যান'], ['.home-icon', 'মূল পাতা'], ['.help-icon', 'সাহায্য শুনুন'],
   ['.tile-speaker, .n-audio, .paged-speaker, .summary-speaker, .btn-speak, .speaker-btn', 'শুনুন'],
@@ -2754,58 +2641,34 @@ function startA11ySemantics(){
    ONE-SCREEN FIT (layer 3 of "ONE-SCREEN LAYOUT" in the CSS)
    ------------------------------------------------------------
    Measures the screen on show: its natural height (with the flexible
-   spacers collapsed) against the viewport. If it is taller at full
-   size, the largest --z that fits is found by halving the gap between
-   "fits" and "too tall" a few times. A plain overflow ratio overshoots,
-   because shrinking widens the logical page and wrapped labels then
-   take fewer lines. FIT_MIN stops text becoming unreadably small: a
-   screen still too tall at that size scrolls instead.
+   spacers collapsed) against the viewport, starting from full size.
+   If it is taller, the screen is shrunk through --z just enough to
+   fit. Shrinking widens the logical page and lets text re-wrap, so
+   it only ever steps downward until the screen fits (stepping both
+   ways can oscillate). FIT_MIN stops text becoming unreadably small:
+   below it the screen scrolls instead.
    ============================================================ */
 var FIT_MIN = 0.72;
 var _fitQueued = false;
 function fitScreen(){
   var s = document.querySelector('.screen.active');
   if(!s) return;
-  function fits(z){
-    s.style.setProperty('--z', z.toFixed(3));
+  var z = 1;
+  s.style.setProperty('--z', 1);
+  for(var i = 0; i < 8; i++){
     var have = s.clientHeight;
     s.style.height = 'auto';
     var need = s.scrollHeight;
     s.style.height = '';
-    return need <= have;
+    if(!have || need <= have || z <= FIT_MIN) break;
+    z = Math.max(FIT_MIN, z * (have - 1) / need);
+    s.style.setProperty('--z', z.toFixed(3));
   }
-  if(fits(1)) return;
-  var lo = FIT_MIN, hi = 1;
-  if(!fits(lo)) return;
-  for(var i = 0; i < 6; i++){
-    var mid = (lo + hi) / 2;
-    if(fits(mid)) lo = mid; else hi = mid;
-  }
-  fits(lo);
-}
-// Dialogs get the same treatment: an open dialog's card is shrunk just
-// enough that its buttons stay on screen without scrolling inside it.
-function fitOverlay(){
-  var o = document.querySelector('.overlay.active');
-  var c = o && o.querySelector('.overlay-card');
-  if(!c) return;
-  function fits(z){
-    c.style.setProperty('--oz', z.toFixed(3));
-    return c.scrollHeight <= c.clientHeight;
-  }
-  if(fits(1)) return;
-  var lo = FIT_MIN, hi = 1;
-  if(!fits(lo)) return;
-  for(var i = 0; i < 6; i++){
-    var mid = (lo + hi) / 2;
-    if(fits(mid)) lo = mid; else hi = mid;
-  }
-  fits(lo);
 }
 function scheduleFit(){
   if(_fitQueued) return;
   _fitQueued = true;
-  setTimeout(function(){ _fitQueued = false; fitScreen(); fitOverlay(); }, 0);
+  setTimeout(function(){ _fitQueued = false; fitScreen(); }, 0);
 }
 window.addEventListener('resize', scheduleFit);
 
@@ -2823,17 +2686,11 @@ function demoDay(day){
 function monthsFrom(d, k){ return new Date(d.getFullYear(), d.getMonth() + k, d.getDate()); }
 function bnDate(d){ return toBengaliDigits(d.getDate()) + ' ' + BN_MONTHS[d.getMonth()] + ', ' + toBengaliDigits(d.getFullYear()); }
 var DEMO_LOAN_DUE = demoDay(15), DEMO_SAVINGS_DUE = demoDay(10), DEMO_DPS_DUE = demoDay(1);
-function demoPay(when, amount, channel, type){ return { date:bnDate(when), when:when, amount:amount, channel:channel, type:type }; }
 
 var CONFIG = {
   loanAnnualRatePct: 12,
   dpsAnnualRatePct: 8,
-  loanDisbursementDate: new Date(new Date().getFullYear(), new Date().getMonth() - 11, 15),
-  // BRAC's own call centre, for "I paid but it isn't shown" — deliberately
-  // not the field worker who collected the money. Put the real number in
-  // hotlineTel and the app dials it instead of showing the demo notice.
-  hotline: '১৬XXX',
-  hotlineTel: ''
+  loanDisbursementDate: new Date(new Date().getFullYear(), new Date().getMonth() - 11, 15)
 };
 
 /* ============================================================
@@ -2885,21 +2742,20 @@ var demoMember = {
     coverageAmount: 50000,
     status: "সক্রিয়"
   },
-  // Newest first. "when" is the real date, for "১৮ দিন আগে".
   loanPaymentHistory: [
-    demoPay(monthsFrom(DEMO_LOAN_DUE, -1), 2354, "ব্রাঞ্চ", "cash"),
-    demoPay(monthsFrom(DEMO_LOAN_DUE, -2), 0, "শিডিউল মিস", "missed"),
-    demoPay(monthsFrom(DEMO_LOAN_DUE, -3), 2354, "মোবাইল ব্যাংকিং (বিকাশ)", "mobile")
+    { date: bnDate(monthsFrom(DEMO_LOAN_DUE, -1)), amount: 2354, channel: "ব্রাঞ্চ", type: "cash" },
+    { date: bnDate(monthsFrom(DEMO_LOAN_DUE, -2)), amount: 0, channel: "শিডিউল মিস", type: "missed" },
+    { date: bnDate(monthsFrom(DEMO_LOAN_DUE, -3)), amount: 2354, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" }
   ],
   generalSavingsHistory: [
-    demoPay(monthsFrom(DEMO_SAVINGS_DUE, -1), 400, "মোবাইল ব্যাংকিং (বিকাশ)", "mobile"),
-    demoPay(monthsFrom(DEMO_SAVINGS_DUE, -2), 400, "ব্রাঞ্চ", "cash"),
-    demoPay(monthsFrom(DEMO_SAVINGS_DUE, -3), 400, "ব্রাঞ্চ", "cash")
+    { date: bnDate(monthsFrom(DEMO_SAVINGS_DUE, -1)), amount: 400, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" },
+    { date: bnDate(monthsFrom(DEMO_SAVINGS_DUE, -2)), amount: 400, channel: "ব্রাঞ্চ", type: "cash" },
+    { date: bnDate(monthsFrom(DEMO_SAVINGS_DUE, -3)), amount: 400, channel: "ব্রাঞ্চ", type: "cash" }
   ],
   specialSavingsHistory: [
-    demoPay(monthsFrom(DEMO_DPS_DUE, -1), 500, "মোবাইল ব্যাংকিং (বিকাশ)", "mobile"),
-    demoPay(monthsFrom(DEMO_DPS_DUE, -2), 0, "শিডিউল মিস", "missed"),
-    demoPay(monthsFrom(DEMO_DPS_DUE, -3), 500, "ব্রাঞ্চ", "cash")
+    { date: bnDate(monthsFrom(DEMO_DPS_DUE, -1)), amount: 500, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" },
+    { date: bnDate(monthsFrom(DEMO_DPS_DUE, -2)), amount: 0, channel: "শিডিউল মিস", type: "missed" },
+    { date: bnDate(monthsFrom(DEMO_DPS_DUE, -3)), amount: 500, channel: "ব্রাঞ্চ", type: "cash" }
   ]
 };
 
@@ -3098,12 +2954,8 @@ function showScreen(id){
   if(id !== 'screen-voice-info') settleVoicePick();
   if(currentTier === 'voice' && id === 'screen-dashboard') beginVoiceMenuTask();
   else voiceMenuTask = null;
-  // After login, the first dashboard visit announces new payments before
-  // anything else. Tier offers wait for a calm moment: the dashboard or a
-  // success page, and never on top of the payment news.
-  var receiptShown = false;
-  if(id === 'screen-dashboard' && receiptDue){ receiptDue = false; receiptShown = showNewReceipts(); }
-  if(!receiptShown && nudgeDue && NUDGE_SCREENS.indexOf(id) !== -1){ nudgeDue = false; checkForNudge(); }
+  // Tier offers wait for a calm moment: the dashboard or a success page.
+  if(nudgeDue && NUDGE_SCREENS.indexOf(id) !== -1){ nudgeDue = false; checkForNudge(); }
   if(id === 'screen-research') renderResearchPanel();
   autoPlayScreen(id);
 
@@ -3143,7 +2995,6 @@ function androidBack(){
   var open = document.querySelector('.overlay.active');
   if(open){
     if(open.id === 'overlay-tier-nudge') respondToNudge(false);
-    else if(open.id === 'overlay-receipt') closeReceipt();
     else hideOverlay(open.id);
     return 'handled';
   }
@@ -3160,22 +3011,18 @@ var DIALOG_AUDIO = {
   'overlay-logout': function(){ return [clip('dlg_logout')]; },
   'overlay-loan-confirm': function(){ return [{ text:document.getElementById('loan-confirm-recap').innerText }, clip('dlg_hold_confirm')]; },
   'overlay-savings-confirm': function(){ return [{ text:document.getElementById('savings-confirm-recap').innerText }, clip('dlg_hold_confirm')]; },
-  'overlay-info': function(){ return infoClip ? [clip(infoClip)] : [{ text:document.getElementById('info-overlay-message').innerText }]; },
-  'overlay-receipt': function(){ return receiptDialogSegments(); }
+  'overlay-info': function(){ return [{ text:document.getElementById('info-overlay-message').innerText }]; }
 };
 function playDialogAudio(id){ if(DIALOG_AUDIO[id]) playVoiceChain(DIALOG_AUDIO[id]()); }
 function showOverlay(id){
   document.getElementById(id).classList.add('active');
-  fitOverlay();
   if(DIALOG_AUDIO[id] && autoPlayOn()) playDialogAudio(id);
 }
 function hideOverlay(id){
   document.getElementById(id).classList.remove('active');
   stopVoiceChain();
 }
-var infoClip = null;   // a recorded clip to speak instead of the message, if there is one
-function showInfoOverlay(message, clipKey){
-  infoClip = clipKey || null;
+function showInfoOverlay(message){
   document.getElementById('info-overlay-message').innerText = message;
   showOverlay('overlay-info');
 }
@@ -3553,22 +3400,23 @@ function voiceFacts(cat){
   if(cat === 'loan'){
     var l = m.activeLoan;
     return [
-      receiptFact('loan'),
-      { emoji:'💰', label:'মোট বকেয়া', value:formatTaka(l.outstanding),
-        sub: l.overdueInstallments > 0 ? 'বকেয়া কিস্তি ' + toBengaliDigits(l.overdueInstallments) + ' টি · ' + formatTaka(l.overdueAmount) : 'কোনো কিস্তি বকেয়া নেই',
-        say:'আপনার মোট বকেয়া ' + spokenTaka(l.outstanding) + '। ' + (l.overdueInstallments > 0
-          ? 'এর মধ্যে ' + toBengaliDigits(l.overdueInstallments) + 'টি কিস্তি বাকি পড়েছে, মোট ' + spokenTaka(l.overdueAmount) + '।'
-          : 'কোনো কিস্তি বাকি পড়েনি।') },
-      { icon:'calendar', emoji:'📅', label:'পরবর্তী কিস্তি', value:formatTaka(l.monthlyInstallment), sub:l.nextDueDate,
-        say:'পরবর্তী কিস্তি ' + spokenTaka(l.monthlyInstallment) + ', ' + l.nextDueDate + ' তারিখে।' }
+      { emoji:'💰', label:'মোট বকেয়া', value:formatTaka(l.outstanding), amt:l.outstanding,
+        say:'আপনার মোট বকেয়া ' + spokenTaka(l.outstanding) + '।' },
+      { icon:'calendar', emoji:'📅', label:'পরবর্তী কিস্তি', value:formatTaka(l.monthlyInstallment), amt:l.monthlyInstallment, sub:l.nextDueDate,
+        say:'পরবর্তী কিস্তি ' + spokenTaka(l.monthlyInstallment) + ', ' + l.nextDueDate + ' তারিখে।' },
+      l.overdueInstallments > 0
+        ? { emoji:'⚠️', label:'বকেয়া কিস্তি', value:toBengaliDigits(l.overdueInstallments) + ' টি', sub:formatTaka(l.overdueAmount),
+            say:'আপনার ' + toBengaliDigits(l.overdueInstallments) + 'টি কিস্তি বকেয়া আছে, মোট ' + spokenTaka(l.overdueAmount) + '।' }
+        : { emoji:'✅', label:'বকেয়া কিস্তি', value:'নেই', say:'আপনার কোনো কিস্তি বকেয়া নেই।' }
     ];
   }
   if(cat === 'savings'){
     var g = m.savingsGeneral;
     return [
-      receiptFact('savings'),
-      { icon:'savings', emoji:'🏺', label:'মোট জমা', value:formatTaka(g.totalDeposit),
+      { icon:'savings', emoji:'🏺', label:'মোট জমা', value:formatTaka(g.totalDeposit), amt:g.totalDeposit,
         say:'আপনার সঞ্চয়ে মোট জমা ' + spokenTaka(g.totalDeposit) + '।' },
+      { emoji:'💵', label:'সর্বশেষ জমা', value:formatTaka(g.lastInstallment), amt:g.lastInstallment,
+        say:'সর্বশেষ জমা ' + spokenTaka(g.lastInstallment) + '।' },
       { icon:'calendar', emoji:'📅', label:'পরবর্তী জমার তারিখ', value:g.nextContributionDate,
         say:'পরবর্তী জমার তারিখ ' + g.nextContributionDate + '।' }
     ];
@@ -3576,11 +3424,11 @@ function voiceFacts(cat){
   if(cat === 'special'){
     var sp = m.specialSavings;
     return [
-      receiptFact('special'),
-      { icon:'special_savings', emoji:'🎗️', label:'মোট জমা', value:formatTaka(sp.totalDeposit),
-        sub:'প্রতি মাসে ' + formatTaka(sp.monthlyDeposit),
-        say:'আপনার বিশেষ সঞ্চয়ে মোট জমা ' + spokenTaka(sp.totalDeposit) + '। প্রতি মাসে জমা ' + spokenTaka(sp.monthlyDeposit) + '।' },
-      { emoji:'🎯', label:'মেয়াদ শেষে পাবেন', value:formatTaka(sp.maturityAmount), sub:sp.maturityDate,
+      { icon:'special_savings', emoji:'🎗️', label:'মোট জমা', value:formatTaka(sp.totalDeposit), amt:sp.totalDeposit,
+        say:'আপনার বিশেষ সঞ্চয়ে মোট জমা ' + spokenTaka(sp.totalDeposit) + '।' },
+      { emoji:'💵', label:'মাসিক কিস্তি', value:formatTaka(sp.monthlyDeposit), amt:sp.monthlyDeposit,
+        say:'প্রতি মাসে জমা ' + spokenTaka(sp.monthlyDeposit) + '।' },
+      { emoji:'🎯', label:'মেয়াদ শেষে পাবেন', value:formatTaka(sp.maturityAmount), amt:sp.maturityAmount, sub:sp.maturityDate,
         say:'মেয়াদ শেষে, ' + sp.maturityDate + ', আপনি পাবেন ' + spokenTaka(sp.maturityAmount) + '।' }
     ];
   }
@@ -3588,7 +3436,7 @@ function voiceFacts(cat){
   return [
     { icon:'insurance', emoji:'☂️', label:'বীমার পরিমাণ', value:formatTaka(ins.coverageAmount), amt:ins.coverageAmount,
       say:'আপনার বীমার পরিমাণ ' + spokenTaka(ins.coverageAmount) + '।' },
-    { emoji:'💵', label:'প্রিমিয়াম পরিশোধিত', value:formatTaka(ins.premiumPaid),
+    { emoji:'💵', label:'প্রিমিয়াম পরিশোধিত', value:formatTaka(ins.premiumPaid), amt:ins.premiumPaid,
       say:'প্রিমিয়াম দেওয়া হয়েছে ' + spokenTaka(ins.premiumPaid) + '।' },
     { icon:'calendar', emoji:'📅', label:'মেয়াদ শেষ', value:ins.policyEndDate, sub:'অবস্থা: ' + ins.status,
       say:'বীমার মেয়াদ শেষ হবে ' + ins.policyEndDate + '। বীমাটি এখন ' + ins.status + '।' }
@@ -3614,7 +3462,7 @@ function openVoiceInfo(cat){
   list.innerHTML = '';
   voiceFacts(cat).forEach(function(f, i){
     var row = document.createElement('div');
-    row.className = 'voice-fact' + (i === 0 ? ' hero' : '') + (f.receipt ? ' receipt-' + f.receipt : '');
+    row.className = 'voice-fact' + (i === 0 ? ' hero' : '');
     var ic = document.createElement('div');
     ic.className = 'vf-icon';
     if(f.icon){ ic.setAttribute('data-icon', f.icon); ic.setAttribute('data-emoji', f.emoji); }
@@ -3640,10 +3488,9 @@ function openVoiceInfo(cat){
     spk.setAttribute('data-emoji', '🔊');
     spk.textContent = '🔊';
     row.appendChild(ic); row.appendChild(body); row.appendChild(spk);
-    row.onclick = function(){ playVoiceChain(f.segs || [{ text:f.say }]); };
+    row.onclick = function(){ playVoiceChain([{ text:f.say }]); };
     list.appendChild(row);
   });
-  document.getElementById('vi-pay-keys').style.display = PAY_ACCOUNTS[cat] ? '' : 'none';
   initIcons(scr);
   showScreen('screen-voice-info');
 }
@@ -3660,8 +3507,8 @@ function playVoiceMenu(){
 }
 function playVoiceInfo(){
   var segs = [clip(VOICE_CATS[currentVoiceCat].clip)];
-  voiceFacts(currentVoiceCat).forEach(function(f){ segs = segs.concat(f.segs || [{ text:f.say }]); });
-  segs.push(clip(PAY_ACCOUNTS[currentVoiceCat] ? 'voice_info_nav_pay' : 'voice_info_nav'));
+  voiceFacts(currentVoiceCat).forEach(function(f){ segs.push({ text:f.say }); });
+  segs.push(clip('voice_info_nav'));
   playVoiceChain(segs);
 }
 function voiceInfoHelp(){ playVoiceChain([clip('voice_help_info')]); }
@@ -3757,12 +3604,13 @@ function autoPlayScreen(id){
   }
 }
 // Runs fn shortly after arrival, unless the member has already moved
-// on, something else started playing, or a dialog is on screen.
+// on, something else started playing, or a tier nudge is on screen.
 function scheduleAutoPlay(id, fn){
   var sid = voiceChainId;
   setTimeout(function(){
     var s = document.getElementById(id);
-    if(sid !== voiceChainId || document.querySelector('.overlay.active')) return;
+    var nudge = document.getElementById('overlay-tier-nudge');
+    if(sid !== voiceChainId || nudge.classList.contains('active')) return;
     if(s && s.classList.contains('active')) fn();
   }, 350);
 }
@@ -3771,7 +3619,6 @@ function voiceAutoPlay(id){
   var fn = null;
   if(id === 'screen-dashboard') fn = playVoiceMenu;
   else if(id === 'screen-voice-info') fn = playVoiceInfo;
-  else if(id === 'screen-voice-history') fn = playVoiceHistory;
   else if(VOICE_AUTO_CLIPS[id]) fn = function(){ playVoiceChain([VOICE_AUTO_CLIPS[id]]); };
   if(!fn) return;
   scheduleAutoPlay(id, function(){
@@ -3912,7 +3759,7 @@ var store = { device:{ showNovice:false, notePics:true, rules:null, lastMember:'
 var memberId = 'guest', memberState = null, RULES = DEFAULT_RULES;
 
 function newMemberState(){
-  return { tier:'intermediate', onboarded:false, prefs:null, results:{}, suppress:0, trial:null, times:{}, visits:{}, tapHints:0, seenPays:{} };
+  return { tier:'intermediate', onboarded:false, prefs:null, results:{}, suppress:0, trial:null, times:{}, visits:{}, tapHints:0 };
 }
 function loadStore(){
   try{
@@ -3957,7 +3804,6 @@ function loginAs(mobile){
   var id = mobile || 'guest';
   flow = visit = null;
   nudgeDue = false;
-  receiptDue = true;
   if(id !== memberId){
     saveMember();
     tierReady = false;      // restoring a saved tier is not a tier change
@@ -4423,9 +4269,7 @@ function toggleA11yPref(key){
 }
 
 function doLogout(){
-  // Close every dialog, not just this one, so none is left over the login keypad.
-  document.querySelectorAll('.overlay.active').forEach(function(o){ hideOverlay(o.id); });
-  pendingReceipts = null;
+  hideOverlay('overlay-logout');
   logEvent('logout', {});
   // A shared phone shouldn't keep the last person's number on the login screen.
   mobileDigits = '';
@@ -4544,11 +4388,7 @@ function renderLegend(containerId){
 function initDashboard(){
   var loan = demoMember.activeLoan, genSav = demoMember.savingsGeneral, spSav = demoMember.specialSavings;
 
-  var lastLoanPay = latestPay('loan');
   summaryData = [
-    payMissed(lastLoanPay)
-      ? { label:'শেষ মাসের কিস্তি — ব্র্যাক পায়নি ❌', amount: '৳ ০' }
-      : { label:'শেষ কিস্তি — ব্র্যাক পেয়েছে ✅', amount: formatTaka(lastLoanPay.amount) },
     { label:'বকেয়া কিস্তি', amount: formatTaka(loan.monthlyInstallment) },
     { label:'মোট বকেয়া', amount: formatTaka(loan.outstanding) },
     { label:'চলতি মাসের সঞ্চয়', amount: formatTaka(genSav.lastInstallment) },
@@ -4606,7 +4446,6 @@ function initDashboard(){
   renderHistoryList('savings-history-list', demoMember.specialSavingsHistory);
   renderLegend('savings-history-legend');
 
-  renderReceiptStrips();
   renderProductTabs();
   renderProducts();
   renderCalcHub();
@@ -4649,24 +4488,14 @@ function renderHistoryList(containerId, list){
     showSeeMore = list.length > 3;
   }
 
-  var acc = HISTORY_ACC[containerId];
-  itemsToShow.forEach(function(item, i){
+  itemsToShow.forEach(function(item){
     var row = document.createElement('div');
-    var missed = payMissed(item);
     row.className = 'history-row ' + item.type + (currentTier === 'expert' ? ' compact' : '');
     var iconKey = item.type === 'cash' ? 'channel_branch' : (item.type === 'mobile' ? 'channel_mobile' : 'channel_failed');
     var emoji = item.type === 'cash' ? '🏢' : (item.type === 'mobile' ? '📱' : '❌');
     row.innerHTML = '<div class="history-icon" data-icon="'+iconKey+'" data-emoji="'+emoji+'">'+emoji+'</div>'+
-      '<div class="history-info"><div class="history-date">'+item.date+'</div><div class="history-channel">'+item.channel+'</div>'+
-      '<div class="history-status">'+(missed ? '❌ ব্র্যাক কোনো জমা পায়নি' : '✅ ব্র্যাক পেয়েছে')+' · '+relDays(item.when)+'</div></div>'+
-      '<div class="history-amount">'+formatTaka(item.amount)+'</div>'+
-      (missed ? '' : '<div class="money-pic">'+moneyPicHTML(item.amount)+'</div>');
-    // Each row says itself: tap to hear (two taps' first in ১২৩/নতুন, its 🔊 in মাঝারি).
-    if(acc){
-      row.setAttribute('data-say', missed ? 'pay_missed' : 'pay_got');
-      row.setAttribute('data-pay', 'row:' + acc + ':' + i);
-      row.onclick = function(){ if(!twoTapOn() && currentTier !== 'expert') playVoiceChain(paySegments(item)); };
-    }
+      '<div class="history-info"><div class="history-date">'+item.date+'</div><div class="history-channel">'+item.channel+'</div></div>'+
+      '<div class="history-amount">'+formatTaka(item.amount)+'</div>';
     container.appendChild(row);
   });
 
@@ -5040,187 +4869,6 @@ function moneyPicHTML(amount){
 function setMoneyPic(id, amount){
   var el = document.getElementById(id);
   if(el) el.innerHTML = moneyPicHTML(amount);
-}
-
-/* ============================================================
-   PAYMENT CHECK: "did BRAC really get my money?"
-   ------------------------------------------------------------
-   A member who hands an instalment to a field worker, or sends it by
-   bKash, has to be able to see that BRAC itself recorded it, and to
-   do that without reading. So every account with payments leads with
-   its latest one, in every tier:
-     - ✅ "ব্র্যাক পেয়েছে" in green, or ❌ in red when nothing was
-       recorded for the latest month;
-     - the amount, also drawn as notes (to hold up against the notes
-       actually handed over), how long ago ("১৮ দিন আগে") and where
-       (branch or bKash);
-     - spoken as a recorded verdict plus the amount and date in the
-       phone's voice.
-   ১২৩ adds key ৮ (earlier payments, read out one by one, a month with
-   nothing recorded said plainly) and key ৭ (paid but not shown?),
-   which reaches BRAC's own call centre, deliberately not the field
-   worker who took the money. The other tiers show the same marks on
-   their history pages, with a "not here?" button.
-   On the first dashboard visit after logging in, payments recorded
-   since the member last looked are announced before anything else.
-   The app can only show what BRAC's system recorded: its value is
-   that a member can check soon after paying, and act if a payment is
-   missing or smaller than what they handed over.
-   ============================================================ */
-var PAY_ACCOUNTS = {
-  loan:    { list:'loanPaymentHistory',    what:'ঋণের কিস্তি' },
-  savings: { list:'generalSavingsHistory', what:'সঞ্চয়ের জমা' },
-  special: { list:'specialSavingsHistory', what:'বিশেষ সঞ্চয়ের জমা' }
-};
-var HISTORY_ACC = { 'loan-history-list':'loan', 'gensavings-history-list':'savings', 'savings-history-list':'special' };
-function payList(acc){ return demoMember[PAY_ACCOUNTS[acc].list]; }
-function latestPay(acc){ return payList(acc)[0]; }          // newest first
-function payMissed(p){ return p.type === 'missed'; }
-function relDays(d){
-  var now = new Date();
-  var days = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
-  if(days <= 0) return 'আজ';
-  if(days === 1) return 'গতকাল';
-  if(days < 45) return toBengaliDigits(days) + ' দিন আগে';
-  return toBengaliDigits(Math.round(days / 30)) + ' মাস আগে';
-}
-function payWhere(p){ return p.type === 'mobile' ? 'বিকাশে' : 'ব্রাঞ্চে'; }
-function payPlace(p){ return p.type === 'mobile' ? '📱 বিকাশ' : '🏢 ব্রাঞ্চ'; }
-// The changing part, for the phone's voice: amount, date, how long ago, where.
-function paySay(p){
-  return payMissed(p) ? p.date + '।'
-    : spokenTaka(p.amount) + ', ' + p.date + ', ' + relDays(p.when) + ', ' + payWhere(p) + '।';
-}
-// One payment in a list: its date (and amount), then the recorded verdict.
-function paySegments(p, hl){ return [{ text:paySay(p), hl:hl }, clip(payMissed(p) ? 'pay_missed' : 'pay_got', hl)]; }
-// An account's latest payment: the recorded verdict first.
-function receiptSegments(acc){
-  var p = latestPay(acc);
-  return [clip(payMissed(p) ? 'pay_latest_missed' : 'pay_received'), { text:paySay(p) }];
-}
-// What a button with audio says: its clip, or a payment's own words.
-function sayElSegments(el){
-  var pay = (el.getAttribute('data-pay') || '').split(':');
-  if(pay[0] === 'receipt') return receiptSegments(pay[1]);
-  if(pay[0] === 'row') return paySegments(payList(pay[1])[+pay[2]]);
-  return [clip(el.getAttribute('data-say'))];
-}
-
-// ১২৩ account page: the first (largest) fact is the latest payment.
-function receiptFact(acc){
-  var p = latestPay(acc), missed = payMissed(p);
-  return { receipt: missed ? 'missed' : 'ok', emoji: missed ? '❌' : '✅',
-    label: missed ? 'শেষ মাসে ব্র্যাক কোনো জমা পায়নি' : 'শেষ জমা — ব্র্যাক পেয়েছে',
-    value: missed ? 'জমা হয়নি' : formatTaka(p.amount), amt: missed ? 0 : p.amount,
-    sub: relDays(p.when) + ' · ' + p.date + (missed ? '' : ' · ' + payPlace(p)),
-    segs: receiptSegments(acc) };
-}
-// The same, as a strip at the top of each account page in the other tiers.
-function renderReceiptStrips(){
-  Object.keys(PAY_ACCOUNTS).forEach(function(acc){
-    var el = document.getElementById(acc + '-receipt');
-    if(!el) return;
-    var p = latestPay(acc), missed = payMissed(p);
-    el.className = 'receipt-strip ' + (missed ? 'missed' : 'ok');
-    el.setAttribute('data-say', missed ? 'pay_latest_missed' : 'pay_received');
-    el.setAttribute('data-pay', 'receipt:' + acc);
-    el.innerHTML = '<span class="rs-mark">' + (missed ? '❌' : '✅') + '</span>' +
-      '<div class="rs-body"><div class="rs-title">' + (missed ? 'শেষ মাসে ব্র্যাক কোনো জমা পায়নি' : 'শেষ ' + PAY_ACCOUNTS[acc].what + ' — ব্র্যাক পেয়েছে') + '</div>' +
-      '<div class="rs-sub">' + (missed ? relDays(p.when) : formatTaka(p.amount) + ' · ' + relDays(p.when) + ' · ' + payPlace(p)) + '</div>' +
-      (missed ? '' : '<div class="money-pic">' + moneyPicHTML(p.amount) + '</div>') + '</div>' +
-      '<span class="rs-go">›</span>';
-  });
-  addButtonSpeakers(document);
-}
-
-// ১২৩, key ৮: the account's earlier payments, read out one by one.
-var VH_ROWS = 4;
-function openVoiceHistory(){
-  var acc = currentVoiceCat, c = VOICE_CATS[acc];
-  if(!PAY_ACCOUNTS[acc]) return;
-  var scr = document.getElementById('screen-voice-history');
-  scr.classList.remove('cat-loan','cat-savings','cat-special','cat-insurance');
-  scr.classList.add(c.cls);
-  document.getElementById('vh-num').innerText = c.num;
-  var list = document.getElementById('vh-rows');
-  list.innerHTML = '';
-  payList(acc).slice(0, VH_ROWS).forEach(function(p, i){
-    var missed = payMissed(p);
-    var row = document.createElement('div');
-    row.className = 'voice-fact pay-row ' + (missed ? 'missed' : 'ok');
-    row.id = 'vh-row-' + i;
-    row.innerHTML = '<div class="vf-icon">' + (missed ? '❌' : '✅') + '</div>' +
-      '<div class="vf-body"><div class="vf-label">' + relDays(p.when) + ' · ' + p.date + '</div>' +
-      '<div class="vf-value">' + (missed ? 'জমা হয়নি' : formatTaka(p.amount)) + '</div>' +
-      (missed ? '' : '<div class="money-pic">' + moneyPicHTML(p.amount) + '</div>') +
-      '<div class="vf-sub">' + (missed ? 'এই মাসে ব্র্যাক কোনো জমা পায়নি' : 'ব্র্যাক পেয়েছে · ' + payPlace(p)) + '</div></div>' +
-      '<div class="vf-speak" data-icon="speaker" data-emoji="🔊">🔊</div>';
-    row.onclick = function(){ playVoiceChain(paySegments(p, row.id)); };
-    list.appendChild(row);
-  });
-  initIcons(scr);
-  showScreen('screen-voice-history');
-}
-function playVoiceHistory(){
-  var segs = [clip('voice_history_intro')];
-  payList(currentVoiceCat).slice(0, VH_ROWS).forEach(function(p, i){ segs = segs.concat(paySegments(p, 'vh-row-' + i)); });
-  segs.push(clip('voice_history_nav'));
-  playVoiceChain(segs);
-}
-
-// "I paid but it isn't shown": BRAC's call centre, not the field worker.
-function reportMissingPayment(){
-  logEvent('pay_report', { task: activeScreenId() });
-  if(CONFIG.hotlineTel){ window.location.href = 'tel:' + CONFIG.hotlineTel; return; }
-  showInfoOverlay('ব্র্যাক কল সেন্টার: ' + CONFIG.hotline + '\nএই নম্বর আপনার মাঠকর্মীর নয়, সরাসরি ব্র্যাকের।\n(ডেমো — সরাসরি কল করা যাবে না)', 'pay_report');
-}
-
-// After login: payments recorded since the member last looked.
-var receiptDue = false, pendingReceipts = null;
-function payKey(acc, p){ return acc + ':' + p.when.getFullYear() + '-' + (p.when.getMonth() + 1) + '-' + p.when.getDate(); }
-function unseenReceipts(){
-  var seen = memberState.seenPays || {};
-  return Object.keys(PAY_ACCOUNTS).filter(function(acc){
-    var p = latestPay(acc);
-    return !payMissed(p) && !seen[payKey(acc, p)];
-  });
-}
-function showNewReceipts(){
-  var accs = unseenReceipts();
-  if(!accs.length) return false;
-  var box = document.getElementById('receipt-list');
-  box.innerHTML = '';
-  accs.forEach(function(acc){
-    var p = latestPay(acc), c = VOICE_CATS[acc];
-    var row = document.createElement('div');
-    row.className = 'receipt-row';
-    row.innerHTML = '<span class="rr-icon">' + c.emoji + '</span><div class="rr-body">' +
-      '<div class="rr-what">' + PAY_ACCOUNTS[acc].what + ' · ' + payPlace(p) + '</div>' +
-      '<div class="rr-amt">' + formatTaka(p.amount) + ' · ' + relDays(p.when) + '</div>' +
-      '<div class="money-pic">' + moneyPicHTML(p.amount) + '</div></div>';
-    box.appendChild(row);
-  });
-  pendingReceipts = accs;
-  logEvent('receipts_shown', { value: accs.join('+') });
-  showOverlay('overlay-receipt');
-  return true;
-}
-function receiptDialogSegments(){
-  var segs = [clip('pay_new')];
-  (pendingReceipts || []).forEach(function(acc){
-    var p = latestPay(acc);
-    segs.push({ text: PAY_ACCOUNTS[acc].what + ', ' + spokenTaka(p.amount) + ', ' + relDays(p.when) + ', ' + payWhere(p) + '।' });
-  });
-  segs.push(clip('dlg_close_ok'));
-  return segs;
-}
-function closeReceipt(){
-  var seen = memberState.seenPays || (memberState.seenPays = {});
-  (pendingReceipts || []).forEach(function(acc){ seen[payKey(acc, latestPay(acc))] = 1; });
-  pendingReceipts = null;
-  saveMember();
-  hideOverlay('overlay-receipt');
-  autoPlayScreen(activeScreenId());   // the page's own audio was held back for the dialog
 }
 
 var lcDigits = '';
