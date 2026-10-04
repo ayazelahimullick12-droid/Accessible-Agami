@@ -1,6 +1,6 @@
 # Audio clips added to Agami: file names and scripts
 
-There are 90 clips. Each file below is already in `assets/audio/` as a **stand-in** made with
+There are 102 clips. Each file below is already in `assets/audio/` as a **stand-in** made with
 a Bangladeshi TTS voice (`bn-BD-NabanitaNeural`), so the app works now. Your original clips
 (`help_*`, `prompt_*`, `tile_*`, `loan_apply_success`) are not listed here and were not changed.
 
@@ -92,6 +92,27 @@ Plays automatically. The number said for মাঝারি / দক্ষ depen
 | `onboard_opt_expert_3.mp3` | নতুন hidden (দক্ষ = ৩) | নিয়মিত এমন অ্যাপ ব্যবহার করলে তিন চাপুন। |
 | `onboard_opt_expert_4.mp3` | নতুন shown (দক্ষ = ৪) | নিয়মিত এমন অ্যাপ ব্যবহার করলে চার চাপুন। |
 | `onboard_repeat.mp3` | always last | আবার শুনতে শূন্য চাপুন। |
+
+---
+
+## Payment check: did BRAC get my money?
+
+In every tier each loan and savings account leads with its latest payment, and the history marks each month received or not. The amount and date between these clips are read by the phone's own voice.
+
+| File name | Where | Script |
+|---|---|---|
+| `pay_received.mp3` | the latest payment was received (then: amount, date, where) | ব্র্যাক আপনার শেষ জমা পেয়েছে। |
+| `pay_latest_missed.mp3` | nothing was received for the latest month (then: the date) | শেষ মাসে ব্র্যাক আপনার কোনো জমা পায়নি। |
+| `pay_got.mp3` | after each received payment in a list | ব্র্যাক এই টাকা পেয়েছে। |
+| `pay_missed.mp3` | after a month with nothing received in a list | এই মাসে ব্র্যাক আপনার কোনো জমা পায়নি। |
+| `pay_new.mp3` | after login, before new payments are listed | সুখবর! ব্র্যাক আপনার জমা পেয়েছে। |
+| `dlg_close_ok.mp3` | end of that announcement | শোনা হলে টিক চিহ্নের বোতামে চাপুন। |
+| `pay_report.mp3` | "paid but not shown?" — BRAC's call centre notice | টাকা দিয়েছেন, কিন্তু এখানে দেখা যাচ্ছে না? ব্র্যাকের কল সেন্টারে ফোন করে জানান। এই নম্বর আপনার মাঠকর্মীর নয়, সরাসরি ব্র্যাকের। বন্ধ করতে টিক চিহ্নের বোতামে চাপুন। |
+| `btn_pay_report.mp3` | the "not here?" button on history pages | টাকা দিয়েছেন, কিন্তু তালিকায় নেই? এখানে চাপলে ব্র্যাকের কল সেন্টারে জানাতে পারবেন। |
+| `voice_info_nav_pay.mp3` | ১২৩ account page closing line (loan and savings accounts) | আগের জমাগুলো শুনতে আট চাপুন। টাকা দিয়েছেন অথচ এখানে নেই, তাহলে সাত চাপুন। সব আবার শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন। |
+| `voice_history_intro.mp3` | ১২৩ earlier-payments page (key ৮), first | আপনার আগের জমাগুলো শুনুন। |
+| `voice_history_nav.mp3` | ১২৩ earlier-payments page, last | টাকা দিয়েছেন অথচ এখানে নেই, তাহলে সাত চাপুন। আবার শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন। |
+| `voice_help_history.mp3` | the ? on the ১২৩ earlier-payments page | এখানে আপনার আগের জমাগুলো আছে। সবুজ টিক মানে ব্র্যাক টাকা পেয়েছে। লাল ক্রস মানে সেই মাসে ব্র্যাক কোনো জমা পায়নি। টাকা দিয়েছেন অথচ এখানে নেই, তাহলে সাত চাপুন। |
 
 ---
 
