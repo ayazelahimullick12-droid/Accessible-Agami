@@ -1,6 +1,6 @@
 # Audio clips added to Agami: file names and scripts
 
-There are 90 clips. Each file below is already in `assets/audio/` as a **stand-in** made with
+There are 97 clips. Each file below is already in `assets/audio/` as a **stand-in** made with
 a Bangladeshi TTS voice (`bn-BD-NabanitaNeural`), so the app works now. Your original clips
 (`help_*`, `prompt_*`, `tile_*`, `loan_apply_success`) are not listed here and were not changed.
 
@@ -40,7 +40,7 @@ Plays automatically when the ১২৩ dashboard opens, clip after clip; each nu
 
 ## ১২৩ tier: account page (after pressing ১–৪)
 
-Intro, then the amounts and dates are read by the phone's own voice, then the closing line.
+On arrival: the intro, then how to hear the amounts. Amounts are spoken only when asked for (a line tapped, or ০), by the phone's own voice; after ০ reads them all, the closing line plays.
 
 | File name | Where | Script |
 |---|---|---|
@@ -48,8 +48,9 @@ Intro, then the amounts and dates are read by the phone's own voice, then the cl
 | `voice_info_savings.mp3` | after pressing ২ | দুই নম্বর, সঞ্চয়। আপনার সঞ্চয়ের তথ্য শুনুন। |
 | `voice_info_special.mp3` | after pressing ৩ | তিন নম্বর, বিশেষ সঞ্চয়। আপনার বিশেষ সঞ্চয়ের তথ্য শুনুন। |
 | `voice_info_insurance.mp3` | after pressing ৪ | চার নম্বর, বীমা। আপনার বীমার তথ্য শুনুন। |
-| `voice_info_nav.mp3` | closing line | কোনো একটি তথ্য আবার শুনতে সেটির ওপর চাপ দিন। সব আবার শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন। |
-| `voice_help_info.mp3` | the ? button on this page | এই পাতায় আপনার হিসাবের সবচেয়ে দরকারি তথ্যগুলো বড় করে দেখানো আছে। কোনো একটি তথ্যের ওপর চাপ দিলে সেটি আবার শুনতে পাবেন। সব আবার শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন। |
+| `voice_info_tap.mp3` | on arrival, after the intro: how to hear the amounts | টাকার পরিমাণ শুনতে যেকোনো লাইনের ওপর চাপ দিন। সব একসাথে শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন। |
+| `voice_info_nav.mp3` | closing line, after ০ has read everything | কোনো একটি তথ্য আবার শুনতে সেটির ওপর চাপ দিন। সব আবার শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন। |
+| `voice_help_info.mp3` | the ? button on this page | এই পাতায় আপনার হিসাবের সবচেয়ে দরকারি তথ্যগুলো বড় করে দেখানো আছে। কোনো একটি তথ্যের ওপর চাপ দিলে সেটি শুনতে পাবেন। সব একসাথে শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন। |
 
 ---
 
@@ -92,6 +93,21 @@ Plays automatically. The number said for মাঝারি / দক্ষ depen
 | `onboard_opt_expert_3.mp3` | নতুন hidden (দক্ষ = ৩) | নিয়মিত এমন অ্যাপ ব্যবহার করলে তিন চাপুন। |
 | `onboard_opt_expert_4.mp3` | নতুন shown (দক্ষ = ৪) | নিয়মিত এমন অ্যাপ ব্যবহার করলে চার চাপুন। |
 | `onboard_repeat.mp3` | always last | আবার শুনতে শূন্য চাপুন। |
+
+---
+
+## Payment check: did BRAC get my money?
+
+In every tier each loan and savings account leads with its latest payment, and the history marks each month received or not. The amount and date between these clips are read by the phone's own voice.
+
+| File name | Where | Script |
+|---|---|---|
+| `pay_received.mp3` | the latest payment was received (then: amount, date, where): account pages, ১২৩ first row | ব্র্যাক আপনার শেষ জমা পেয়েছে। |
+| `pay_latest_missed.mp3` | nothing was received for the latest month (then: the date) | শেষ মাসে ব্র্যাক আপনার কোনো জমা পায়নি। |
+| `pay_got.mp3` | a received payment in a history list (after its amount and date) | ব্র্যাক এই টাকা পেয়েছে। |
+| `pay_missed.mp3` | a month with nothing received in a history list (after its date) | এই মাসে ব্র্যাক আপনার কোনো জমা পায়নি। |
+| `btn_pay_report.mp3` | the "not here?" button on history pages | টাকা দিয়েছেন, কিন্তু তালিকায় নেই? এখানে চাপলে ব্র্যাকের কল সেন্টারে জানাতে পারবেন। |
+| `pay_report.mp3` | the call-centre notice that button opens | টাকা দিয়েছেন, কিন্তু এখানে দেখা যাচ্ছে না? ব্র্যাকের কল সেন্টারে ফোন করে জানান। এই নম্বর আপনার মাঠকর্মীর নয়, সরাসরি ব্র্যাকের। বন্ধ করতে টিক চিহ্নের বোতামে চাপুন। |
 
 ---
 

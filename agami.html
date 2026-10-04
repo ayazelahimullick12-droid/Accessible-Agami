@@ -190,7 +190,8 @@
   .tile{background:#fff;border-radius:var(--radius-md);border:1px solid #f0e6e9;text-align:center;padding:18px 6px 16px;position:relative;box-shadow:var(--shadow-soft);}
   .tile:active{background:#fdf7fa;}
   .tile-icon{font-size:calc(30px * var(--text-scale));margin:0 auto 8px auto;height:52px;width:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--brand-tint);}
-  .tile-icon .icon-img{width:56%;height:56%;}
+  .tile-icon .icon-img{width:76%;height:76%;}
+  .n-icon .icon-img{width:76%;height:76%;}
   .tile-label{font-size:calc(14px * var(--text-scale));font-weight:700;}
   .tile-speaker{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:#fff;color:var(--brand);font-size:calc(12px * var(--text-scale));text-align:center;line-height:24px;border:1px solid #f0e6e9;box-shadow:var(--shadow-soft);}
 
@@ -1017,7 +1018,7 @@
     display:flex;align-items:center;justify-content:center;font-size:calc(21px * var(--text-scale));
     background:rgba(255,255,255,0.26);border:1px solid rgba(255,255,255,0.45);box-shadow:inset 0 1px 0 rgba(255,255,255,0.5);}
   .voice-key.cat-savings .vk-icon{background:rgba(59,42,5,0.16);}
-  .vk-icon .icon-img{width:24px;height:24px;}
+  .vk-icon .icon-img{width:32px;height:32px;}
   .voice-key.vk-hl{transform:scale(1.04);
     box-shadow:0 0 0 4px rgba(255,255,255,0.95), 0 0 0 9px rgba(var(--accent-rgb),0.45), 0 18px 34px -12px rgba(var(--accent-rgb),0.85);}
 
@@ -1183,7 +1184,10 @@
      held finger on the confirm bar must not be taken over by the browser. */
   html, body{touch-action:manipulation;-webkit-touch-callout:none;}
   .hold-confirm{touch-action:none;}
-  .overlay-card{max-width:400px;max-height:calc(100vh - 28px);overflow-y:auto;}
+  /* The top bar stays above dialogs (its 🔇 works while one speaks), so a
+     dialog is centred in the space below it. */
+  .overlay{height:100dvh;box-sizing:border-box;padding:58px 0 14px;}
+  .overlay-card{max-width:400px;max-height:calc(100vh - 72px);max-height:calc((100dvh - 72px) / var(--oz,1));overflow-y:auto;zoom:var(--oz,1);}
 
   /* --- Tap to hear, tap again to do (১২৩, নতুন): no 🔊 icons; the tapped
          button is ringed and pulses until it is tapped again --- */
@@ -1209,6 +1213,34 @@
   .summary-speaker{z-index:2;}
   .adaptive-section-list{flex-wrap:wrap;overflow-x:visible;gap:6px;}
   .adaptive-chip{padding:6px 12px;}
+
+  /* ============================================================
+     PAYMENT CHECK (see the PAYMENT CHECK section in the script):
+     green ✅ = BRAC recorded it, red ❌ = nothing recorded that month.
+     ============================================================ */
+  .receipt-strip{position:relative;display:flex;align-items:center;gap:10px;padding:7px 12px;margin:4px 0 2px;border-radius:18px;
+    background:linear-gradient(165deg, rgba(220,238,226,0.97) 0%, rgba(220,238,226,0.78) 100%);
+    border:2px solid rgba(47,125,79,0.55);box-shadow:0 10px 22px -14px rgba(47,125,79,0.7), var(--glass-inner);transition:transform .08s ease;}
+  .receipt-strip:active{transform:scale(0.98);}
+  .receipt-strip.missed{background:linear-gradient(165deg, rgba(245,223,213,0.97) 0%, rgba(245,223,213,0.78) 100%);
+    border-color:rgba(193,80,46,0.6);box-shadow:0 10px 22px -14px rgba(193,80,46,0.7), var(--glass-inner);}
+  .rs-mark{font-size:calc(26px * var(--text-scale));line-height:1;flex-shrink:0;display:flex;}
+  .rs-mark .icon-img{width:30px;height:30px;}
+  .rs-title{flex:1;min-width:0;font-size:calc(16px * var(--text-scale));font-weight:800;color:var(--paddy-dark);}
+  .receipt-strip.missed .rs-title{color:var(--terracotta-dark);}
+  .rs-amt{font-size:calc(20px * var(--text-scale));font-weight:800;color:var(--ink);flex-shrink:0;}
+  .rs-go{font-size:22px;font-weight:800;color:var(--muted);flex-shrink:0;}
+  .receipt-strip > .btn-speak{position:static;flex-shrink:0;}
+
+  .history-row > .btn-speak{position:static;flex-shrink:0;margin-left:8px;}
+  .pay-report-btn{border-color:rgba(193,80,46,0.55);color:var(--terracotta-dark);}
+
+  .voice-fact.receipt-ok{border-color:rgba(47,125,79,0.6);}
+  .voice-fact.receipt-missed{border-color:rgba(193,80,46,0.7);
+    background:linear-gradient(165deg, rgba(245,223,213,0.92) 0%, rgba(245,223,213,0.62) 100%);}
+  .voice-fact.receipt-ok .vf-label{color:var(--paddy-dark);}
+  .voice-fact.receipt-missed .vf-label{color:var(--terracotta-dark);}
+  .voice-fact[class*="receipt-"] .vf-icon{background:rgba(255,255,255,0.75);}
 
   /* --- Mascot beside its speech bubble: one row instead of a stack --- */
   .guide-row{display:flex;align-items:center;gap:10px;margin:0 0 10px;}
@@ -1535,16 +1567,16 @@
     </div>
     <div class="novice-list">
       <div class="novice-card cat-loan" data-say="tile_loan" onclick="showScreen('screen-loan-detail')">
-        <div class="n-icon tint-loan">🤲</div><div class="n-label">আমার ঋণ</div>
+        <div class="n-icon tint-loan" data-icon="loan" data-emoji="🤲">🤲</div><div class="n-label">আমার ঋণ</div>
       </div>
       <div class="novice-card cat-savings" data-say="tile_savings" onclick="showScreen('screen-general-savings-detail')">
-        <div class="n-icon tint-savings">🏺</div><div class="n-label">আমার সঞ্চয়</div>
+        <div class="n-icon tint-savings" data-icon="savings" data-emoji="🏺">🏺</div><div class="n-label">আমার সঞ্চয়</div>
       </div>
       <div class="novice-card cat-special" data-say="tile_special_savings" onclick="showScreen('screen-savings-detail')">
-        <div class="n-icon tint-special">🎗️</div><div class="n-label">বিশেষ সঞ্চয় (ডিপিএস)</div>
+        <div class="n-icon tint-special" data-icon="special_savings" data-emoji="🎗️">🎗️</div><div class="n-label">বিশেষ সঞ্চয় (ডিপিএস)</div>
       </div>
       <div class="novice-card cat-insurance" data-say="tile_insurance" onclick="showScreen('screen-insurance-detail')">
-        <div class="n-icon tint-insurance">☂️</div><div class="n-label">আমার বীমা</div>
+        <div class="n-icon tint-insurance" data-icon="insurance" data-emoji="☂️">☂️</div><div class="n-label">আমার বীমা</div>
       </div>
     </div>
   </div>
@@ -1603,12 +1635,12 @@
       <div id="adaptive-section-list" class="adaptive-section-list"></div>
     </div>
     <div class="grid3x2">
-      <div class="tile-sm cat-loan" onclick="showScreen('screen-loan-detail')"><div class="tile-icon tint-loan">🤲</div><div class="tile-label">ঋণ</div></div>
-      <div class="tile-sm cat-savings" onclick="showScreen('screen-general-savings-detail')"><div class="tile-icon tint-savings">🏺</div><div class="tile-label">সঞ্চয়</div></div>
-      <div class="tile-sm cat-special" onclick="showScreen('screen-savings-detail')"><div class="tile-icon tint-special">🎗️</div><div class="tile-label">ডিপিএস</div></div>
-      <div class="tile-sm cat-insurance" onclick="showScreen('screen-insurance-detail')"><div class="tile-icon tint-insurance">☂️</div><div class="tile-label">বীমা</div></div>
-      <div class="tile-sm cat-calc" onclick="showScreen('screen-calc-hub')"><div class="tile-icon tint-calc">🧮</div><div class="tile-label">ক্যালক</div></div>
-      <div class="tile-sm cat-products" onclick="showScreen('screen-products')"><div class="tile-icon tint-products">📦</div><div class="tile-label">প্রোডাক্ট</div></div>
+      <div class="tile-sm cat-loan" onclick="showScreen('screen-loan-detail')"><div class="tile-icon tint-loan" data-icon="loan" data-emoji="🤲">🤲</div><div class="tile-label">ঋণ</div></div>
+      <div class="tile-sm cat-savings" onclick="showScreen('screen-general-savings-detail')"><div class="tile-icon tint-savings" data-icon="savings" data-emoji="🏺">🏺</div><div class="tile-label">সঞ্চয়</div></div>
+      <div class="tile-sm cat-special" onclick="showScreen('screen-savings-detail')"><div class="tile-icon tint-special" data-icon="special_savings" data-emoji="🎗️">🎗️</div><div class="tile-label">ডিপিএস</div></div>
+      <div class="tile-sm cat-insurance" onclick="showScreen('screen-insurance-detail')"><div class="tile-icon tint-insurance" data-icon="insurance" data-emoji="☂️">☂️</div><div class="tile-label">বীমা</div></div>
+      <div class="tile-sm cat-calc" onclick="showScreen('screen-calc-hub')"><div class="tile-icon tint-calc" data-icon="calc" data-emoji="🧮">🧮</div><div class="tile-label">ক্যালক</div></div>
+      <div class="tile-sm cat-products" onclick="showScreen('screen-products')"><div class="tile-icon tint-products" data-icon="products" data-emoji="📦">📦</div><div class="tile-label">প্রোডাক্ট</div></div>
     </div>
   </div>
 
@@ -1635,7 +1667,7 @@
   <div id="vi-facts"></div>
   <div class="spacer"></div>
   <div class="voice-nav">
-    <div class="voice-key-wide" id="vi-repeat" onclick="playVoiceInfo()"><span class="vk-num">০</span><span class="vk-label">আবার শুনুন</span></div>
+    <div class="voice-key-wide" id="vi-repeat" onclick="playVoiceInfo()"><span class="vk-num">০</span><span class="vk-label">সব শুনুন</span></div>
     <div class="voice-key-wide" id="vi-back" onclick="showScreen('screen-dashboard')"><span class="vk-num">৯</span><span class="vk-label">মূল মেনু</span></div>
   </div>
 </div>
@@ -1712,6 +1744,7 @@
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_loan_detail','এই পাতায় আপনার চলতি ঋণের বিস্তারিত তথ্য দেখা যাবে। ডান বা বাম বাটনে চেপে বিভিন্ন তথ্য দেখুন।')">?</div>
   <div class="title" style="margin-top:48px;">দাবি সাধারণ ঋণ</div>
+  <div class="receipt-strip" id="loan-receipt" onclick="showScreen('screen-loan-history')"></div>
   <div class="paged-card" id="loan-pagedcard" style="margin-top:8px;">
     <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakPaged('loan')">🔊</div>
     <div class="paged-label" id="loan-label"></div>
@@ -1742,6 +1775,9 @@
   <div id="loan-history-list-spark"></div>
   <div id="loan-history-list" style="margin-top:12px;"></div>
   <div class="legend-row" id="loan-history-legend"></div>
+  <div class="action-row">
+    <div class="action-btn full pay-report-btn" data-say="btn_pay_report" onclick="reportMissingPayment()"><span class="a-icon" data-icon="call_center" data-emoji="📞">📞</span>জমা নেই? ফোন করুন</div>
+  </div>
 </div>
 
 <div class="screen cat-loan" id="screen-outstanding-date">
@@ -1850,6 +1886,7 @@
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_general_savings_detail','এই পাতায় আপনার সাধারণ সঞ্চয় হিসাবের তথ্য দেখা যাবে।')">?</div>
   <div class="title" style="margin-top:48px;">সাধারণ সঞ্চয়</div>
+  <div class="receipt-strip" id="savings-receipt" onclick="showScreen('screen-general-savings-history')"></div>
   <div class="paged-card" style="margin-top:8px;">
     <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakPaged('gensavings')">🔊</div>
     <div class="paged-label" id="gensavings-label"></div>
@@ -1877,6 +1914,9 @@
   <div id="gensavings-history-list-spark"></div>
   <div id="gensavings-history-list" style="margin-top:12px;"></div>
   <div class="legend-row" id="gensavings-history-legend"></div>
+  <div class="action-row">
+    <div class="action-btn full pay-report-btn" data-say="btn_pay_report" onclick="reportMissingPayment()"><span class="a-icon" data-icon="call_center" data-emoji="📞">📞</span>জমা নেই? ফোন করুন</div>
+  </div>
 </div>
 
 <div class="screen cat-savings" id="screen-savings-register-input">
@@ -1900,6 +1940,7 @@
   <div class="home-icon" data-icon="home" data-emoji="🏠" onclick="showScreen('screen-dashboard')">🏠</div>
   <div class="help-icon" data-icon="help" data-emoji="?" onclick="playSound('help_savings_detail','এই পাতায় আপনার বিশেষ সঞ্চয়ী (ডিপিএস) হিসাবের তথ্য দেখা যাবে।')">?</div>
   <div class="title" style="margin-top:48px;">বিশেষ সঞ্চয়ী হিসাব (ডিপিএস)</div>
+  <div class="receipt-strip" id="special-receipt" onclick="showScreen('screen-savings-history')"></div>
   <div class="paged-card" style="margin-top:8px;">
     <div class="paged-speaker" data-icon="speaker" data-emoji="🔊" onclick="speakPaged('savings')">🔊</div>
     <div class="paged-label" id="savings-label"></div>
@@ -1927,6 +1968,9 @@
   <div id="savings-history-list-spark"></div>
   <div id="savings-history-list" style="margin-top:12px;"></div>
   <div class="legend-row" id="savings-history-legend"></div>
+  <div class="action-row">
+    <div class="action-btn full pay-report-btn" data-say="btn_pay_report" onclick="reportMissingPayment()"><span class="a-icon" data-icon="call_center" data-emoji="📞">📞</span>জমা নেই? ফোন করুন</div>
+  </div>
 </div>
 
 <div class="screen cat-special" id="screen-dps-input">
@@ -2322,7 +2366,8 @@ var CLIP_TEXT = {
   voice_info_special: 'তিন নম্বর, বিশেষ সঞ্চয়। আপনার বিশেষ সঞ্চয়ের তথ্য শুনুন।',
   voice_info_insurance: 'চার নম্বর, বীমা। আপনার বীমার তথ্য শুনুন।',
   voice_info_nav: 'কোনো একটি তথ্য আবার শুনতে সেটির ওপর চাপ দিন। সব আবার শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন।',
-  voice_help_info: 'এই পাতায় আপনার হিসাবের সবচেয়ে দরকারি তথ্যগুলো বড় করে দেখানো আছে। কোনো একটি তথ্যের ওপর চাপ দিলে সেটি আবার শুনতে পাবেন। সব আবার শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন।',
+  voice_help_info: 'এই পাতায় আপনার হিসাবের সবচেয়ে দরকারি তথ্যগুলো বড় করে দেখানো আছে। কোনো একটি তথ্যের ওপর চাপ দিলে সেটি শুনতে পাবেন। সব একসাথে শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন।',
+  voice_info_tap: 'টাকার পরিমাণ শুনতে যেকোনো লাইনের ওপর চাপ দিন। সব একসাথে শুনতে শূন্য, আর মূল মেনুতে ফিরতে নয় চাপুন।',
   voice_login_mobile: 'আপনার মোবাইল নম্বরটি চাপুন। তারপর নিচের তীর চিহ্নে চাপুন।',
   voice_login_pin: 'আপনার চার সংখ্যার গোপন পিন চাপুন। পিন কাউকে বলবেন না।',
   nudge_voice_promote: 'আপনি নিজে নিজেই সব খুঁজে নিচ্ছেন! ছবি আর লেখা দিয়ে সাজানো পাতাটি একবার দেখবেন? দেখতে চাইলে টিক চিহ্নের বোতামে চাপুন। না চাইলে ক্রস চিহ্নের বোতামে চাপুন। পরে আবার এই মোডে ফিরতে পারবেন।',
@@ -2399,7 +2444,13 @@ var CLIP_TEXT = {
   month_10: 'অক্টোবর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
   month_11: 'নভেম্বর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
   month_12: 'ডিসেম্বর মাস পর্যন্ত আপনার বকেয়া কত হবে, তা এখানে দেখা যাবে।',
-  nudge_trial_back: 'নতুন পাতাটি কি একটু কঠিন লাগছে? চাইলে আগের মোডে ফিরে যেতে পারেন। ফিরতে চাইলে টিক চিহ্নের বোতামে চাপুন। না চাইলে ক্রস চিহ্নের বোতামে চাপুন।'
+  nudge_trial_back: 'নতুন পাতাটি কি একটু কঠিন লাগছে? চাইলে আগের মোডে ফিরে যেতে পারেন। ফিরতে চাইলে টিক চিহ্নের বোতামে চাপুন। না চাইলে ক্রস চিহ্নের বোতামে চাপুন।',
+  pay_received: 'ব্র্যাক আপনার শেষ জমা পেয়েছে।',
+  pay_latest_missed: 'শেষ মাসে ব্র্যাক আপনার কোনো জমা পায়নি।',
+  pay_got: 'ব্র্যাক এই টাকা পেয়েছে।',
+  pay_missed: 'এই মাসে ব্র্যাক আপনার কোনো জমা পায়নি।',
+  pay_report: 'টাকা দিয়েছেন, কিন্তু এখানে দেখা যাচ্ছে না? ব্র্যাকের কল সেন্টারে ফোন করে জানান। এই নম্বর আপনার মাঠকর্মীর নয়, সরাসরি ব্র্যাকের। বন্ধ করতে টিক চিহ্নের বোতামে চাপুন।',
+  btn_pay_report: 'টাকা দিয়েছেন, কিন্তু তালিকায় নেই? এখানে চাপলে ব্র্যাকের কল সেন্টারে জানাতে পারবেন।'
 };
 /* CLIP_TEXT:END */
 // Fallback words for the app's original clips where they are played by key
@@ -2486,19 +2537,27 @@ document.addEventListener('click', function(e){
    fallback if the image is missing. Re-run after any dynamic
    render (products, contacts, help, history lists, etc).
    ============================================================ */
+// Icons drawn for the app (assets/icons/<key>.svg). To use your own
+// picture instead, save it as assets/icons/<key>.png and delete the
+// .svg: a missing .svg falls back to the .png, and a missing .png to
+// the emoji written in the page.
+var ICON_SVG = ['calc', 'calendar', 'call', 'call_branch', 'call_center', 'call_help', 'call_po', 'channel_branch', 'channel_failed', 'channel_mobile', 'check', 'contact', 'history', 'home', 'insurance', 'loan', 'lock', 'logout', 'maturity', 'member', 'mobile', 'money_bag', 'premium', 'products', 'profile', 'savings', 'shop', 'speaker', 'special_savings'];
 function initIcons(scope){
   var root = scope || document;
   root.querySelectorAll('[data-icon]:not(.icon-done)').forEach(function(el){
     var key = el.getAttribute('data-icon');
     var emoji = el.getAttribute('data-emoji') || el.textContent;
     var img = document.createElement('img');
-    img.src = 'assets/icons/' + key + '.png';
+    img.src = 'assets/icons/' + key + (ICON_SVG.indexOf(key) !== -1 ? '.svg' : '.png');
     img.alt = ''; // decorative: the label beside it (or the button's aria-label) names it
     img.className = 'icon-img';
     var fallback = document.createElement('span');
     fallback.className = 'icon-fallback';
     fallback.textContent = emoji;
-    img.onerror = function(){ img.remove(); fallback.style.display = 'inline'; };
+    img.onerror = function(){
+      if(/\.svg$/.test(img.src)){ img.src = img.src.replace(/\.svg$/, '.png'); return; }
+      img.remove(); fallback.style.display = 'inline';
+    };
     el.innerHTML = '';
     el.appendChild(img);
     el.appendChild(fallback);
@@ -2521,7 +2580,7 @@ function addButtonSpeakers(root){
     var s = document.createElement('span');
     s.className = 'btn-speak';
     s.textContent = '🔊';
-    s.onclick = function(e){ e.stopPropagation(); playClip(key); };
+    s.onclick = function(e){ e.stopPropagation(); noteSpokenAgain(key); playVoiceChain(sayElSegments(el)); };
     // In rows, sit just before the call button / on-off switch.
     el.insertBefore(s, el.querySelector(':scope > .call-btn, :scope > .sw'));
     el.classList.add('has-speak');
@@ -2562,7 +2621,7 @@ document.addEventListener('click', function(e){
   el.classList.add('armed');
   armTimer = setTimeout(disarm, ARMED_MS);
   var key = el.getAttribute('data-say');
-  var segs = [clip(key)];
+  var segs = sayElSegments(el);
   if(memberState.tapHints < TAP_AGAIN_HINTS){ segs.push(clip('tap_again')); memberState.tapHints++; saveMember(); }
   noteSpokenAgain(key);
   playVoiceChain(segs);
@@ -2583,7 +2642,7 @@ var A11Y_TAPPABLE = '.tile, .tile-sm, .novice-card, .action-btn, .nav-item, .key
   '.next-btn, .back-icon, .home-icon, .help-icon, .arrow-btn, .paged-arrow, .list-tile, .call-tile, .call-btn, ' +
   '.tier-seg-btn, .hub-gear, .hub-size-btn, .hub-toggle, .walkthrough-btn, .voice-key-wide, .voice-fact, ' +
   '.tile-speaker, .n-audio, .paged-speaker, .summary-speaker, .btn-speak, .overlay-btn, .logout-btn, ' +
-  '.toggle-tile, .see-more-row, .adaptive-chip, .hub-replay-link, .hold-confirm, .month-btn, .back-step, .rp-step, .guide-row';
+  '.toggle-tile, .see-more-row, .adaptive-chip, .hub-replay-link, .hold-confirm, .month-btn, .back-step, .rp-step, .guide-row, .receipt-strip';
 var A11Y_NAMES = [
   ['.back-icon', 'পেছনে যান'], ['.home-icon', 'মূল পাতা'], ['.help-icon', 'সাহায্য শুনুন'],
   ['.tile-speaker, .n-audio, .paged-speaker, .summary-speaker, .btn-speak, .speaker-btn', 'শুনুন'],
@@ -2641,34 +2700,58 @@ function startA11ySemantics(){
    ONE-SCREEN FIT (layer 3 of "ONE-SCREEN LAYOUT" in the CSS)
    ------------------------------------------------------------
    Measures the screen on show: its natural height (with the flexible
-   spacers collapsed) against the viewport, starting from full size.
-   If it is taller, the screen is shrunk through --z just enough to
-   fit. Shrinking widens the logical page and lets text re-wrap, so
-   it only ever steps downward until the screen fits (stepping both
-   ways can oscillate). FIT_MIN stops text becoming unreadably small:
-   below it the screen scrolls instead.
+   spacers collapsed) against the viewport. If it is taller at full
+   size, the largest --z that fits is found by halving the gap between
+   "fits" and "too tall" a few times. A plain overflow ratio overshoots,
+   because shrinking widens the logical page and wrapped labels then
+   take fewer lines. FIT_MIN stops text becoming unreadably small: a
+   screen still too tall at that size scrolls instead.
    ============================================================ */
 var FIT_MIN = 0.72;
 var _fitQueued = false;
 function fitScreen(){
   var s = document.querySelector('.screen.active');
   if(!s) return;
-  var z = 1;
-  s.style.setProperty('--z', 1);
-  for(var i = 0; i < 8; i++){
+  function fits(z){
+    s.style.setProperty('--z', z.toFixed(3));
     var have = s.clientHeight;
     s.style.height = 'auto';
     var need = s.scrollHeight;
     s.style.height = '';
-    if(!have || need <= have || z <= FIT_MIN) break;
-    z = Math.max(FIT_MIN, z * (have - 1) / need);
-    s.style.setProperty('--z', z.toFixed(3));
+    return need <= have;
   }
+  if(fits(1)) return;
+  var lo = FIT_MIN, hi = 1;
+  if(!fits(lo)) return;
+  for(var i = 0; i < 6; i++){
+    var mid = (lo + hi) / 2;
+    if(fits(mid)) lo = mid; else hi = mid;
+  }
+  fits(lo);
+}
+// Dialogs get the same treatment: an open dialog's card is shrunk just
+// enough that its buttons stay on screen without scrolling inside it.
+function fitOverlay(){
+  var o = document.querySelector('.overlay.active');
+  var c = o && o.querySelector('.overlay-card');
+  if(!c) return;
+  function fits(z){
+    c.style.setProperty('--oz', z.toFixed(3));
+    return c.scrollHeight <= c.clientHeight;
+  }
+  if(fits(1)) return;
+  var lo = FIT_MIN, hi = 1;
+  if(!fits(lo)) return;
+  for(var i = 0; i < 6; i++){
+    var mid = (lo + hi) / 2;
+    if(fits(mid)) lo = mid; else hi = mid;
+  }
+  fits(lo);
 }
 function scheduleFit(){
   if(_fitQueued) return;
   _fitQueued = true;
-  setTimeout(function(){ _fitQueued = false; fitScreen(); }, 0);
+  setTimeout(function(){ _fitQueued = false; fitScreen(); fitOverlay(); }, 0);
 }
 window.addEventListener('resize', scheduleFit);
 
@@ -2686,11 +2769,17 @@ function demoDay(day){
 function monthsFrom(d, k){ return new Date(d.getFullYear(), d.getMonth() + k, d.getDate()); }
 function bnDate(d){ return toBengaliDigits(d.getDate()) + ' ' + BN_MONTHS[d.getMonth()] + ', ' + toBengaliDigits(d.getFullYear()); }
 var DEMO_LOAN_DUE = demoDay(15), DEMO_SAVINGS_DUE = demoDay(10), DEMO_DPS_DUE = demoDay(1);
+function demoPay(when, amount, channel, type){ return { date:bnDate(when), when:when, amount:amount, channel:channel, type:type }; }
 
 var CONFIG = {
   loanAnnualRatePct: 12,
   dpsAnnualRatePct: 8,
-  loanDisbursementDate: new Date(new Date().getFullYear(), new Date().getMonth() - 11, 15)
+  loanDisbursementDate: new Date(new Date().getFullYear(), new Date().getMonth() - 11, 15),
+  // BRAC's own call centre, for "I paid but it isn't shown" — deliberately
+  // not the field worker who collected the money. Put the real number in
+  // hotlineTel and the app dials it instead of showing the demo notice.
+  hotline: '১৬XXX',
+  hotlineTel: ''
 };
 
 /* ============================================================
@@ -2742,20 +2831,21 @@ var demoMember = {
     coverageAmount: 50000,
     status: "সক্রিয়"
   },
+  // Newest first. "when" is the real date, for "১৮ দিন আগে".
   loanPaymentHistory: [
-    { date: bnDate(monthsFrom(DEMO_LOAN_DUE, -1)), amount: 2354, channel: "ব্রাঞ্চ", type: "cash" },
-    { date: bnDate(monthsFrom(DEMO_LOAN_DUE, -2)), amount: 0, channel: "শিডিউল মিস", type: "missed" },
-    { date: bnDate(monthsFrom(DEMO_LOAN_DUE, -3)), amount: 2354, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" }
+    demoPay(monthsFrom(DEMO_LOAN_DUE, -1), 2354, "ব্রাঞ্চ", "cash"),
+    demoPay(monthsFrom(DEMO_LOAN_DUE, -2), 0, "শিডিউল মিস", "missed"),
+    demoPay(monthsFrom(DEMO_LOAN_DUE, -3), 2354, "মোবাইল ব্যাংকিং (বিকাশ)", "mobile")
   ],
   generalSavingsHistory: [
-    { date: bnDate(monthsFrom(DEMO_SAVINGS_DUE, -1)), amount: 400, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" },
-    { date: bnDate(monthsFrom(DEMO_SAVINGS_DUE, -2)), amount: 400, channel: "ব্রাঞ্চ", type: "cash" },
-    { date: bnDate(monthsFrom(DEMO_SAVINGS_DUE, -3)), amount: 400, channel: "ব্রাঞ্চ", type: "cash" }
+    demoPay(monthsFrom(DEMO_SAVINGS_DUE, -1), 400, "মোবাইল ব্যাংকিং (বিকাশ)", "mobile"),
+    demoPay(monthsFrom(DEMO_SAVINGS_DUE, -2), 400, "ব্রাঞ্চ", "cash"),
+    demoPay(monthsFrom(DEMO_SAVINGS_DUE, -3), 400, "ব্রাঞ্চ", "cash")
   ],
   specialSavingsHistory: [
-    { date: bnDate(monthsFrom(DEMO_DPS_DUE, -1)), amount: 500, channel: "মোবাইল ব্যাংকিং (বিকাশ)", type: "mobile" },
-    { date: bnDate(monthsFrom(DEMO_DPS_DUE, -2)), amount: 0, channel: "শিডিউল মিস", type: "missed" },
-    { date: bnDate(monthsFrom(DEMO_DPS_DUE, -3)), amount: 500, channel: "ব্রাঞ্চ", type: "cash" }
+    demoPay(monthsFrom(DEMO_DPS_DUE, -1), 500, "মোবাইল ব্যাংকিং (বিকাশ)", "mobile"),
+    demoPay(monthsFrom(DEMO_DPS_DUE, -2), 0, "শিডিউল মিস", "missed"),
+    demoPay(monthsFrom(DEMO_DPS_DUE, -3), 500, "ব্রাঞ্চ", "cash")
   ]
 };
 
@@ -2769,7 +2859,7 @@ var products = [
     benefits:["প্রসেসিং ফি প্রদানের ৫ মিনিটের মধ্যে বিতরণ","সর্বনিম্ন ঋণের পরিমাণ ৳২০,০০০","১১ মাস মেয়াদ","সরকার নির্ধারিত সুদের হার"],
     eligibility:"বয়স ১৮–৭০ বছর, কর্মজীবী নারী",
     documents:["জাতীয় পরিচয়পত্র / পাসপোর্ট / জন্ম নিবন্ধন সনদ","আবেদনকারীর ছবি"] },
-  { id:"progoti", icon:"loan", emoji:"🌾", category:"loan", title:"প্রগতি ঋণ (Progoti)", sub:"নিবন্ধিত ব্র্যাক প্রগতি সদস্যদের জন্য সাধারণ ক্ষুদ্রঋণ", placeholder:false,
+  { id:"progoti", icon:"shop", emoji:"🌾", category:"loan", title:"প্রগতি ঋণ (Progoti)", sub:"নিবন্ধিত ব্র্যাক প্রগতি সদস্যদের জন্য সাধারণ ক্ষুদ্রঋণ", placeholder:false,
     desc:"প্রগতি ক্লায়েন্টদের জন্য সাধারণ মাইক্রোফাইন্যান্স ঋণ, আগামী অ্যাপের মাধ্যমে অ্যাক্সেসযোগ্য।",
     benefits:["নমনীয় কিস্তির বিকল্প","দ্রুত অনুমোদন প্রক্রিয়া"],
     eligibility:"নিবন্ধিত ব্র্যাক প্রগতি সদস্য হতে হবে",
@@ -2779,7 +2869,7 @@ var products = [
     benefits:["(তথ্য যাচাই প্রয়োজন)"],
     eligibility:"(তথ্য যাচাই প্রয়োজন)",
     documents:["(তথ্য যাচাই প্রয়োজন)"] },
-  { id:"special-savings", icon:"savings", emoji:"🏺", category:"savings", title:"বিশেষ সঞ্চয়ী হিসাব (ডিপিএস)", sub:"মাসিক কিস্তিতে জমাকৃত সঞ্চয় প্রকল্প", placeholder:false,
+  { id:"special-savings", icon:"special_savings", emoji:"🎗️", category:"savings", title:"বিশেষ সঞ্চয়ী হিসাব (ডিপিএস)", sub:"মাসিক কিস্তিতে জমাকৃত সঞ্চয় প্রকল্প", placeholder:false,
     desc:"নির্দিষ্ট মেয়াদে প্রতি মাসে একটি নির্ধারিত পরিমাণ জমা রেখে মেয়াদ শেষে লভ্যাংশসহ পুরো অর্থ ফেরত পাওয়া যায়।",
     benefits:["নমনীয় মাসিক জমার পরিমাণ","১ থেকে ৭ বছর মেয়াদ বেছে নেওয়ার সুযোগ","আকর্ষণীয় মুনাফার হার"],
     eligibility:"বয়স ৫ থেকে ৭৫ বছর, সক্রিয় ব্র্যাক মাইক্রোফাইন্যান্স সদস্য হতে হবে",
@@ -3011,18 +3101,21 @@ var DIALOG_AUDIO = {
   'overlay-logout': function(){ return [clip('dlg_logout')]; },
   'overlay-loan-confirm': function(){ return [{ text:document.getElementById('loan-confirm-recap').innerText }, clip('dlg_hold_confirm')]; },
   'overlay-savings-confirm': function(){ return [{ text:document.getElementById('savings-confirm-recap').innerText }, clip('dlg_hold_confirm')]; },
-  'overlay-info': function(){ return [{ text:document.getElementById('info-overlay-message').innerText }]; }
+  'overlay-info': function(){ return infoClip ? [clip(infoClip)] : [{ text:document.getElementById('info-overlay-message').innerText }]; }
 };
 function playDialogAudio(id){ if(DIALOG_AUDIO[id]) playVoiceChain(DIALOG_AUDIO[id]()); }
 function showOverlay(id){
   document.getElementById(id).classList.add('active');
+  fitOverlay();
   if(DIALOG_AUDIO[id] && autoPlayOn()) playDialogAudio(id);
 }
 function hideOverlay(id){
   document.getElementById(id).classList.remove('active');
   stopVoiceChain();
 }
-function showInfoOverlay(message){
+var infoClip = null;   // a recorded clip to speak instead of the message, if there is one
+function showInfoOverlay(message, clipKey){
+  infoClip = clipKey || null;
   document.getElementById('info-overlay-message').innerText = message;
   showOverlay('overlay-info');
 }
@@ -3400,23 +3493,22 @@ function voiceFacts(cat){
   if(cat === 'loan'){
     var l = m.activeLoan;
     return [
-      { emoji:'💰', label:'মোট বকেয়া', value:formatTaka(l.outstanding), amt:l.outstanding,
-        say:'আপনার মোট বকেয়া ' + spokenTaka(l.outstanding) + '।' },
-      { icon:'calendar', emoji:'📅', label:'পরবর্তী কিস্তি', value:formatTaka(l.monthlyInstallment), amt:l.monthlyInstallment, sub:l.nextDueDate,
-        say:'পরবর্তী কিস্তি ' + spokenTaka(l.monthlyInstallment) + ', ' + l.nextDueDate + ' তারিখে।' },
-      l.overdueInstallments > 0
-        ? { emoji:'⚠️', label:'বকেয়া কিস্তি', value:toBengaliDigits(l.overdueInstallments) + ' টি', sub:formatTaka(l.overdueAmount),
-            say:'আপনার ' + toBengaliDigits(l.overdueInstallments) + 'টি কিস্তি বকেয়া আছে, মোট ' + spokenTaka(l.overdueAmount) + '।' }
-        : { emoji:'✅', label:'বকেয়া কিস্তি', value:'নেই', say:'আপনার কোনো কিস্তি বকেয়া নেই।' }
+      receiptFact('loan'),
+      { icon:'money_bag', emoji:'💰', label:'মোট বকেয়া', value:formatTaka(l.outstanding),
+        sub: l.overdueInstallments > 0 ? 'বকেয়া কিস্তি ' + toBengaliDigits(l.overdueInstallments) + ' টি · ' + formatTaka(l.overdueAmount) : 'কোনো কিস্তি বকেয়া নেই',
+        say:'আপনার মোট বকেয়া ' + spokenTaka(l.outstanding) + '। ' + (l.overdueInstallments > 0
+          ? 'এর মধ্যে ' + toBengaliDigits(l.overdueInstallments) + 'টি কিস্তি বাকি পড়েছে, মোট ' + spokenTaka(l.overdueAmount) + '।'
+          : 'কোনো কিস্তি বাকি পড়েনি।') },
+      { icon:'calendar', emoji:'📅', label:'পরবর্তী কিস্তি', value:formatTaka(l.monthlyInstallment), sub:l.nextDueDate,
+        say:'পরবর্তী কিস্তি ' + spokenTaka(l.monthlyInstallment) + ', ' + l.nextDueDate + ' তারিখে।' }
     ];
   }
   if(cat === 'savings'){
     var g = m.savingsGeneral;
     return [
-      { icon:'savings', emoji:'🏺', label:'মোট জমা', value:formatTaka(g.totalDeposit), amt:g.totalDeposit,
+      receiptFact('savings'),
+      { icon:'savings', emoji:'🏺', label:'মোট জমা', value:formatTaka(g.totalDeposit),
         say:'আপনার সঞ্চয়ে মোট জমা ' + spokenTaka(g.totalDeposit) + '।' },
-      { emoji:'💵', label:'সর্বশেষ জমা', value:formatTaka(g.lastInstallment), amt:g.lastInstallment,
-        say:'সর্বশেষ জমা ' + spokenTaka(g.lastInstallment) + '।' },
       { icon:'calendar', emoji:'📅', label:'পরবর্তী জমার তারিখ', value:g.nextContributionDate,
         say:'পরবর্তী জমার তারিখ ' + g.nextContributionDate + '।' }
     ];
@@ -3424,11 +3516,11 @@ function voiceFacts(cat){
   if(cat === 'special'){
     var sp = m.specialSavings;
     return [
-      { icon:'special_savings', emoji:'🎗️', label:'মোট জমা', value:formatTaka(sp.totalDeposit), amt:sp.totalDeposit,
-        say:'আপনার বিশেষ সঞ্চয়ে মোট জমা ' + spokenTaka(sp.totalDeposit) + '।' },
-      { emoji:'💵', label:'মাসিক কিস্তি', value:formatTaka(sp.monthlyDeposit), amt:sp.monthlyDeposit,
-        say:'প্রতি মাসে জমা ' + spokenTaka(sp.monthlyDeposit) + '।' },
-      { emoji:'🎯', label:'মেয়াদ শেষে পাবেন', value:formatTaka(sp.maturityAmount), amt:sp.maturityAmount, sub:sp.maturityDate,
+      receiptFact('special'),
+      { icon:'special_savings', emoji:'🎗️', label:'মোট জমা', value:formatTaka(sp.totalDeposit),
+        sub:'প্রতি মাসে ' + formatTaka(sp.monthlyDeposit),
+        say:'আপনার বিশেষ সঞ্চয়ে মোট জমা ' + spokenTaka(sp.totalDeposit) + '। প্রতি মাসে জমা ' + spokenTaka(sp.monthlyDeposit) + '।' },
+      { icon:'maturity', emoji:'🎯', label:'মেয়াদ শেষে পাবেন', value:formatTaka(sp.maturityAmount), sub:sp.maturityDate,
         say:'মেয়াদ শেষে, ' + sp.maturityDate + ', আপনি পাবেন ' + spokenTaka(sp.maturityAmount) + '।' }
     ];
   }
@@ -3436,7 +3528,7 @@ function voiceFacts(cat){
   return [
     { icon:'insurance', emoji:'☂️', label:'বীমার পরিমাণ', value:formatTaka(ins.coverageAmount), amt:ins.coverageAmount,
       say:'আপনার বীমার পরিমাণ ' + spokenTaka(ins.coverageAmount) + '।' },
-    { emoji:'💵', label:'প্রিমিয়াম পরিশোধিত', value:formatTaka(ins.premiumPaid), amt:ins.premiumPaid,
+    { icon:'premium', emoji:'💵', label:'প্রিমিয়াম পরিশোধিত', value:formatTaka(ins.premiumPaid),
       say:'প্রিমিয়াম দেওয়া হয়েছে ' + spokenTaka(ins.premiumPaid) + '।' },
     { icon:'calendar', emoji:'📅', label:'মেয়াদ শেষ', value:ins.policyEndDate, sub:'অবস্থা: ' + ins.status,
       say:'বীমার মেয়াদ শেষ হবে ' + ins.policyEndDate + '। বীমাটি এখন ' + ins.status + '।' }
@@ -3462,7 +3554,7 @@ function openVoiceInfo(cat){
   list.innerHTML = '';
   voiceFacts(cat).forEach(function(f, i){
     var row = document.createElement('div');
-    row.className = 'voice-fact' + (i === 0 ? ' hero' : '');
+    row.className = 'voice-fact' + (i === 0 ? ' hero' : '') + (f.receipt ? ' receipt-' + f.receipt : '');
     var ic = document.createElement('div');
     ic.className = 'vf-icon';
     if(f.icon){ ic.setAttribute('data-icon', f.icon); ic.setAttribute('data-emoji', f.emoji); }
@@ -3488,7 +3580,7 @@ function openVoiceInfo(cat){
     spk.setAttribute('data-emoji', '🔊');
     spk.textContent = '🔊';
     row.appendChild(ic); row.appendChild(body); row.appendChild(spk);
-    row.onclick = function(){ playVoiceChain([{ text:f.say }]); };
+    row.onclick = function(){ playVoiceChain(f.segs || [{ text:f.say }]); };
     list.appendChild(row);
   });
   initIcons(scr);
@@ -3505,13 +3597,22 @@ function playVoiceMenu(){
     clip('voice_repeat', 'vk-0')
   ]);
 }
+// On arrival only the account's name and how to hear it: balances are
+// spoken when the member asks (a line tapped, or ০), not to everyone
+// standing nearby.
+function playVoiceInfoIntro(){
+  playVoiceChain([clip(VOICE_CATS[currentVoiceCat].clip), clip('voice_info_tap')]);
+}
 function playVoiceInfo(){
   var segs = [clip(VOICE_CATS[currentVoiceCat].clip)];
-  voiceFacts(currentVoiceCat).forEach(function(f){ segs.push({ text:f.say }); });
+  voiceFacts(currentVoiceCat).forEach(function(f){ segs = segs.concat(f.segs || [{ text:f.say }]); });
   segs.push(clip('voice_info_nav'));
   playVoiceChain(segs);
 }
-function voiceInfoHelp(){ playVoiceChain([clip('voice_help_info')]); }
+function voiceInfoHelp(){
+  if(voicePick) voicePick.help++;
+  playVoiceChain([clip('voice_help_info')]);
+}
 
 // Login 🔊 buttons replay the same prompt the page auto-played: the
 // ১২৩ version (which also says where the ➜ is) in ১২৩, else the usual one.
@@ -3532,30 +3633,20 @@ function dashboardHelp(){
 }
 
 /* ------------------------------------------------------------
-   ১২৩ PROMOTION SIGNAL ("barge-in")
+   ১২৩ PROMOTION SIGNAL
    ১২৩ users never reach the tracked apply/register tasks, so the
    menu itself is their task: each visit to the ১২৩ dashboard that
-   ends in a number being picked. It counts as clean when the number
-   was picked BEFORE the menu read that option out, without ০ or ?,
-   AND the member then stayed on that account for at least 4 seconds
-   — so it was the account they wanted, not a stray tap backed out of
-   at once. Phone menus let callers who already know the number skip
-   ahead; doing that again and again suggests the person is finding
-   their way by the icons, colors and numbers rather than the voice.
-   It is a heuristic to check in the field: in spoken-dialog studies
-   novices interrupt a lot too, which is why the dwell check exists.
-   Anything else breaks the clean streak. Five clean picks in a row
-   offer the next tier up, through the same opt-in nudge as every
-   other tier; the nudge waits until the member is back on the menu,
-   so it never talks over an account being read out.
+   ends in a number being picked. It counts as clean when the member
+   picked without asking for help: no ০ (hear the menu again) and no
+   ? on the menu, and no ? twice on the account page. As everywhere
+   else, no clock: how quickly the number was pressed is not used.
+   Results feed the same window and opt-in offer as every other tier;
+   the offer waits until the member is back on the menu, so it never
+   talks over an account being read out.
    ------------------------------------------------------------ */
-var VOICE_PICK_MIN_DWELL_MS = 4000;
-var voiceMenuTask = null;    // { heard:{vk-N:true}, repeats:n } while the ১২৩ menu is open
-var voicePick = null;        // { clean, at } from the pick until the account page is left
-function beginVoiceMenuTask(){ voiceMenuTask = { heard:{}, repeats:0 }; }
-function noteVoiceHeard(hl){
-  if(voiceMenuTask && hl) voiceMenuTask.heard[hl] = true;
-}
+var voiceMenuTask = null;    // { repeats:n } while the ১২৩ menu is open
+var voicePick = null;        // { clean, at, help } from the pick until the account page is left
+function beginVoiceMenuTask(){ voiceMenuTask = { repeats:0 }; }
 function replayVoiceMenu(){
   if(voiceMenuTask) voiceMenuTask.repeats++;
   playVoiceMenu();
@@ -3563,7 +3654,7 @@ function replayVoiceMenu(){
 function voiceMenuPick(cat){
   var c = VOICE_CATS[cat];
   if(voiceMenuTask && c){
-    voicePick = { clean: !voiceMenuTask.heard[c.hl] && voiceMenuTask.repeats === 0, at: Date.now() };
+    voicePick = { clean: voiceMenuTask.repeats === 0, at: Date.now(), help:0 };
     voiceMenuTask = null;
   }
   openVoiceInfo(cat);
@@ -3571,10 +3662,10 @@ function voiceMenuPick(cat){
 // Called from showScreen() when the ১২৩ account page is left.
 function settleVoicePick(){
   if(!voicePick) return;
-  var ms = Date.now() - voicePick.at;
-  var clean = voicePick.clean && ms >= VOICE_PICK_MIN_DWELL_MS;
+  var ms = Date.now() - voicePick.at;   // logged for research only, never judged
+  var flags = (voicePick.clean ? '' : 'help') + (voicePick.help >= 2 ? (voicePick.clean ? '' : '+') + 'help-info' : '');
   voicePick = null;
-  recordTaskOutcome(clean, { task:'voice menu', flags: clean ? '' : 'listened', ms:ms });
+  recordTaskOutcome(!flags, { task:'voice menu', flags:flags, ms:ms });
 }
 
 /* ------------------------------------------------------------
@@ -3604,13 +3695,12 @@ function autoPlayScreen(id){
   }
 }
 // Runs fn shortly after arrival, unless the member has already moved
-// on, something else started playing, or a tier nudge is on screen.
+// on, something else started playing, or a dialog is on screen.
 function scheduleAutoPlay(id, fn){
   var sid = voiceChainId;
   setTimeout(function(){
     var s = document.getElementById(id);
-    var nudge = document.getElementById('overlay-tier-nudge');
-    if(sid !== voiceChainId || nudge.classList.contains('active')) return;
+    if(sid !== voiceChainId || document.querySelector('.overlay.active')) return;
     if(s && s.classList.contains('active')) fn();
   }, 350);
 }
@@ -3618,7 +3708,7 @@ function voiceAutoPlay(id){
   if(currentTier !== 'voice' || !id) return;
   var fn = null;
   if(id === 'screen-dashboard') fn = playVoiceMenu;
-  else if(id === 'screen-voice-info') fn = playVoiceInfo;
+  else if(id === 'screen-voice-info') fn = playVoiceInfoIntro;
   else if(VOICE_AUTO_CLIPS[id]) fn = function(){ playVoiceChain([VOICE_AUTO_CLIPS[id]]); };
   if(!fn) return;
   scheduleAutoPlay(id, function(){
@@ -3701,21 +3791,18 @@ function playVoiceChain(segments){
   function alive(){ return id === voiceChainId; }
   function finish(){ if(alive()){ voiceChainActive = false; setVoiceSpeaking(false); } }
   function textOf(list){ return list.map(function(s){ return s.text; }).join(' '); }
-  function heard(list){ list.forEach(function(s){ noteVoiceHeard(s.hl); }); }
   // A segment that must be spoken by TTS (no clip, or its clip failed),
   // together with any unrecorded segments right after it.
   function speakRest(seg){
     var run = [seg];
     while(i < segments.length && !segments[i].key) run.push(segments[i++]);
     var last = i >= segments.length;
-    heard(run);
     setVoiceSpeaking(true, run.length === 1 ? run[0].hl : null);
     if(speakThen(textOf(run), function(){ if(!alive()) return; if(last) finish(); else next(); })) return;
     // No completion signal (the Android bridge without isSpeaking):
     // say everything that is left in one utterance and end here.
     var rest = segments.slice(i);
     i = segments.length;
-    heard(rest);
     if(rest.length){ run = run.concat(rest); setVoiceSpeaking(true, null); }
     var text = textOf(run);
     speak(text);
@@ -3731,7 +3818,6 @@ function playVoiceChain(segments){
     function failed(){ if(settled || !alive()) return; settled = true; speakRest(seg); }
     audio.onerror = failed;
     audio.onended = function(){ if(settled || !alive()) return; settled = true; next(); };
-    noteVoiceHeard(seg.hl);
     setVoiceSpeaking(true, seg.hl);
     audio.src = 'assets/audio/' + seg.key + '.mp3';
     var p = audio.play();
@@ -3759,7 +3845,7 @@ var store = { device:{ showNovice:false, notePics:true, rules:null, lastMember:'
 var memberId = 'guest', memberState = null, RULES = DEFAULT_RULES;
 
 function newMemberState(){
-  return { tier:'intermediate', onboarded:false, prefs:null, results:{}, suppress:0, trial:null, times:{}, visits:{}, tapHints:0 };
+  return { tier:'intermediate', onboarded:false, prefs:null, results:{}, suppress:0, trial:null, visits:{}, tapHints:0 };
 }
 function loadStore(){
   try{
@@ -3857,19 +3943,23 @@ function exportLogCSV(){
        applying or registering counts double. Leaving for the
        dashboard first is an abandoned flow.
      - Visits (VISIT_TASKS): opening an account or history page and
-       staying on it. These are what a member does every week, so
-       they are what lets the system move at all: applications happen
-       once or twice a year. Paging through an account's details
-       counts as one more.
+       using it (paging through it, hearing a line, opening its
+       history). These are what a member does every week, so they are
+       what lets the system move at all: applications happen once or
+       twice a year. Paging through an account's details counts as one
+       more. A page only looked at says nothing either way.
    ১২৩ is measured on its own menu instead (voiceMenuPick).
+
+   NO CLOCK. Time on task is never used: in the field a slow task
+   usually means a customer, a child or a goat, not a lack of skill
+   (the AUI guide forbids it for that reason). Only actions count.
 
    SIGNS OF DIFFICULTY (any one makes a task "rough"):
      help       "?" tapped twice during the task
      abandon    a flow left for the dashboard before its done screen
-     slow       a flow took over twice this member's own usual time
-                (the fixed baseline is used until 5 clean samples)
      backspace  three or more corrections on a keypad
-     wrongturn  a page opened and left again within 2 seconds
+     backtrack  a page re-opened after being left without use (going
+                round in a loop looking for something)
      replay     the same button's audio asked for again and again
      deadtaps   three taps on things that aren't buttons
 
@@ -3893,20 +3983,22 @@ function exportLogCSV(){
    ============================================================ */
 // start screen -> { done: { screen that completes it: weight } }
 var FLOW_TASKS = {
-  'screen-loan-apply':             { done:{ 'screen-loan-apply-success':2 }, baselineMs:25000 },
-  'screen-savings-register-input': { done:{ 'screen-savings-register-success':2 }, baselineMs:20000 },
-  'screen-dps-result':             { done:{ 'screen-savings-register-success':2 }, baselineMs:30000, optional:true },
-  'screen-dps-input':              { done:{ 'screen-dps-result':1, 'screen-savings-register-success':2 }, baselineMs:35000 },
-  'screen-loancalc-input':         { done:{ 'screen-loancalc-result':1, 'screen-loan-apply':1 }, baselineMs:35000 },
-  'screen-outstanding-date':       { done:{ 'screen-outstanding-result':1 }, baselineMs:15000 }
+  'screen-loan-apply':             { done:{ 'screen-loan-apply-success':2 } },
+  'screen-savings-register-input': { done:{ 'screen-savings-register-success':2 } },
+  'screen-dps-result':             { done:{ 'screen-savings-register-success':2 }, optional:true },
+  'screen-dps-input':              { done:{ 'screen-dps-result':1, 'screen-savings-register-success':2 } },
+  'screen-loancalc-input':         { done:{ 'screen-loancalc-result':1, 'screen-loan-apply':1 } },
+  'screen-outstanding-date':       { done:{ 'screen-outstanding-result':1 } }
 };
 var VISIT_TASKS = { 'screen-loan-detail':1, 'screen-general-savings-detail':1, 'screen-savings-detail':1,
   'screen-insurance-detail':1, 'screen-loan-history':1, 'screen-general-savings-history':1, 'screen-savings-history':1 };
-var VISIT_CLEAN_MS = 4000, WRONG_TURN_MS = 2000;
+// Pages left without being used since the last result. Opening one
+// of them again is a backtracking loop.
+var leftUnused = [];
 var NUDGE_SCREENS = ['screen-dashboard','screen-loan-apply-success','screen-savings-register-success'];
 
 var flow = null;     // { id, start, flags:{}, help, backs }
-var visit = null;    // { id, start, flags:{}, help, pages }
+var visit = null;    // { id, start, flags:{}, help, pages, used }
 var screenSignals = { deadTaps:0, spoken:{} };
 var nudgeDue = false;
 var pendingNudgeTier = null, pendingNudgeCopy = null, pendingNudgeKind = null;
@@ -3915,7 +4007,6 @@ function tierLadder(){
   return a11yPrefs.showNovice ? ['voice','novice','intermediate','expert'] : ['voice','intermediate','expert'];
 }
 function todayKey(){ var d = new Date(); return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate(); }
-function median(list){ var s = list.slice().sort(function(a, b){ return a - b; }); return s[Math.floor(s.length / 2)]; }
 function flagTask(name){ if(flow) flow.flags[name] = true; if(visit) visit.flags[name] = true; }
 
 // "?" tapped (playSound calls this for every help_ clip)
@@ -3937,10 +4028,16 @@ function noteSpokenAgain(key){
   var n = screenSignals.spoken[key] = (screenSignals.spoken[key] || 0) + 1;
   if(n >= (twoTapOn() ? 3 : 2)) flagTask('replay');
 }
-function notePaged(){ if(visit) visit.pages = (visit.pages || 0) + 1; }
+function notePaged(){ if(visit){ visit.pages = (visit.pages || 0) + 1; visit.used = true; } }
 // Taps that land on nothing: the member expects something to be a button.
+// A tap on a control of the page (not its ?, home or back) means the
+// page is being used.
 document.addEventListener('click', function(e){
-  if(e.target.closest(A11Y_TAPPABLE + ', button, [onclick], [data-say], .overlay, .top-bar')) return;
+  var hit = e.target.closest(A11Y_TAPPABLE + ', button, [onclick], [data-say], .overlay, .top-bar');
+  if(hit){
+    if(visit && hit.closest('.screen.active') && !hit.closest('.help-icon, .home-icon, .back-icon')) visit.used = true;
+    return;
+  }
   if(++screenSignals.deadTaps >= 3) flagTask('deadtaps');
 }, true);
 
@@ -3958,32 +4055,30 @@ function noteTaskNavigation(dest){
     if(flow) endFlow(false, 1);         // a different flow was left mid-way
     flow = { id:dest, start:Date.now(), flags:{} };
   }
-  if(VISIT_TASKS[dest] && !visit) visit = { id:dest, start:Date.now(), flags:{}, pages:0 };
+  if(VISIT_TASKS[dest] && !visit){
+    visit = { id:dest, start:Date.now(), flags:{}, pages:0, used:false };
+    if(leftUnused.indexOf(dest) !== -1) visit.flags.backtrack = true;
+  }
 }
 function endFlow(completed, weight){
   var f = flow, def = FLOW_TASKS[f.id];
   flow = null;
   if(currentTier === 'voice') return;
-  var ms = Date.now() - f.start;
-  var past = memberState.times[f.id] || (memberState.times[f.id] = []);
+  var ms = Date.now() - f.start;   // logged for research only, never judged
   if(!completed){
     if(def.optional) return;
     f.flags.abandon = true;
-  } else if(ms > (past.length >= 5 ? median(past) : def.baselineMs) * 2){
-    f.flags.slow = true;
   }
   var clean = completed && !Object.keys(f.flags).length;
-  if(clean){ past.push(ms); if(past.length > 10) past.shift(); }
   recordTaskOutcome(clean, { task:f.id.replace('screen-', ''), weight:weight, flags:Object.keys(f.flags).join('+'), ms:ms });
 }
 function endVisit(){
   var v = visit;
   visit = null;
   if(currentTier === 'voice') return;
-  var ms = Date.now() - v.start;
-  if(ms < WRONG_TURN_MS) v.flags.wrongturn = true;
+  var ms = Date.now() - v.start;   // logged for research only, never judged
   var rough = Object.keys(v.flags).length > 0;
-  if(!rough && ms < VISIT_CLEAN_MS) return;   // a glance: says nothing either way
+  if(!rough && !v.used){ leftUnused.push(v.id); return; }   // only looked: says nothing yet
   var name = v.id.replace('screen-', '');
   recordTaskOutcome(!rough, { task:'view ' + name, flags:Object.keys(v.flags).join('+'), ms:ms });
   if(!rough && v.pages >= 2) recordTaskOutcome(true, { task:'browse ' + name, ms:ms });
@@ -4002,6 +4097,7 @@ function recordTaskOutcome(clean, info){
     else if(trial.left <= 0) memberState.trial = null;
   }
   nudgeDue = true;
+  leftUnused = [];
   logEvent('task', { task:info.task, clean: clean ? 1 : 0, flags:info.flags || '', ms:info.ms });
   saveMember();
 }
@@ -4269,7 +4365,8 @@ function toggleA11yPref(key){
 }
 
 function doLogout(){
-  hideOverlay('overlay-logout');
+  // Close every dialog, not just this one, so none is left over the login keypad.
+  document.querySelectorAll('.overlay.active').forEach(function(o){ hideOverlay(o.id); });
   logEvent('logout', {});
   // A shared phone shouldn't keep the last person's number on the login screen.
   mobileDigits = '';
@@ -4388,7 +4485,11 @@ function renderLegend(containerId){
 function initDashboard(){
   var loan = demoMember.activeLoan, genSav = demoMember.savingsGeneral, spSav = demoMember.specialSavings;
 
+  var lastLoanPay = latestPay('loan');
   summaryData = [
+    payMissed(lastLoanPay)
+      ? { label:'ব্র্যাক পায়নি ❌', amount: '৳ ০' }
+      : { label:'ব্র্যাক পেয়েছে ✅', amount: formatTaka(lastLoanPay.amount) },
     { label:'বকেয়া কিস্তি', amount: formatTaka(loan.monthlyInstallment) },
     { label:'মোট বকেয়া', amount: formatTaka(loan.outstanding) },
     { label:'চলতি মাসের সঞ্চয়', amount: formatTaka(genSav.lastInstallment) },
@@ -4446,6 +4547,7 @@ function initDashboard(){
   renderHistoryList('savings-history-list', demoMember.specialSavingsHistory);
   renderLegend('savings-history-legend');
 
+  renderReceiptStrips();
   renderProductTabs();
   renderProducts();
   renderCalcHub();
@@ -4488,14 +4590,22 @@ function renderHistoryList(containerId, list){
     showSeeMore = list.length > 3;
   }
 
-  itemsToShow.forEach(function(item){
+  var acc = HISTORY_ACC[containerId];
+  itemsToShow.forEach(function(item, i){
     var row = document.createElement('div');
+    var missed = payMissed(item);
     row.className = 'history-row ' + item.type + (currentTier === 'expert' ? ' compact' : '');
     var iconKey = item.type === 'cash' ? 'channel_branch' : (item.type === 'mobile' ? 'channel_mobile' : 'channel_failed');
     var emoji = item.type === 'cash' ? '🏢' : (item.type === 'mobile' ? '📱' : '❌');
     row.innerHTML = '<div class="history-icon" data-icon="'+iconKey+'" data-emoji="'+emoji+'">'+emoji+'</div>'+
       '<div class="history-info"><div class="history-date">'+item.date+'</div><div class="history-channel">'+item.channel+'</div></div>'+
-      '<div class="history-amount">'+formatTaka(item.amount)+'</div>';
+      '<div class="history-amount">'+(missed ? '' : '✅ ')+formatTaka(item.amount)+'</div>';
+    // Each row says itself: tap to hear (two taps' first in ১২৩/নতুন, its 🔊 in মাঝারি).
+    if(acc){
+      row.setAttribute('data-say', missed ? 'pay_missed' : 'pay_got');
+      row.setAttribute('data-pay', 'row:' + acc + ':' + i);
+      row.onclick = function(){ if(!twoTapOn() && currentTier !== 'expert') playVoiceChain(paySegments(item)); };
+    }
     container.appendChild(row);
   });
 
@@ -4514,7 +4624,7 @@ function renderHistoryList(containerId, list){
 function renderCalcHub(){
   var items = [
     { icon:"loan", emoji:"🤲", title:"ঋণ ক্যালকুলেটর", sub:"ঋণের পরিমাণ ও মেয়াদ দিয়ে মাসিক কিস্তি হিসাব করুন", target:"screen-loancalc-input", say:"btn_calc_loan" },
-    { icon:"savings", emoji:"🏺", title:"ডিপিএস ক্যালকুলেটর", sub:"মাসিক জমা দিয়ে পরিণত মূল্য হিসাব করুন", target:"screen-dps-input", say:"btn_calc_dps" },
+    { icon:"special_savings", emoji:"🎗️", title:"ডিপিএস ক্যালকুলেটর", sub:"মাসিক জমা দিয়ে পরিণত মূল্য হিসাব করুন", target:"screen-dps-input", say:"btn_calc_dps" },
     { icon:"calendar", emoji:"📅", title:"বকেয়া ক্যালকুলেটর", sub:"একটি তারিখ পর্যন্ত বকেয়া হিসাব করুন", target:"screen-outstanding-date", say:"btn_outstanding_calc" }
   ];
   var container = document.getElementById('calc-hub-list');
@@ -4869,6 +4979,95 @@ function moneyPicHTML(amount){
 function setMoneyPic(id, amount){
   var el = document.getElementById(id);
   if(el) el.innerHTML = moneyPicHTML(amount);
+}
+
+/* ============================================================
+   PAYMENT CHECK: "did BRAC really get my money?"
+   ------------------------------------------------------------
+   A member who hands an instalment to a field worker, or sends it by
+   bKash, has to be able to see that BRAC itself recorded it, and to
+   do that without reading. So every account with payments leads with
+   its latest one, in every tier, in as few words as possible: ✅
+   "ব্র্যাক পেয়েছে" in green (or ❌ in red when nothing was recorded for
+   the latest month) and the amount. The details (date, how long ago,
+   branch or bKash) are spoken: a recorded verdict plus the amount and
+   date in the phone's voice.
+   The history pages put a ✅ by every received amount, with a "জমা
+   নেই?" button that gives BRAC's own call centre, deliberately not the
+   field worker who took the money.
+   The app can only show what BRAC's system recorded: its value is
+   that a member can check soon after paying, and act if a payment is
+   missing or smaller than what they handed over.
+   ============================================================ */
+var PAY_ACCOUNTS = {
+  loan:    { list:'loanPaymentHistory',    what:'ঋণের কিস্তি' },
+  savings: { list:'generalSavingsHistory', what:'সঞ্চয়ের জমা' },
+  special: { list:'specialSavingsHistory', what:'বিশেষ সঞ্চয়ের জমা' }
+};
+var HISTORY_ACC = { 'loan-history-list':'loan', 'gensavings-history-list':'savings', 'savings-history-list':'special' };
+function payList(acc){ return demoMember[PAY_ACCOUNTS[acc].list]; }
+function latestPay(acc){ return payList(acc)[0]; }          // newest first
+function payMissed(p){ return p.type === 'missed'; }
+function relDays(d){
+  var now = new Date();
+  var days = Math.round((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+  if(days <= 0) return 'আজ';
+  if(days === 1) return 'গতকাল';
+  if(days < 45) return toBengaliDigits(days) + ' দিন আগে';
+  return toBengaliDigits(Math.round(days / 30)) + ' মাস আগে';
+}
+function payWhere(p){ return p.type === 'mobile' ? 'বিকাশে' : 'ব্রাঞ্চে'; }
+// The changing part, for the phone's voice: amount, date, how long ago, where.
+function paySay(p){
+  return payMissed(p) ? p.date + '।'
+    : spokenTaka(p.amount) + ', ' + p.date + ', ' + relDays(p.when) + ', ' + payWhere(p) + '।';
+}
+// One payment in a list: its date (and amount), then the recorded verdict.
+function paySegments(p){ return [{ text:paySay(p) }, clip(payMissed(p) ? 'pay_missed' : 'pay_got')]; }
+// An account's latest payment: the recorded verdict first.
+function receiptSegments(acc){
+  var p = latestPay(acc);
+  return [clip(payMissed(p) ? 'pay_latest_missed' : 'pay_received'), { text:paySay(p) }];
+}
+// What a button with audio says: its clip, or a payment's own words.
+function sayElSegments(el){
+  var pay = (el.getAttribute('data-pay') || '').split(':');
+  if(pay[0] === 'receipt') return receiptSegments(pay[1]);
+  if(pay[0] === 'row') return paySegments(payList(pay[1])[+pay[2]]);
+  return [clip(el.getAttribute('data-say'))];
+}
+
+// ১২৩ account page: the first (largest) fact is the latest payment.
+function receiptFact(acc){
+  var p = latestPay(acc), missed = payMissed(p);
+  return { receipt: missed ? 'missed' : 'ok', icon: missed ? 'channel_failed' : 'check', emoji: missed ? '❌' : '✅',
+    label: missed ? 'ব্র্যাক পায়নি' : 'ব্র্যাক পেয়েছে',
+    value: missed ? 'জমা হয়নি' : formatTaka(p.amount), amt: missed ? 0 : p.amount,
+    sub: p.date,
+    segs: receiptSegments(acc) };
+}
+// The same, as a strip at the top of each account page in the other tiers.
+function renderReceiptStrips(){
+  Object.keys(PAY_ACCOUNTS).forEach(function(acc){
+    var el = document.getElementById(acc + '-receipt');
+    if(!el) return;
+    var p = latestPay(acc), missed = payMissed(p);
+    el.className = 'receipt-strip ' + (missed ? 'missed' : 'ok');
+    el.setAttribute('data-say', missed ? 'pay_latest_missed' : 'pay_received');
+    el.setAttribute('data-pay', 'receipt:' + acc);
+    el.innerHTML = '<span class="rs-mark" data-icon="' + (missed ? 'channel_failed' : 'check') + '" data-emoji="' + (missed ? '❌' : '✅') + '">' + (missed ? '❌' : '✅') + '</span>' +
+      '<span class="rs-title">' + (missed ? 'ব্র্যাক পায়নি' : 'ব্র্যাক পেয়েছে') + '</span>' +
+      (missed ? '' : '<span class="rs-amt">' + formatTaka(p.amount) + '</span>') +
+      '<span class="rs-go">›</span>';
+    initIcons(el);
+  });
+}
+
+// "I paid but it isn't shown": BRAC's call centre, not the field worker.
+function reportMissingPayment(){
+  logEvent('pay_report', { task: activeScreenId() });
+  if(CONFIG.hotlineTel){ window.location.href = 'tel:' + CONFIG.hotlineTel; return; }
+  showInfoOverlay('📞 ব্র্যাক কল সেন্টার: ' + CONFIG.hotline + '\n(ডেমো — সরাসরি কল করা যাবে না)', 'pay_report');
 }
 
 var lcDigits = '';

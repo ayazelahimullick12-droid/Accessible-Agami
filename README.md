@@ -7,7 +7,7 @@ One codebase, two ways to ship it:
 
 | | What | Where |
 |---|---|---|
-| **The app** | `agami.html` + `assets/` (audio clips, optional icons) | repo root |
+| **The app** | `agami.html` + `assets/` (audio clips, icons) | repo root |
 | **Android APK** | a WebView wrapper that bundles the app and gives it the phone's Bengali voice | `android/` |
 | **Website** | the same files served as a static site | `render.yaml` |
 
@@ -21,22 +21,38 @@ in automatically, and Render redeploys from GitHub.
   (everything at once).
 - **It adapts, but the member decides.** The app scores how each task goes and offers to move a member up or
   down a tier. See *How the adaptation works* below.
-- **Nothing scrolls.** Every screen fits the phone it is opened on; long pages are split into steps or pages.
+- **Nothing scrolls.** Every screen and dialog fits the phone it is opened on; long pages are split into
+  steps or pages.
 - **Everything can be heard.** In ১২৩ and নতুন, the first tap on a button says what it does and a second tap
   does it. মাঝারি has a small 🔊 on each button. Pages, dialogs and tier offers speak for themselves in the
-  two guided tiers, with a 🔊/🔇 switch in the top bar.
+  two guided tiers, with a 🔊/🔇 switch in the top bar. Balances are never read out on their own: in ১২৩
+  the account page says how to hear them, and they are spoken when a line is tapped or ০ is pressed, so
+  people nearby don't hear them by default.
 - **Amounts as pictures.** In ১২৩ and নতুন, sums are also drawn as taka notes, including while typing.
+- **Pictures from village life.** Icons are drawn for the members the app is for: a hand with bangles
+  receiving taka (ঋণ), a clay money bank (সঞ্চয়), a tin-roof house (হোম), a woman in a saree (প্রোফাইল), the
+  passbook (ইতিহাস). They are SVGs in `assets/icons/`; see the note there to swap one for your own picture.
+- **"Did BRAC get my money?"** A member who hands a payment to a field worker can check that BRAC recorded
+  it, without reading:
+  - Each account page and the dashboard lead with the latest payment: ✅ green when BRAC received it, ❌ red
+    for a month with nothing received. In ১২৩ it is the first line of the account page.
+  - Every history row says whether BRAC received it, and each history page has a "paid, but not here?"
+    button that gives BRAC's own call-centre number, not the field worker's.
+  - The number is `CONFIG.hotline` in `agami.html`. Set `CONFIG.hotlineTel` to make the button dial it.
 - **Each member has their own settings**, kept under the mobile number they log in with, because phones are
   shared.
 
 ## How the adaptation works
 
-- **What is measured:** everyday tasks (opening an account or history page and staying on it, paging through
-  its details, using a calculator) and the rarer applications, which count double. ১২৩ is measured on its own
-  menu: picking a number before the voice reads it out, then staying on that page.
-- **Signs of difficulty:** two taps on **?**, abandoning a task, taking over twice the member's own usual
-  time, three keypad corrections, opening a page and leaving within 2 seconds, replaying the same button's
-  audio, and three taps on things that aren't buttons.
+- **What is measured:** everyday tasks (opening an account or history page and using it: paging through its
+  details, hearing a line, opening its history; using a calculator) and the rarer applications, which count
+  double. A page only looked at counts neither way. ১২৩ is measured on its own menu: picking a number
+  without asking for help (no ০ or ? first).
+- **No clock.** Time on task is never used to judge skill, as the AUI guide requires: in the field a slow
+  task usually means an interruption, not a lack of skill. Only actions count.
+- **Signs of difficulty:** two taps on **?**, abandoning a task, three keypad corrections, going round in a
+  loop (re-opening a page that was left without being used), replaying the same button's audio, and three
+  taps on things that aren't buttons.
 - **The rule:** of the last 10 results in a tier, 8 clean ones spread over 3 different days offer the next
   tier up; 6 rough ones offer the tier below.
 - **The offer** only appears on the dashboard or a success page. Declining rests it for 3 tasks (10 when it
@@ -55,7 +71,7 @@ lets you:
   start again from "choose your level".
 
 To show a tier offer live: choose *Demo rules*, go to the dashboard in মাঝারি, then open an account page,
-wait about 5 seconds, and go back. After the fourth time the offer appears.
+tap its › arrow (or a 🔊), and go back. After the fourth time the offer appears.
 
 **For a QR code:** a link ending in `?rules=demo`
 (`https://accessible-agami.onrender.com/?rules=demo`) puts whoever opens it on the demo rules without

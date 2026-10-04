@@ -1,5 +1,10 @@
-Optional: drop your custom icon PNGs here (this assets/icons/ folder;
-the Android build copies it into the APK automatically) once they're
-ready — e.g. loan.png, savings.png, speaker.png, etc. Until then, the
-app automatically falls back to the built-in emoji for any icon that's
-missing, so this folder can safely stay empty for now.
+The app's icons live here as SVG drawings (loan.svg, savings.svg, home.svg ...).
+They are flat pictures of things from village life: a hand with bangles
+receiving taka, a clay money bank, a tin-roof house, a woman in a saree,
+a passbook, a kolshi full of coins.
+
+To use your own picture for one of them: save it here as a PNG with the same
+name (for example savings.png) and delete the .svg. If neither file exists,
+the app shows the emoji written in the page instead.
+
+The Android build and the Render site pick up this folder automatically.
